@@ -1,0 +1,52 @@
+---
+title: 'Task 1: Introduction/Installing Software'
+author: "Ted Laderas"
+date: "June 9, 2016"
+output: pdf_document
+---
+
+In this module, we'll give an overview to the larger assignment and a gentle introduction to R/Rstudio.
+
+##Motivation 
+
+The LACE score is a summary score used in clinical data that is derived from 4 key clinical data elements in order to predict the probability of 30-day readmissions. Here are the individual elements of the LACE score:
+
+* L = Length of stay
+* A = acuity of admission
+* C = Comorbidities (scored by severity, and additive)
+* E = Number of Emergency room admits 6 months prior to admission
+
+In class on-campus, we will calculate each of these elements. Added together, the LACE score ranges from 1-14. The higher the score, the more likely the probability of readmission.
+
+Your overall goal in the pre-work will be to identify those cases in the dataset that are readmissions within a 30 day period. These are the cases for which we will then calculate the LACE score (in-class, on-campus) and examine how well it predicts readmissions.
+
+##Installing Software
+
+Your goal this week will be to install two pieces of software that we'll use for analysis: R and Rstudio. Once you've installed it, we'll take a look at the interface, load in a built-in dataset, and do some simple summary statistics.
+
+The first thing to do is to install R. Go to https://cran.r-project.org and download the appropriate binary for your system. If you are on a linux system and there is not a previously compiled binary for your distribution, you will need to install it with a package manager, such as `apt-get`. R is the statistical language that we are going to do all of our work in. 
+
+Secondly, we will install Rstudio. Rstudio is what's called an *Integrative Development Environment* (IDE), which will make working with R much easier. In order to use it, you need to have R installed.
+
+##Loading a built-in dataset and doing some summary statistics
+
+Okay, now let's take a look at R-studio. Your first thing to notice is that there are two main windows on your left: The console window (the bottom window) and the scripting window (the top window).
+
+In the console window, load the built in Iris dataset with the `data()` command. This loads in a built in dataset called `iris`. Try this, and try getting help on this dataset by using `?iris`.
+
+```{r}
+data(iris)
+#For more information, type the following in:
+?iris
+```
+
+After reading the help file, we now know that the iris dataset is in `data.frame` format. This is the basic format that we'll be using for tables in R. Knowing we have 
+
+```{r}
+
+```
+
+##Completing your assignment
+
+Load up the `mtcars` dataset using the `data()` command. How many 8 cylinder cars are in this dataset? Answer the quiz.
+

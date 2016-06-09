@@ -1,0 +1,35 @@
+---
+title: 'Task 2: Loading External Datasets/Descriptive Statistics'
+author: "Ted Laderas"
+date: "June 9, 2016"
+output: pdf_document
+---
+
+##Goals for this week
+
+This week we will download the datasets, load them into R, and do some more simple descriptive statistics on them.
+
+##The concept of a working directory
+
+Let's load up Rstudio again. You can find out what your *working directory* is with the `getwd()` command.
+
+```{r}
+getwd()
+
+##list all the files in my current working directory
+list.files()
+```
+
+##Loading in Data
+
+```{r}
+summary(cars)
+```
+
+You can also embed plots, for example:
+
+```{r, echo=FALSE}
+plot(cars)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
