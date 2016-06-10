@@ -1,0 +1,98 @@
+reasonID|reason|WebUsed
+5|Depression|1
+9|Status Check|1
+10|Connections to Resources|1
+13|Coordination of Care|1
+15|Diabetes|1
+16|Clinical Protocol(s)|1
+17|Goals|1
+18|Functional Status|1
+19|Medication Check/Assistance|1
+20|Family/Caregiver Check|1
+22|Referral/Specialist|1
+23|Education|1
+24|Smoking Cessation|1
+25|Preventative Care|1
+26|Prenatal Care|1
+27|Coaching|1
+28|Administrative|1
+29|Needs Assessment/Care Planning|1
+31|MHI F/U|0
+32|Depression|0
+34|Diabetes|0
+35|PHQ-9 F/U|0
+36|Medication Check/Assistance|0
+37||0
+38|DEA Screen|0
+39|Connections to Resources|0
+40|Status Check|0
+41|DMS|0
+42|ADHD|0
+43|Dysmetabolic|0
+44|dys met syn|0
+45|Pre DM|0
+46|PHQ9|0
+47|dm|0
+48|dys met syn/PHQ9 update|0
+49|re-refered|0
+50|MHI  FU|0
+51|dys met syn/Depression F/U|0
+52|obesity|0
+53|c|0
+54|Dys Met Syn & PHQ9|0
+55|DMS/depression|0
+56|Malnutrition|0
+57|dif. Patient|0
+58|re - ref. DM|0
+59|gest. DM|0
+60|Hypoglycemia|0
+61|DMS/depressiion|0
+62|Anorexia|0
+63|MHI|0
+64|dmf|0
+65|DMS/ depression|0
+66|Dysmetabolic Syndrom|0
+67|DM/hyperlipidemia|0
+68|PHQ-9 F/U / Anorexia|0
+69|challenge|0
+70|mhi/phq9|0
+71|DMS/HTN|0
+72|challanging patient|0
+73|anxiety|0
+74|ADHA|0
+75|gestational DM|0
+76|discharge|0
+77|DMS/PHQ9|0
+78|dys mt syn|0
+79|cardiac rehab|0
+80|DMS, phq9 f/u|0
+81|dif. Pt.|0
+82|Dys met synd|0
+83|getstational DM|0
+84|Anorexia/PHQ9|0
+85|DSM|0
+86|re-ref. For DM|0
+87|Dysmetabolic Sundrom|0
+88|Hyperlipidemia|0
+89|GI disease|0
+90|challanging  patient|0
+91|BIPOLAR  f/u|0
+92|dys met syn/phq9|0
+93|Coordination of Care|0
+94|Depression F/U (Including PHQ9)|0
+95|Clinical Protocol(s)|0
+96|Goals|0
+97|Undefined|1
+98|Referral/Specialist|0
+99|Prenatal Care|0
+100|Smoking Cessation|0
+101|Administrative|0
+102|Education|0
+103|Coaching|0
+104|Family/Caregiver Check|0
+105|Preventative Care|0
+106|Functional Status|0
+107|Needs Assessment/Care Planning|0
+108|Transition of Care|1
+109|Program Enrollment|1
+110|Utilization Avoidance|1

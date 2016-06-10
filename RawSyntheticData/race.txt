@@ -1,0 +1,8 @@
+Race_ID|Race
+1|White/Caucasian
+2|Am Indian/Alaskan Native/AMERICAN INDIAN
+3|Black/African Am
+4|Asian/Chinese/Japanese/Korean/Pacific Islander
+5|Hispanic/Chicano/Cuban/Mexican/Puerto Rican/Latino
+6|Other
+7|Unknown

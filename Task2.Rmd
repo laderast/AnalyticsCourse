@@ -9,6 +9,12 @@ output: pdf_document
 
 This week we will download the datasets, load them into R, and do some more simple descriptive statistics on them.
 
+Download the synthetic dataset here, unzip it, and place the folder somewhere easily accessible (the Desktop is fine for now). 
+
+You will want to start a project in this folder, since you will be accessing this data for the rest of the pre-work and the in-class sessions. (Go to ">File>New Project>Create Project in Existing Directory" and select the folder.) 
+
+If you do this, you can just click on the .Rproj file it generates and have everything easily accessible. R will able to "see" all of the data files in this folder.
+
 ##The concept of a working directory
 
 Let's load up Rstudio again. You can find out what your *working directory* is with the `getwd()` command.
@@ -16,20 +22,49 @@ Let's load up Rstudio again. You can find out what your *working directory* is w
 ```{r}
 getwd()
 
-##list all the files in my current working directory
+#list all the files in my current working directory 
+#(these are the files in my current working directory)
 list.files()
+```
+
+You can set your working directory using the `setwd()` command. Here my data files are in the `~/Code/AnalyticsCourse/RawSyntheticData` folder, so I'll set it there:
+
+```{r}
+setwd("~/Code/AnalyticsCourse/RawSyntheticData/")
+#confirm R can 'see' your files
+list.files()
+
+#change it back
+setwd("~/Code/AnalyticsCourse/")
 ```
 
 ##Loading in Data
 
+Now that we've set our working directory, we can now load our data. Before you do this, you will want to check the readme file to let you know if there are any issues.
+
+Opening the file `patient.txt` in a text editor, we notice a few things. The fields are separated by the `|` character, so we need to specify that. Also, there is a header for the file.
+
 ```{r}
-summary(cars)
+patient <- read.table("RawSyntheticData/patient.txt", sep = "|", header=TRUE)
+
+#confirm that we have loaded the data directly.
+head(patient)
 ```
 
-You can also embed plots, for example:
+Now that we have the data loaded, we can confirm some properties of the data. Let's do a `summary()` first to get a basic idea of what the data looks like. How many patients are High risk versus Normal Risk? (look at the `riskCat` field.)
 
-```{r, echo=FALSE}
-plot(cars)
+```{r}
+summary(patient)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+We can see that 
+
+##This Week's Assignment
+
+Load in the `patient_encounter.txt` file. How many No shows were there in the dataset? (Look in the outcome field). If we want to count the number of readmissions, do we want patients with these values?
+
+Save your code to load 
+
+```{r}
+
+```
