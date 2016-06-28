@@ -96,6 +96,10 @@ numberFemalePatients
 ```
 
 ##This Week's Goal
+=======
+##Running a Simple Query
+
+Let's ask a simple question. How many 
 
 Load the rest of your tables into your SQLite Database. Construct a query for each table to confirm that the number of rows of each loaded table is identical to the number of rows in the corresponding table you loaded into R.  
 

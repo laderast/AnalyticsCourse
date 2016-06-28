@@ -10,6 +10,7 @@ This week we will be querying our database. We'll also be doing simple joins and
 If you haven't done last week's assignment (loading the dataset into SQLite), please do it now.
 
 ##Queries with joins
+=======
 
 ```{r}
 summary(cars)

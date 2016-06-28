@@ -9,7 +9,11 @@ output: pdf_document
 
 **Background:**  In the analytics class, you will have a miniature data warehouse that will be accessed by R and SQLite.  In order to do this, you will load a set of 7 flat files into a SQLite database, which will serve as your data warehouse.  After you do this, you will need to record key information in your data dictionary about these tables.
 
+<<<<<<< HEAD
 Load the flat files `patient_encounter_hosp.txt` and `patient.txt` into a SQLite database using R; these files are both delimited by a pipe “|” and contain variable names in the header.  Use a SQL query to return the number of readmissions within 30 days contained in the dataset; note that there is not a variable for readmissions, but the file is limited to initial hospitalizations and readmissions.  Use an R query or SQL to summarize the readmission rate, either by count or percent or both. 
+=======
+Load the flat file ‘patient_encounter_hosp.txt’ and ‘patient.txt’ into both SQLite and R; these files are both delimited by a pipe “|” and contain variable names in the header.  Use a SQL query to return the number of readmissions within 30 days contained in the dataset; note that there is not a variable for readmissions, but the file is limited to initial hospitalizations and readmissions.  Use an R query or SQL to summarize the readmission rate, either by count or percent or both. 
+>>>>>>> 05cfa621a4ab7656b954e6aea0255eb7ad25f33e
 
 Some hints:  The `patient_encounter_hosp` file should have one to two observations per patient, each observation a specific hospitalization.  The analyst has subset the file for you to assure there are only INDEX admissions and READMISSIONS.  They do not look different, however, so you'll have to do some date differences across patientid to find readmissions.
 
