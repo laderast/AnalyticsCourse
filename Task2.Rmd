@@ -9,7 +9,7 @@ output: pdf_document
 
 This week we will download the datasets, load them into R, and do some more simple descriptive statistics on them.
 
-Download the synthetic dataset here, unzip it, and place the folder somewhere easily accessible (the Desktop is fine for now). 
+Download the [synthetic dataset here](https://ohsu.box.com/s/xqios7ryxzfj7ztgc1y77hz68c94gni9), unzip it, and place the folder somewhere easily accessible (the Desktop is fine for now). 
 
 You will want to start a project in this folder, since you will be accessing this data for the rest of the pre-work and the in-class sessions. (Go to ">File>New Project>Create Project in Existing Directory" and select the folder.) 
 
@@ -51,20 +51,14 @@ patient <- read.table("RawSyntheticData/patient.txt", sep = "|", header=TRUE)
 head(patient)
 ```
 
-Now that we have the data loaded, we can confirm some properties of the data. Let's do a `summary()` first to get a basic idea of what the data looks like. How many patients are High risk versus Normal Risk? (look at the `riskCat` field.)
+Now that we have the data loaded, we can confirm some properties of the data. Let's do a `summary()` first to get a basic idea of what the data looks like. How many patients are High risk versus Normal Risk? (Hint: look at the `riskCat` field.)
 
 ```{r}
 summary(patient)
+nrow(patient)
+colnames(patient)
 ```
-
-We can see that 
 
 ##This Week's Assignment
 
-Load in the `patient_encounter.txt` file. How many No shows were there in the dataset? (Look in the outcome field). If we want to count the number of readmissions, do we want patients with these values?
-
-Save your code to load 
-
-```{r}
-
-```
+Load in the `patient_encounter.txt` file into R, and confirm that you loaded it correctly. How many `No shows` were there in the dataset? (Look in the outcome field). If we want to count the number of readmissions, would we want patients with these values?

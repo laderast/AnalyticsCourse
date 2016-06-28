@@ -15,7 +15,7 @@ The first thing you need to do is install the RSQLite package into R. This packa
 install.packages("RSQLite")
 ```
 
-Now that you have the RSQLite package, you need to load it up with the `library()` command.
+Now that you have the RSQLite package, you need to load it up with the `library()` command. Note that you will have to do this each time you want to use the package.
 
 ```{r}
 library(RSQLite)
@@ -23,7 +23,7 @@ library(RSQLite)
 
 ##Initializing the Database File for Our Data Warehouse
 
-The first thing we need to do is initialize our database file and connect to it. SQLite store an entire database into a single file. By using the `dbConnect()` command, we initialize a new SQLite database called "patient.sqlite". Note that if this database file already existed in our working directory, then we'd just be connecting to it.
+The first thing we need to do is initialize our database file and connect to it. SQLite store an entire database into a single file. By using the `dbConnect()` command, we initialize a new SQLite database called "patient.sqlite". Note that if this database file already existed in our working directory, then we'd just be connecting to it, rather than creating it.
 
 ```{r}
 SQLiteConnection <- dbConnect(drv=SQLite(),dbname="patient.sqlite")
@@ -42,7 +42,7 @@ dbDisconnect(SQLiteConnection)
 
 Confirm that you saved the data in your SQLite database correctly by running a query on the table. Here we're just counting the number of patients by counting the number of patient IDs.
 
-The first thing we do is set up the query, which counts the number of rows in our newly saved table in our database.
+The first thing we do is set up the query, which counts the number of rows in our newly saved table in our database. By using `dbGetQuery()`, we run the query and fetch the result as a `data.frame`. 
 
 ```{r}
 #show number of rows in table
@@ -60,15 +60,42 @@ res <- dbGetQuery(SQLiteConnection, sqlStatement)
 #show result
 res
 
-#note that if our result returns a table, we need to use the fetch() command to
-#return it as a data.frame (more about this next week).
-
 #Confirm the two are equal
 nrow(patient) == res
 ```
 
-##This Week's Assignment
+Note that if you think the result of your query will return a large data table (in the millions of rows), using `dbGetQuery()` may not be the best way to get your result. (note that it is fine for all assignments for this class).  We can instead use a combination of `dbSendQuery()` and `fetch()` in a `while` loop to fetch results a thousand rows at a time.
+
+```{r}
+#note that if we think that our result will return a very large table, 
+#we should probably use the fetch() command in a while loop
+#return it as a data.frame (more about this next week).
+
+```
+
+##Running a Simple Query
+
+Let's ask a simple question about the `patient` table. How many females patients are there? There are two ways we can do this. The first would be to select those patients that are female with a `SELECT` statement
+
+```{r}
+sqlStatement <- "select * from patient WHERE Gender == 'Female'"
+
+femalePatients <- dbGetQuery(SQLiteConnection, sqlStatement)
+
+nrow(femalePatients)
+```
+
+Or, we can combine our statement with the `count` statement from above and get the answer directly.
+
+```{r}
+sqlStatement <- "select count(*) from patient WHERE Gender == 'Female'"
+
+numberFemalePatients <- dbGetQuery(SQLiteConnection, sqlStatement)
+
+numberFemalePatients
+```
+
+##This Week's Goal
 
 Load the rest of your tables into your SQLite Database. Construct a query for each table to confirm that the number of rows of each loaded table is identical to the number of rows in the corresponding table you loaded into R.  
 
-Submit a copy of your data loading script, with comments.
