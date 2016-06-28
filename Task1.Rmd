@@ -7,18 +7,20 @@ output: pdf_document
 
 In this module, we'll give an overview to the larger assignment and a gentle introduction to R/Rstudio.
 
-##Motivation 
+##Motivation for Prework
 
 The LACE score is a summary score used in clinical data that is derived from 4 key clinical data elements in order to predict the probability of 30-day readmissions. Here are the individual elements of the LACE score:
 
 * L = Length of stay
-* A = acuity of admission
+* A = Acuity of admission
 * C = Comorbidities (scored by severity, and additive)
 * E = Number of Emergency room admits 6 months prior to admission
 
-In class on-campus, we will calculate each of these elements. Added together, the LACE score ranges from 1-14. The higher the score, the more likely the probability of readmission.
+In class on-campus, we will calculate each of these elements. Added together, the LACE score ranges from 1-14. The higher the score, the higher the probability of readmission.
 
 Your overall goal in the pre-work will be to identify those cases in the dataset that are readmissions within a 30 day period. These are the cases for which we will then calculate the LACE score (in-class, on-campus) and examine how well it predicts readmissions.
+
+In order to achieve this goal, we will be slowly be exploring R and SQL over the next seven weeks of on-campus work.
 
 ##Installing Software
 
@@ -26,11 +28,13 @@ Your goal this week will be to install two pieces of software that we'll use for
 
 The first thing to do is to install R. Go to https://cran.r-project.org and download the appropriate binary for your system. If you are on a linux system and there is not a previously compiled binary for your distribution, you will need to install it with a package manager, such as `apt-get`. R is the statistical language that we are going to do all of our work in. 
 
-Secondly, we will install Rstudio. Rstudio is what's called an *Integrative Development Environment* (IDE), which will make working with R much easier. In order to use it, you need to have R installed.
+Secondly, we will install Rstudio. Go to http://www.rstudio.com and install the appropriate version for your system. Rstudio is what's called an *Integrative Development Environment* (IDE), which will make working with R much easier. In order to use it, you need to have R installed.
 
 ##Loading a built-in dataset and doing some summary statistics
 
-Okay, now let's take a look at R-studio. Your first thing to notice is that there are two main windows on your left: The console window (the bottom window) and the scripting window (the top window).
+Now that everything is installed, open up RStudio. Your first thing to notice is that there are two main windows on your left: The console window (the bottom window) and the scripting window (the top window). We will mostly work by writing scripts in scripting window and executing them in the console window by highlighting the code and using the Run command or CTRL-Enter (for Windows/Linux) or CMD-Enter (for Macs).
+
+![RStudio Console Image](image/consolewindow.jpg)
 
 In the console window, load the built in Iris dataset with the `data()` command. This loads in a built in dataset called `iris`. Try this, and try getting help on this dataset by using `?iris`.
 
@@ -40,13 +44,36 @@ data(iris)
 ?iris
 ```
 
-After reading the help file, we now know that the iris dataset is in `data.frame` format. This is the basic format that we'll be using for tables in R. Knowing we have 
+After reading the help file, we now know that the iris dataset is in `data.frame` format. This is the basic format that we'll be using for tables in R. We'll explore some properties of the data.frame by 
+
+The first thing is to look at the data directly. If we use the `head()` command we can see the first few rows of the iris data. Each row in the `iris` data corresponds to a single flower that has been measured, and each column corresponds to a variable that was measured on that flower. 
 
 ```{r}
-
+head(iris)
 ```
 
-##Completing your assignment
+**QUESTION**: How many rows did `head()` return? 
 
-Load up the `mtcars` dataset using the `data()` command. How many 8 cylinder cars are in this dataset? Answer the quiz.
+We may want to know more information about the dataset. We can do some simple summary statistics by using the `summary()` function. Depending on the datatype of the column (numeric, character, or factor), we can calculate different summary statistics on the dataset. 
+
+```{r}
+summary(iris)
+```
+
+**QUESTION**: How many `setosa` samples are there in the iris dataset? 
+
+**QUESTION**: What is the maximum `Sepal.Length`? What units is it in? (Hint: look at the help file for the dataset again.)
+
+We might also want to know how many columns and rows there are in the dataset. We can use the `ncol()` and `nrow()` commands to find these
+
+```{r}
+nrow(iris)
+ncol(iris)
+```
+
+**QUESTION**: How many rows are there total?
+
+##For more information
+
+Please refer to R-Bootcamp, Modules 1 and 2 for more information on the Rstudio software and `data.frames`.
 

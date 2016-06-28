@@ -23,7 +23,7 @@ library(RSQLite)
 
 ##Initializing the Database File for Our Data Warehouse
 
-The first thing we need to do is initialize our database file and connect to it. SQLite store an entire database into a single file. By using the `dbConnect()` command, we initialize a new SQLite database called "patient.sqlite". Note that if this database file already existed in our working directory, then we'd just be connecting to it.
+The first thing we need to do is initialize our database file and connect to it. SQLite store an entire database into a single file. By using the `dbConnect()` command, we initialize a new SQLite database called "patient.sqlite". Note that if this database file already existed in our working directory, then we'd just be connecting to it, rather than creating it.
 
 ```{r}
 SQLiteConnection <- dbConnect(drv=SQLite(),dbname="patient.sqlite")
@@ -42,7 +42,7 @@ dbDisconnect(SQLiteConnection)
 
 Confirm that you saved the data in your SQLite database correctly by running a query on the table. Here we're just counting the number of patients by counting the number of patient IDs.
 
-The first thing we do is set up the query, which counts the number of rows in our newly saved table in our database.
+The first thing we do is set up the query, which counts the number of rows in our newly saved table in our database. By using `dbGetQuery()`, we can combine 
 
 ```{r}
 #show number of rows in table
@@ -67,8 +67,11 @@ res
 nrow(patient) == res
 ```
 
+##Running a Simple Query
+
+Let's ask a simple question. How many 
+
 ##This Week's Assignment
 
 Load the rest of your tables into your SQLite Database. Construct a query for each table to confirm that the number of rows of each loaded table is identical to the number of rows in the corresponding table you loaded into R.  
 
-Submit a copy of your data loading script, with comments.

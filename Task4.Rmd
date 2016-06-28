@@ -5,7 +5,9 @@ date: "June 9, 2016"
 output: pdf_document
 ---
 
-This week we will be querying our database. We'll also be doing simple joins and queries to show the power of SQLite.
+This week we will be querying our database. We'll also be doing simple joins and queries to show the power of SQLite. We'll also be using the CASE statement to identify cases that meet our criteria.
+
+If you haven't done last week's assignment (loading the dataset into SQLite), please do it now.
 
 ```{r}
 summary(cars)
