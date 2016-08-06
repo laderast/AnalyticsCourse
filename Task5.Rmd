@@ -2,24 +2,135 @@
 title: 'Task 5: SQLite: Self Joins/Working with Dates'
 author: "Ted Laderas"
 date: "June 9, 2016"
-output: html_document
+output: pdf_document
 ---
 
-This is the final optional assignment. After this assignment, you should be able to conduct the queries.
+This is the final optional assignment. After this assignment, you should be able to conduct the queries required for the prework assignment.
 
-##Working with Dates
+#Working with Dates
 
-The one thing to note is that the RSQLite package does not work well with dates. For this reason, you should restrict your queries with dates using R.
+The one thing to note is that working with dates in R is very kludgy. Although SQLite technically does not have a date type, it includes some simple functionality for manipulating strings as dates. For this reason, you should restrict your queries with dates within RSQLite. Specifically, we are going to use the `date()` function that is built within SQLite to do our date queries. Let's first connect to the database.
+
+```{r warning=FALSE}
+#load the RSQLite library
+library(RSQLite)
+
+#connect to our database
+#if you have named your database differently, change the dbname argument
+SQLiteConnection <- dbConnect(drv=SQLite(), dbname="patient.sqlite")
+```
+
+The `date()` function is a function that is built into SQLite that handles strings as dates. There are a number of different formats that it will accept, one of which is the `YYYY-MM-DD` format that our data is in.
+
+Here we use the `date()` function to compare two columns in the `patient_encounter_hosp` table, to select any patients who were admitted and discharged on the same day:
 
 ```{r}
-summary(cars)
+
+sqlStatement <- "select patientid, Event_ID, Admit_date, Discharge_date
+                  from patient_encounter_hosp as peh where
+                           date(Discharge_date) = date(Admit_date)" 
+
+queryResult <- dbGetQuery(SQLiteConnection, sqlStatement)
+
+queryResult[1:15,]
+
 ```
 
-##Self-Joins
+Within our query, we can also do some arithmetic on dates using *modifiers*. For example, we can subtract a number from a date using a modfier to the `date()` function and get a date back. Here we add 10 days to `Discharge_date` using the `+10 day` modifier. Note that we have to use single quotes for `+10 Day` and that there can't be any whitespace between `+` and `10`.
 
-Self-joins on a table can be extremely useful when we need to identify rows within a table that meet criteria based on other rows in the table. For example, we may want to identify the first date a patient was admitted (the index admission date).
+```{r}
+sqlStatement <- "select patientid as pehPatientID, Event_ID as pehEventID, 
+                  Admit_date, Discharge_date,
+                 date(Discharge_date, '+10 day') as Discharge_date10
+                          from patient_encounter_hosp peh" 
 
-```{r, echo=FALSE}
-plot(cars)
+queryResult <- dbGetQuery(SQLiteConnection, sqlStatement)
+
+queryResult[1:15,]
+
 ```
 
+We can use these `date()` modifiers to do specific date comparisons, such as finding those patients which have had a hospital stay shorter than 5 days:
+
+```{r}
+sqlStatement <- "select patientid as pehPatientID, Event_ID as pehEventID, 
+                          Admit_date, Discharge_date
+                          from patient_encounter_hosp where
+                           date(Discharge_date, '-5 day') < date(Admit_date)" 
+
+queryResult <- dbGetQuery(SQLiteConnection, sqlStatement)
+
+queryResult[1:20,]
+
+```
+
+#Self-Joins
+
+Self-joins on a table can be extremely useful when we need to identify rows within a table that meet criteria based on other rows in the table. The classic example where a self join is useful is an `employee` table which has a column that shows who that employee reports to. This boss is also in the employee table, and so doing a self-join lets us parse the hierarchical structure of employees in the table.
+
+In our case, we want to identify the first date a patient was admitted (the index admission date). We know that the `patient_encounter_hosp` table only has two kinds of encounters in it. The first kind of encounter is the `index` encounter, i.e., the first date when the patient was admitted. The other kind of encounter are readmission encounters.  In other words, in the `patient_encounter_hosp` table, each patient has at most two encounters. 
+
+Let's identify the index encounters first. We need to use a `CASE` statement to mark them (1 if an index case, 0 if not), and we will use a self-join to find them. Since we know that each patient has at most two entries, we just need to identify those cases
+
+```{r}
+#load the RSQLite library
+library(RSQLite)
+
+#connect to our database
+#if you have named your database differently, change the dbname argument
+SQLiteConnection <- dbConnect(drv=SQLite(),dbname="patient.sqlite")
+
+sqlStatement <- "select peh.patientid as pehPatientID, peh.Event_ID as pehEventID, 
+                  peh.Admit_date as pehAdmitDate, peh2.patientid as peh2PatientID, 
+                  peh2.Event_ID as peh2EventID, peh2.Admit_date as peh2AdmitDate 
+                          from patient_encounter_hosp peh 
+                          left join patient_encounter_hosp peh2 on  
+                          peh.patientID=peh2.patientID" 
+
+queryResult <- dbGetQuery(SQLiteConnection, sqlStatement)
+
+queryResult[1:15,]
+```
+
+At first glance, this self join is not very useful. We have just basically generated every combination of peh and peh2 event IDs. But if we add a filtering criterion to this, the self-join becomes much more useful.
+
+```{r}
+sqlStatement <- "select peh.patientid as pehPatientID, peh.Event_ID as pehEventID, 
+                  peh.Admit_date as pehAdmitDate, peh2.patientid as peh2PatientID, 
+                  peh2.Event_ID as peh2EventID, peh2.Admit_date as peh2AdmitDate 
+                          from patient_encounter_hosp peh 
+                          left join patient_encounter_hosp peh2 on  
+                          peh.patientID=peh2.patientID
+                          and date(peh2.admit_date) < date(peh.admit_date)" 
+
+queryResult <- dbGetQuery(SQLiteConnection, sqlStatement)
+
+queryResult[1:15,]
+```
+
+Let's examine this self-joined table in further detail. The index cases appear to be the rows which have `NA` values for the `peh2` values (`peh2PatientID`, `peh2EventID` and `peh2AdmitDate`).  In the database, these queries actually have the `NULL`. So if we find those rows for which `peh2.admit_date` is null, then those are our index cases. We then define an `case` statement to code this result for the original `peh` table.
+
+```{r}
+sqlStatement <- "select peh.*, case when peh2.admit_date is null then 1
+                          else 0 end as index_admit
+                          from patient_encounter_hosp peh 
+                          left join patient_encounter_hosp peh2 on  
+                          peh.patientID=peh2.patientID and 
+                          date(peh2.admit_date) < date(peh.admit_date)"
+queryResult <- dbGetQuery(SQLiteConnection, sqlStatement)
+
+queryResult[1:15,]
+```
+
+Looking at this result, we have correctly identified the index admission dates. (Look at rows 1 and 2 (patient 1), and rows 6 and 7 (patient 5) for confirmation). Note that many patients only have a single admission date. 
+
+#Putting it all together
+
+Your final problem in the prework is to identify the `index_admit` cases in the `patient_encounter_table` which have a readmission within 30 days of the `index_admit`'s discharge date. Code this as a case statement and save the results as another variable called `readmit30` in your table. Your final table should look like this:
+
+```{r echo=FALSE}
+tab <- read.delim("peh_example.txt")
+tab[1:10,]
+```
+
+There are multiple routes to do this: You can first identify the index cases, save that version of `patient_encounter_hosp` as a table in your database, and then identify the cases within the index variable. However, you can also combine the two cases into a single statement, because we know that there are only two types of entries in these table. How could you do that? (Hint: you will have to do another self-join.)

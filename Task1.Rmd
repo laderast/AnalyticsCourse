@@ -75,5 +75,5 @@ ncol(iris)
 
 ##For more information
 
-Please refer to R-Bootcamp, Modules 1 and 2 for more information on the Rstudio software and `data.frames`.
+Please refer to R-Bootcamp, [Module 1](https://github.com/laderast/r-bootcamp/tree/master/module1) and [Module 2](https://github.com/laderast/r-bootcamp/tree/master/module2) for more information on the Rstudio software and `data.frames`.
 

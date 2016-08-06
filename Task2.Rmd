@@ -9,11 +9,11 @@ output: pdf_document
 
 This week we will download the datasets, load them into R, and do some more simple descriptive statistics on them.
 
-Download the [synthetic dataset here](https://ohsu.box.com/s/xqios7ryxzfj7ztgc1y77hz68c94gni9), unzip it, and place the folder somewhere easily accessible (the Desktop is fine for now). 
+Download the [synthetic dataset here](https://sakai.ohsu.edu/access/content/group/BMI-569-1-AI-Su16/modules/RawSyntheticData.zip), unzip it, and place the folder somewhere easily accessible (the Desktop is fine for now). 
 
-You will want to start a project in this folder, since you will be accessing this data for the rest of the pre-work and the in-class sessions. (Go to ">File>New Project>Create Project in Existing Directory" and select the folder.) 
+You will want to start an RStudio project in this folder, since you will be accessing this data for the rest of the pre-work and the in-class sessions. (Go to ">File>New Project>Create Project in Existing Directory" and select the folder.) 
 
-If you do this, you can just click on the .Rproj file it generates and have everything easily accessible. R will able to "see" all of the data files in this folder.
+If you do this, you can just click on the .Rproj file it generates and have everything easily accessible within the folder. R will able to "see" all of the data files in this folder.
 
 ##The concept of a working directory
 
@@ -59,6 +59,16 @@ nrow(patient)
 colnames(patient)
 ```
 
-##This Week's Assignment
+In order to access the individual columns, we can use the `$` operator to do operation on the individual columns. Here I'm running a simple `table()` operation to count the number of rows within each category for the `riskCat` variable.
+
+```{r}
+table(patient$riskCat)
+```
+
+##This Week's Assignment (optional but helpful)
 
 Load in the `patient_encounter.txt` file into R, and confirm that you loaded it correctly. How many `No shows` were there in the dataset? (Look in the outcome field). If we want to count the number of readmissions, would we want patients with these values?
+
+##For More Information
+
+Please refer to R-Bootcamp, [module 2](https://github.com/laderast/r-bootcamp/tree/master/module2) for more information about `data.frames`.
