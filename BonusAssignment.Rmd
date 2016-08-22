@@ -1,0 +1,39 @@
+---
+title: "Bonus Assignment"
+author: "Shannon McWeeney and Ted Laderas"
+date: "August 18, 2016"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Identifying Pharmacogenomic Risks for readmission
+
+##Purpose   
+
+To integrate the INFINITI genotype data with medications at discharge to assess readmission risk
+
+##Background  
+
+Warfarin is a widely used anticoagulant prescribed for patients. Individual differences such as the intake of vitamin K, illness, age, gender, concurrent medication and body surface area, and genetic differences may affect a patient’s response to warfarin. Warfarin acts by interfering with the recycling of vitamin K, which leads to reduced activation of several clotting factors. 
+
+One of the genes affecting the pharmacokinetic and pharmacodynamic parameters of Warfarin is CYP2C9 (cytochrome P450 2C9). Increased bleeding risk and lower initial warfarin dose requirements have been associated with the `CYP2C9*2` and `CYP2C9*3` alleles. The INFINITI Warfarin Assay is an in vitro diagnostic test for the detection and genotyping of the `*2` and `*3` `CYP2C9` genetic variants.
+
+##Deliverables  
+
+1) Identification of risk genotype
+2) Code used for analysis
+
+##Sources (See Course Materials Page for Links)
+
+1)  INFINITI_GENOTYPE file - genotypes for each patient 
+2)  Medraw file - Medications for each patient at discharge
+
+## Suggested Steps
+
+1)  Familiarize yourself with the INFINITI CYP2C9 genotype data.  We will discuss this in class.
+2)  For all patients with CYP2C9 annotation, identify the subset of patients on Warfarin at discharge. 
+3)  Run a basic analysis to predict Warfarin-CYP2C9 readmission risk
+4)  *Advanced*: Advanced students can examine other covariates besides the risk alleles to determine how this influences readmit rates.  

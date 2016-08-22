@@ -1,0 +1,48 @@
+---
+title: "Problem Set 2"
+author: "David Dorr and Ted Laderas"
+date: "August 18, 2016"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Summarizing Comorbidities (C)
+
+## Purpose 
+
+1) To summarize chronic illnesses (choose 2) for the LACE Comorbidity (C) score
+2) Bring each element (L, A, C, E) together into a LACE score for each patient
+3) Assess how well the LACE score predicts 30-day admission risk using simple analysis.
+
+##Background 
+
+LACE has several comorbidities that it summarizes to help predict risk.  It turns out that they do not provide specific code sets to match these to the primary set, and that there may be other comorbidities that are important for this work.  Prior analysis has found that in your patient population Dementia, COPD, CAD, Stroke, Diabetes, Complicated Diabetes, Cancer, Hepatitis C, and Asthma are the most likely candidates to be associated with readmission risk.   However, diagnoses are coded as very specific ICD-9 codes (patient_diagnosis.icd9code); each grouped diagnosis represents many of these codes.  
+
+For your task today, you will need to find acceptable code groupings for 2 of the following diagnoses and summarize these for each patient admission.
+
+- CAD 
+- CHF
+- Asthma
+- Hepatitis C
+- Dementia
+- Stroke
+- Depression 
+- Peripheral Vascular Disease 
+
+## Deliverables
+
+1) Summarized comorbidities and total LACE scores for each patient as a table.
+2) Source code for your summarization and analysis.
+
+## Suggested Steps
+
+1) Find the ICD9 code groupings you will use for your two comorbidities. We will discuss some in class.
+2) For your two selected comorbidities, check whether a patient has that diagnosis (from the `patient_diagnosis` table) and store the outcome in your analytic file as a binary variable (such as 1 = patient has comorbidity and 0 = patient does not have comorbidity). *Hint*: since each patient may have multiple diagnoses, you will need to find a way to summarize/collapse associated diagnoses into a single binary variable for each comorbidity.
+3) Calculate the total comorbidity score for each patient as per the LACE appendix. *Optional*: If you think you'd like to weight some comorbidities over others, you can adjust the weights/values for those comorbidities.
+4) Calcluate the LACE scores for each patient. 
+5) Run a basic analysis of the LACE variables to predict readmission risk using your analytic file. Some kinds of analysis you can do: contingency tables ([more info here](http://www.statmethods.net/stats/frequencies.html) ) or logistic regression (More info [here](https://www.r-bloggers.com/evaluating-logistic-regression-models/) and [here](https://www.analyticsvidhya.com/blog/2015/11/beginners-guide-on-logistic-regression-in-r/) ). How well does the LACE score predict readmission risk? Can you compare the predictive power of each variable (L, A, C, E) to predict risk? Begin to think about what visualizations and analysis supports your conclusions.
+6) Add each variable to your Data Dictionary.
+7) *Optional*: Try changing the ‘weights’ of each of the individual scores to calculate a different LACE score and see the difference in predictive validity.

@@ -1,0 +1,102 @@
+---
+title: 'Assignment #2 Answer Key'
+author: "Ted Laderas"
+date: "August 18, 2016"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r echo=FALSE,message=FALSE}
+library(RSQLite)
+
+#initialize a database connection (and initialize our database)
+con <- dbConnect(SQLite(),dbname="patient2.sqlite")
+
+dbTables <- c("DiaCompCo","DiaCompComorbid","MCComorbid")
+
+for(tab in dbTables){
+  if(dbExistsTable(con, tab)){dbRemoveTable(con, tab)}
+  }
+```
+
+## Calculating Comorbidity Scores (C)
+
+Calculating comorbidities is a multi-step process. First we need to identify the value set for our comorbidity, and then we need to assign patients that have that comorbidity a score. We need to do this for each of the comorbidities we're interested in. Next, we need to add over all the comorbidities to get a final score.
+
+Let's look at the "Diabetes with Complication" comorbidity. We know that the `patient_diagnosis` table has ICD-9 codes in it. We first do a subquery to recode patients that have a diabetes with complication comorbidity, and then aggregate by patient to produce a single score per patient.
+
+```{r}
+#load the RSQLite library
+library(RSQLite)
+
+#initialize a database connection (and initialize our database)
+con <- dbConnect(SQLite(),dbname="patient2.sqlite")
+
+#note that we need to code the scores with an extra digit
+ICD9 <- c("250.40", "250.50", "250.60")
+
+DiaCompCo <- data.frame(ICD9)
+dbWriteTable(con, "DiaCompCo", DiaCompCo)
+
+sqlStatement <- "SELECT patientid, SUM(DCCode) as NumDCCodes,
+                CASE WHEN SUM(DCCode) > 0 THEN 2
+                  ELSE 0 END as DCComorbid 
+                FROM (SELECT *, CASE WHEN pd.ICD9Code = dcc.ICD9 THEN 1 
+                ELSE 0 END as DCCode 
+                  from patient_diagnosis as pd, DiaCompCo as dcc)
+                 GROUP BY patientid"
+diaCScores <- dbGetQuery(con, sqlStatement)
+dbWriteTable(con, "DiaCompComorbid", diaCScores)
+
+#patient 22 has this comorbidity
+diaCScores[15:30,]
+```
+
+Similarly, we can calculate comorbidities per patient for those who have myocardial infarction. Here we use multiple `LIKE` statements to search for strings.
+
+```{r}
+sqlStatement <- "SELECT patientid, SUM(Myo) as NumMyoCodes,
+                CASE WHEN SUM(Myo) > 0 THEN 2
+                  ELSE 0 END as MyoComorbid 
+                  FROM (SELECT *, CASE WHEN ICD9Code LIKE '410.%' THEN 1 
+                        WHEN ICD9Code LIKE '412.%' THEN 1 
+                        ELSE 0 END as Myo FROM patient_diagnosis)
+                GROUP BY patientid"
+
+
+myoScores <- dbGetQuery(con, sqlStatement)
+dbWriteTable(con, "MCComorbid", myoScores)
+
+myoScores[1:15,]
+```
+
+Now we can merge these comorbidities back into our analytic table:
+
+```{r}
+sqlStatement <- "SELECT a.*, m.MyoComorbid, d.DCComorbid, 
+                (m.MyoComorbid + d.DCComorbid) as CScore FROM analytic as a, 
+                DiaCompComorbid as d, 
+                MCComorbid as m WHERE a.patientID = m.patientid AND
+                a.patientID = d.patientid"
+
+analytic <- dbGetQuery(con, sqlStatement)
+analytic[1:10,]
+
+dbRemoveTable(con, "analytic")
+dbWriteTable(con, "analytic", analytic)
+```
+
+Now we can summarize our LACE score by using another 
+
+```{r}
+sqlStatement <- "SELECT *, (LScore + AScore + CScore + EScore) as LACE from analytic"
+##
+analytic <- dbGetQuery(con, sqlStatement)
+
+##Save all of our hard work!
+write.table(analytic, "analytic-table-LACE.txt", quote=F, sep="\t", row.names=FALSE)
+
+```

@@ -1,0 +1,134 @@
+---
+title: "Prework Answer Key"
+author: "Ted Laderas"
+date: "August 17, 2016"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This is the answer key for the prework assignment.
+
+##Loading the Data into SQLite/R
+
+Here I first load all of my data into R as tables. Then I store the results in a new SQLite database.
+
+```{r}
+patient= read.table("RawSyntheticData/patient.txt", header=TRUE, sep="|")
+patient_encounter= read.table("RawSyntheticData/patient_encounter.txt", 
+                              header=TRUE, sep="|")
+patient_diagnosis= read.table("RawSyntheticData/patient_diagnosis.txt", 
+                              header=TRUE, sep="|")
+patient_encounter_hosp = read.table("RawSyntheticData/patient_encounter_hosp.txt", 
+                                    header=TRUE, sep="|")
+race= read.table("RawSyntheticData/race.txt", header=TRUE, sep="|")
+t_encounter_type= read.table("RawSyntheticData/t_encounter_type.txt", 
+                             header=TRUE, sep="|")
+t_encounter_reason=read.table("RawSyntheticData/t_encounter_reason.txt", 
+                              header=TRUE, sep="|")
+
+#load the RSQLite library
+library(RSQLite)
+
+#initialize a database connection (and initialize our database)
+con <- dbConnect(SQLite(),dbname="patient2.sqlite")
+
+dbWriteTable(con, "patient", patient)
+dbWriteTable(con, "patient_encounter", patient_encounter)
+dbWriteTable(con, "patient_encounter_hosp", patient_encounter_hosp)
+dbWriteTable(con, "patient_diagnosis", patient_diagnosis)
+dbWriteTable(con, "t_encounter_type", t_encounter_type)
+dbWriteTable(con, "t_encounter_reason", t_encounter_reason)
+dbWriteTable(con, "race", race)
+```
+
+If you want to save the tables in the database, you need to disconnect.
+
+```{r eval=FALSE}
+#save results (I don't save it here)
+dbDisconnect(con)
+```
+
+##Calculating 30 day readmissions
+
+For the readmits and index cases, there are two approaches we can do. We can take the current table with the index cases and save it as a new table, and then produce the queries on that.
+
+```{r}
+#if you disconnected, remember you have to reconnect to the database!
+
+#original index query
+sqlStatement <- "select peh.*, case when peh2.admit_date is null then 1
+                          else 0 end as index_admit
+                          from patient_encounter_hosp peh 
+                          left join patient_encounter_hosp peh2 on  
+                          peh.patientID=peh2.patientID and 
+                          date(peh2.admit_date) < date(peh.admit_date)"
+indexTable <- dbGetQuery(con, sqlStatement)
+
+dbWriteTable(con, name="indexAdmitTable", value=indexTable)
+```
+
+Now that we have our `indexAdmitTable`, we can concentrate on the second query, that of identifying 30 day readmits. We need to do something similar to the above case statement, and do another self join. However, the filtering criteria for the self join is different. We want our second self-joined table (which I call `iah2`) to have dates where `iah2.admit_date` is greater than `iah.admit_date`.
+
+We also need to filter on a difference of 30 days between the second `Admit_date` and the first `Discharge_date`. To do this, we can use the date modifiers to modify the `Discharge_date` by adding 30 days to it. Then we can compare this new date to the second admit date to complete our case statement.
+
+
+```{r}
+sqlStatement <-  "select iad.*, iad2.Admit_date, CASE WHEN 
+                  date(iad2.Admit_date) < date(iad.Discharge_date, '+30 day') 
+                  THEN 1 ELSE 0 END AS Readmit30
+                  from indexAdmitTable as iad 
+                  left join indexAdmitTable iad2 on  iad.patientID=iad2.patientID 
+                  and date(iad2.admit_date) > date(iad.admit_date)"
+
+readmitTable <- dbGetQuery(con, sqlStatement)
+#show number of 30 day readmits (Readmit30 == 1)
+table(readmitTable$Readmit30)
+readmitTable[1:20,]
+```
+
+We can also do both cases as a single query, though it is a little messy. Note that we define a third table, `peh3`, filtered on identical criteria as the table `iad2` above.
+
+```{r}
+sqlStatement<-  "SELECT peh.*, 
+                CASE WHEN peh2.Admit_date IS NULL THEN 1 ELSE 0 END AS indexadmit,
+                CASE WHEN date(peh3.Admit_date) < date(peh.Discharge_date, '+30 day') 
+                  THEN 1 ELSE 0 END AS Readmit30
+                FROM patient_encounter_hosp peh 
+                LEFT JOIN patient_encounter_hosp peh2 
+                ON peh.patientid = peh2.patientid AND date(peh2.Admit_date) < date(peh.Admit_date)
+                LEFT JOIN patient_encounter_hosp peh3
+                ON peh.patientid = peh3.patientid AND date(peh.Admit_date) < date(peh3.Admit_date)"
+
+bothCases <- dbGetQuery(con, sqlStatement)
+bothCases[1:5,]
+```
+
+
+
+Finally, let's save our results back into the database and save everything. 
+
+```{r}
+dbWriteTable(con, "analytic", bothCases)
+dbDisconnect(con)
+```
+
+We can also write our results to a file using `write.table()`. Here we save the result as a tab-delimited file:
+
+```{r}
+write.table(bothCases, file = "analytic.txt", quote=F, sep="\t", row.names = FALSE)
+```
+
+Here are the numbers you should have:
+
+```{r}
+#total number of patient hospital encounters:
+nrow(bothCases)
+
+#total number of index cases 
+sum(bothCases$indexadmit)
+
+#total number of readmits in table
+sum(bothCases$Readmit30)
