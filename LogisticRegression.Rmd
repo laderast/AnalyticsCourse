@@ -189,7 +189,6 @@ How do we decide the threshold? One important thing we might do to decide this i
 ```{r}
 hist(modelPredictedProbabilities)
 ```
-
 What happens when we set our probability threshold at 0.225? We can use `ifelse()` to recode the probabilities using this threshold. 
 
 ```{r}
@@ -219,7 +218,7 @@ Our prediction threshold has an accuracy of `r accuracy * 100` percent.
 
 ##ROC Curves
 
-We can examine the impact of 
+We can examine the impact of setting our probability threshold using the `ROCR` package.
 
 ```{r}
 
