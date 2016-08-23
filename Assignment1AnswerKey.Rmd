@@ -69,26 +69,46 @@ dbWriteTable(con, "analytic", analytic4)
 
 ## Calculating E
 
-E is trickier. We need to identify any emergency room encounters from `patient_encounter` that happened before the index case and count them. We know that encounter type `48` equals emergency room visits, so we can use that in our filtering criteria for the case statement. We wrap this in a subquery so we can then use `SUM` and `GROUP BY` to sum these ED visits. Because our score maxes out at 4, we need to use a `CASE` statement to make the score 4 if the number of visits is 4 or higher. 
+E is trickier. We need to identify any emergency room encounters from `patient_encounter` that happened before the index case and count them. We know that encounter type `48` equals emergency room visits, so we can use that in our filtering criteria for the case statement. We wrap this in a subquery so we can then use `SUM` and `GROUP BY` to sum these ED visits.
 
 We could have also used a more selective `WHERE` statement instead of using the `CASE` statement within the subquery and just used `COUNT` as our aggregating function.
 
+Let's look at the subquery first. We want to merge our `analytic` table with our `patient_encounter` table. In order to do so, we have three criteria for our join:
+
+1) `patient_encounter.patientid = analytic.patientid` (obviously)
+2) `pe.encounter_type = 48` (ED visits)
+3) `julianday(analytic.Admit_date) - julianday(pe.Actual_Date) < 180 (6 months)`
+
 ```{r}
-sqlStatement <- "SELECT patientID, 
-                CASE WHEN SUM(EDvisits) < 4 THEN SUM(EDvisits) 
-                ELSE 4 END as EScore
-                FROM
-                (SELECT pe.*, 
-                CASE WHEN pe.encounter_type = 48 THEN 1 ELSE 0 END as EDvisits 
+sqlStatement <- "SELECT pe.*, analytic.Admit_date
                 from analytic, patient_encounter as pe 
                 WHERE pe.patientID = analytic.patientid and 
-                date(pe.Actual_Date) < date(analytic.Admit_date))
+                julianday(analytic.Admit_date) - julianday(pe.Actual_Date) < 180 AND
+                pe.encounter_type = 48"
+subQuery <- dbGetQuery(con, sqlStatement)
+subQuery[1:30,]
+```
+
+Now that we only have ED visits that meet our criteria, we can just count the number of encounters for our `EScore`.  Additionally because `EScore` maxes out at 4, we need to use a `CASE` statement to make the score 4 if the number of visits is 4 or higher. 
+
+```{r}
+sqlStatement <- "SELECT patientID, 
+                CASE WHEN COUNT(encounter_type) < 4 THEN COUNT(encounter_type) 
+                ELSE 4 END as EScore
+                FROM
+                (SELECT pe.*, analytic.Admit_date
+                from analytic, patient_encounter as pe 
+                WHERE pe.patientID = analytic.patientid and 
+                julianday(analytic.Admit_date) - julianday(pe.Actual_Date) < 180 AND
+                pe.encounter_type = 48)
                 GROUP BY (patientID)"
 
 peCases <- dbGetQuery(con, sqlStatement)
 #confirm that we have calculated number of visits
-dbWriteTable(con, "EDvisits", peCases)
 peCases[1:30,]
+
+#write into our database
+dbWriteTable(con, "EDvisits", peCases)
 ```
 
 Now that we have our `EDvisits` table, we can now join `EDvisits` with our analytic table.
@@ -108,5 +128,6 @@ dbDisconnect(con)
 Doing a summary, we can confirm that everything we have done is correct (our scores are within the expected range).
 
 ```{r}
+analytic5[1:30,]
 summary(analytic5)
 ```
