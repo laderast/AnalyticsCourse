@@ -126,7 +126,7 @@ However, the coefficients in the model can be interpreted in terms of Odds Ratio
 So mathematically, the Odds Ratio for our model using our `LScore` as an independent variable can be calculated as:
 
 $$
-OddsRatio = \frac{prob(readmit=TRUE)}{prob(readmit=FALSE)} = \frac{numberReadmits}{numberNonReadmits}`
+OddsRatio = \frac{prob(readmit=TRUE)}{prob(readmit=FALSE)} = \frac{numberReadmits}{numberNonReadmits}
 $$
 
 Since 
@@ -150,13 +150,13 @@ $$
 if we exponentiate both sides, remembering that `exp(A+B) = exp(A) * exp(B)`:
 
 $$
-`OddsRatio(Readmit=1) = exp(Constant + CoefL * LScore + CoefA * AScore)`
+OddsRatio(Readmit=1) = exp(Constant + CoefL * LScore + CoefA * AScore)
 $$
 
 Moving things around, we get:
 
 $$
-`OddsRatio(Readmit=1) = \frac{exp(prob(Readmit=1)}{1-prob(Readmit=1))} \\ = exp(Constant) * exp(CoefL* LScore) * exp(CoefA*AScore)`
+OddsRatio(Readmit=1) = exp(\frac{prob(Readmit=1)}{1-prob(Readmit=1)}) \\ = exp(Constant) * exp(CoefL* LScore) * exp(CoefA*AScore)
 $$
 
 So we find that the `OddsRatio(Readmit = 1)` is calculated by multiplying `exp(Constant)`, `exp(CoefL * LScore)` and `exp(CoefA * AScore)`, which is a nice result. This means that in order to interpret the coefficients in terms of odds, we need to exponentiate them. We can then interpret these transformed coefficients in terms of an associated increase in the Odds Ratio. So let's first transform our coefficients by exponentiate them.
@@ -166,7 +166,7 @@ expCoefs  <- exp(coef(laModel))
 expCoefs
 ```
 
-Looking at the coefficient for `LScore`, this means that for a 1 unit increase in `LScore`, the odds(Readmit score) is 1 increases by `r 100 * expCoefs["LScore"] - 100` percent. 
+Looking at the exponentiated coefficient for `LScore`, this means that for a 1 unit increase in `LScore`, the `OddsRatio(Readmit score)` is 1 increased by `r 100 * expCoefs["LScore"] - 100` percent. 
 
 The interpretation of the `AScore` is different because we're treating it as a categorical variable (remember, if *no admission through ER* = 0, and *admission through ER* = 3). If there is an admission through emergency room, there is a `r expCoefs["AScore3"] * 100 - 100` percent increase in our predicted Odds Ratio.
 
