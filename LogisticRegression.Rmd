@@ -144,29 +144,32 @@ $$
 by definition. So, we can define our logistic model as:
 
 $$
-log(OddRatio(Readmit=TRUE)) = Constant + CoefA * LScore + CoefA * Ascore
+log(OddRatio(Readmit=TRUE)) = Constant + CoefL * LScore + CoefA * Ascore
 $$
+
+We call `log(OddsRatio(Readmit=TRUE))` the logit. Notice that the logit has a linear relation to our `LScore` and our `AScore`. Our model parameters are a `Constant`, `CoefL` is the fitted model coefficient for our `LScore`, and `CoefA` is the fitted model coefficient for our `AScore`.
 
 if we exponentiate both sides, remembering that `exp(A+B) = exp(A) * exp(B)`:
 
 $$
-OddsRatio(Readmit=1) = exp(Constant + CoefL * LScore + CoefA * AScore)
+OddsRatio(Readmit=TRUE) = exp(Constant + CoefL * LScore + CoefA * AScore)
 $$
 
 Moving things around, we get:
 
 $$
-OddsRatio(Readmit=1) = exp(\frac{prob(Readmit=1)}{1-prob(Readmit=1)}) \\ = exp(Constant) * exp(CoefL* LScore) * exp(CoefA*AScore)
+OddsRatio(Readmit=TRUE) = exp(\frac{prob(Readmit=TRUE)}{1-prob(Readmit=TRUE)}) \\ = exp(Constant) * exp(CoefL* LScore) * exp(CoefA*AScore)
 $$
 
-So we find that the `OddsRatio(Readmit = 1)` is calculated by multiplying `exp(Constant)`, `exp(CoefL * LScore)` and `exp(CoefA * AScore)`, which is a nice result. This means that in order to interpret the coefficients in terms of odds, we need to exponentiate them. We can then interpret these transformed coefficients in terms of an associated increase in the Odds Ratio. So let's first transform our coefficients by exponentiate them.
+So we find that the `OddsRatio(Readmit = TRUE)` is calculated by multiplying `exp(Constant)`, `exp(CoefL * LScore)` and `exp(CoefA * AScore)`, which is a nice result. This means that in order to interpret the coefficients in terms of odds, we need to exponentiate them. We can then interpret these transformed coefficients in terms of an associated increase in the Odds Ratio. So let's first transform our coefficients by exponentiate them.
 
 ```{r}
-expCoefs  <- exp(coef(laModel))
+coefs <- coef(laModel)
+expCoefs  <- exp(coefs)
 expCoefs
 ```
 
-Looking at the exponentiated coefficient for `LScore`, this means that for a 1 unit increase in `LScore`, the `OddsRatio(Readmit score)` is 1 increased by `r 100 * expCoefs["LScore"] - 100` percent. 
+Looking at the exponentiated coefficient for `LScore`, this means that for a 1 unit increase in `LScore`, the `OddsRatio(Readmit score)` is  increased by `r 100 * expCoefs["LScore"] - 100` percent. This means that if you want to interpret the coefficients in the model in terms of increases in units, you need to first multiply the unit increase by the coefficient and then exponentiate. For example, going from 0 to 5 in our LScore (a 5 unit increase), our odds ratio increases by `exp(5 * CoefL)` or `r exp(5 * coefs["LScore"])`.
 
 The interpretation of the `AScore` is different because we're treating it as a categorical variable (remember, if *no admission through ER* = 0, and *admission through ER* = 3). If there is an admission through emergency room, there is a `r expCoefs["AScore3"] * 100 - 100` percent increase in our predicted Odds Ratio.
 
@@ -183,18 +186,44 @@ The interpretation of the `AScore` is different because we're treating it as cat
 ```{r}
 modelPredictedProbabilities <- predict(laModel, newdata=testSet, type = "response")
 
-plot(testSet$LScore, modelPredictedProbabilities)
+##add the modelPredictedProbabilities as a column in testSet
+
+testSet <- data.frame(testSet, predProb=modelPredictedProbabilities)
+
+plot(testSet$LScore, testSet$predProb)
 ```
 
-If you do not specify the `type` parameter, `predict()` returns the logit, or `log(OddsRatio)`. That means that in order to get the predicted Odds Ratio, you will need to exponentiate the output using `exp()`.
+Looking at this plot, we can see two things: our predicted probabilities are in two groups of points. The bottom set of points are the ones for which our `AScore` is 0, and the top set of points are where `AScore` is 3. This becomes more obvious if we color the points according by `AScore`.
 
 ```{r}
-modelPredictedLogOddsRatio <- predict(laModel)
+plot(testSet$LScore, testSet$predProb, col=testSet$AScore)
+```
 
+There are two other things to notice: our predicted probabilities are not that high (the maximum is 0.3) and that the relation between the predicted probabilities and `LScore` isn't linear. 
+
+So, let's visualize the logit instead. If you do not specify the `type` parameter, `predict()` returns the logit, or `log(OddsRatio)`. That means that in order to get the predicted Odds Ratio, you will need to exponentiate the output using `exp()`.
+
+```{r}
+#predict the logit instead for our testSet
+modelPredictedLogOddsRatio <- predict(laModel,newdata = testSet)
+
+#add as another column in our table
+testSetPred <- data.frame(testSet, predLogit = modelPredictedLogOddsRatio)
+
+#plot the LScore versus logit (coloring by AScore)
+plot(testSetPred$LScore, testSetPred$predLogit, col=testSetPred$AScore)
+
+#transform the logit to the predictedOdds ratio
 modelPredictedOddsRatio <- exp(modelPredictedLogOddsRatio)
 modelPredictedOddsRatio[1:10]
 
-#get the coefficients for the model in odds ratio scale
+#add as column in our table
+testSetPred <- data.frame(testSetPred, predOR = modelPredictedOddsRatio)
+
+#plot Odds ratio versus LScore
+plot(testSetPred$LScore, testSetPred$predOR, col=testSetPred$AScore)
+
+#
 exp(coef(laModel))
 ```
 
