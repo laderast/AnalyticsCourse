@@ -218,6 +218,7 @@ testSetPred <- data.frame(testSet, predLogit = modelPredictedLogOddsRatio)
 #plot the LScore versus logit (coloring by AScore)
 plot(testSetPred$LScore, testSetPred$predLogit, col=testSetPred$AScore)
 
+
 #transform the logit to the predictedOdds ratio
 modelPredictedOddsRatio <- exp(modelPredictedLogOddsRatio)
 modelPredictedOddsRatio[1:10]
