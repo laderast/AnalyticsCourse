@@ -1,7 +1,9 @@
 ---
 title: "Logistic Regression in a Nutshell"
-author: "Ted Laderas"
+author: "Ted Laderas and Shannon McWeeney"
 date: "August 18, 2016"
+header-includes:
+  - \usepackage{amsmath}
 output: pdf_document
 ---
 
@@ -29,7 +31,7 @@ readmitLscoreTab <- table(analytic$Readmit30, analytic$LScore)
 readmitLscoreTab
 
 #calculate proportions between readmits=TRUE and readmits=FALSE
-#note that as L increases, 
+#note that as L increases, this proportion increases.
 readmitLscoreTab[2,]/readmitLscoreTab[1,]
 ```
 
@@ -92,7 +94,7 @@ One of the most confusing things about R is the formula interface. The thing to 
 
 ## Logistic Regression
 
-Here we load the analytic data with our LACE scores and perform a logistic regression using `Readmit30` as our dependent variable and our `LScore` and `AScore` as our independent variables. A logistic regression is a type of regression where the *outcome*, or *dependent variable* is related to the probability of categorical variable being true (in our case, whether a patient was a readmission or not). The output is a model that predicts the log of the odds ratio being `1`, or in our case, a readmission.
+Here we load the analytic data with our LACE scores and perform a logistic regression using `Readmit30` as our dependent variable and our `LScore` and `AScore` as our independent variables. A logistic regression is a type of regression where the *outcome*, or *dependent variable* is related to the probability of categorical variable being true (in our case, whether a patient was a readmission or not). The output is a model that predicts, for our example, readmission.
 
 ```{r}
 #show variable names in analytic data.frame
@@ -103,7 +105,7 @@ colnames(trainSet)
 laModel <- glm(Readmit30 ~ LScore + AScore, family = "binomial", data=trainSet)
 ```
 
-## The Problem with Logistic Regression
+## Interpreting Logistic Regression Models
 
 Let's look at the output of our model. This gives us the coefficients on the logit scale.
 
@@ -123,31 +125,41 @@ However, the coefficients in the model can be interpreted in terms of Odds Ratio
 
 So mathematically, the Odds Ratio for our model using our `LScore` as an independent variable can be calculated as:
 
-$$latex
+$$
 OddsRatio = \frac{prob(readmit=TRUE)}{prob(readmit=FALSE)} = \frac{numberReadmits}{numberNonReadmits}`
 $$
 
-Remember, we can identify `oddsRatio(Readmit=1)` as `prob(Readmit=1)/prob(Readmit=0)` This is also equal to `prob(Readmit=1)/1-prob(Readmit=1)` because `prob(Readmit=0) = 1-prob(Readmit=1)` by definition. So, our logistic model is defined as:
+Since 
 
-$$latex 
-log(OddRatio(Readmit=TRUE)) = log(\frac{prob(Readmit=TRUE)}{1-prob(Readmit=TRUE)}) = Constant + CoefA * LScore 
+$$
+oddsRatio(Readmit=1) = \frac{prob(Readmit=1)}{prob(Readmit=0)} = \frac{prob(Readmit=1)}{1-prob(Readmit=1)} 
+$$
+
+because 
+
+$$
+prob(Readmit=0) = 1-prob(Readmit=1)
+$$
+
+by definition. So, we can define our logistic model as:
+
+$$
+log(OddRatio(Readmit=TRUE)) = Constant + CoefA * LScore + CoefA * Ascore
 $$
 
 if we exponentiate both sides, remembering that `exp(A+B) = exp(A) * exp(B)`:
 
-$$latex 
-`OddsRatio(Readmit=1) = exp(Constant + CoefL * LScore + CoeffA * AScore)`
+$$
+`OddsRatio(Readmit=1) = exp(Constant + CoefL * LScore + CoefA * AScore)`
 $$
 
 Moving things around, we get:
 
-$$latex 
-`OddsRatio(Readmit=1) = \frac{exp(prob(Readmit=1)}{1-prob(Readmit=1))} = exp(CoefL* LScore) * exp(CoefA*AScore)`
+$$
+`OddsRatio(Readmit=1) = \frac{exp(prob(Readmit=1)}{1-prob(Readmit=1))} \\ = exp(Constant) * exp(CoefL* LScore) * exp(CoefA*AScore)`
 $$
 
-So we find that the `OddsRatio(Readmit = 1)` is calculated by multiplying `exp(LScore)` and `exp(AScore)`. Now we can interpret the coefficients as odds.
-
-Summarizing, in order to interpret the coefficients in terms of odds, we need to exponentiate them.
+So we find that the `OddsRatio(Readmit = 1)` is calculated by multiplying `exp(Constant)`, `exp(CoefL * LScore)` and `exp(CoefA * AScore)`. This means that in order to interpret the coefficients in terms of odds, we need to exponentiate them. We can then interpret these transformed coefficients in terms of associated increase in the Odds Ratio. So let's first transform our coefficients by exponentiate them.
 
 ```{r}
 expCoefs  <- exp(coef(laModel))
@@ -156,11 +168,13 @@ expCoefs
 
 This means that for a 1 unit increase in `LScore`, the odds(Readmit score) is 1 increases by `r 100 * expCoefs["LScore"] - 100` percent. 
 
-The interpretation of the `AScore` is different because we're treating it as categorical data (remember, if no admission through ER = 0, and admission through ER = 3). If there is an admission through emergency room, there is a `r expCoefs["AScore)"] * 100 - 100` percent increase in odds(Readmit score is 1).
+The interpretation of the `AScore` is different because we're treating it as categorical data (remember, if *no admission through ER* = 0, and *admission through ER* = 3). If there is an admission through emergency room, there is a `r expCoefs["AScore3"] * 100 - 100` percent increase in our predicted Odds Ratio.
 
-## Using models for prediction
+## Using models for prediction on our test set
 
-Now you have built a model. What next? If you want to see the values that the model predicts for the dependent variable, you can use `predict()`. If you look at the help entry for `predict.glm` it mentions that setting the option of `type` to be `response`, you can directly get the probabilities (that is, `prob(readmit=TRUE)`) from the model.
+Now you have built a model. What next? If you want to see the values that the model predicts for the dependent variable, you can use `predict()`. This command will return two types of values, based on the arguments we pass it: 1) *predicted probabilities* and 2) the *Log of the Odds Ratio*
+
+If you look at the help entry for `predict.glm` it mentions that setting the option of `type` to be `response`, you can directly get the probabilities (that is, `prob(readmit=TRUE)`) from the model.
 
 ```{r}
 modelPredictedProbabilities <- predict(laModel, newdata=testSet, type = "response")
@@ -168,7 +182,7 @@ modelPredictedProbabilities <- predict(laModel, newdata=testSet, type = "respons
 plot(testSet$LScore, modelPredictedProbabilities)
 ```
 
-If you do not specify the `type` parameter, `predict()` returns the logit, or `log(OddsRatio)`. That means that in order to get the predicted odds ratio, you will need to exponentiate the output using `exp()`.
+If you do not specify the `type` parameter, `predict()` returns the logit, or `log(OddsRatio)`. That means that in order to get the predicted Odds Ratio, you will need to exponentiate the output using `exp()`.
 
 ```{r}
 modelPredictedLogOddsRatio <- predict(laModel)
@@ -180,20 +194,20 @@ modelPredictedOddsRatio[1:10]
 exp(coef(laModel))
 ```
 
-##Calling a probability threshold
+##Selecting a Probability Threshold
 
-So you might notice that we have predicted probabilities, but we haven't actually predicted any values (whether a patient is a readmit risk or not). We can do this by choosing a *threshold probability*, that is, a cutoff value that separates who we call a readmit risk and who isn't.
+So you might notice that we have predicted probabilities, but we haven't actually predicted any values (whether a patient is a readmit risk or not). We can do this by choosing a *threshold probability*, that is, a cutoff value for our predicted probabilities that separates who we call as a readmit risk and who isn't.
 
-How do we decide the threshold? One important thing we might do to decide this is to do a histogram of the *predicted probabilities*. We note that there is a gap between 0.20 and 0.25. 
+How do we decide the threshold? One simple way to decide is to do a histogram of the *predicted probabilities*. We note that there is a gap between 0.20 and 0.25. 
 
 ```{r}
 hist(modelPredictedProbabilities)
 ```
+
 What happens when we set our probability threshold at 0.225? We can use `ifelse()` to recode the probabilities using this threshold. 
 
 ```{r}
 modelPredictions <- ifelse(modelPredictedProbabilities < 0.225, 0, 1)
-
 modelPredictions[1:10]
 ```
 
@@ -204,7 +218,7 @@ truthPredict <- table(testSet$Readmit30, modelPredictions)
 truthPredict
 ```
 
-You might notice that we do pretty badly in terms of predicting readmission risk. Our accuracy can be calculated by calculating the total number of misclassifications (where predict does not equal truth)
+Looking at this 2x2 table, you might notice that we do pretty badly in terms of predicting readmission risk. Our accuracy can be calculated by calculating the total number of misclassifications (where predict does not equal truth). The misclassifications are where we predict 1, but the truth is 0 (false positives), and where we predict 0, but the truth is 1 (false negatives).
 
 ```{r}
 totalCases <- sum(truthPredict)
@@ -214,17 +228,35 @@ accuracy <- (totalCases - misclassified) / totalCases
 accuracy
 ```
 
-Our prediction threshold has an accuracy of `r accuracy * 100` percent. 
+For our `LScore + AScore` model, our prediction threshold of 0.225 has an accuracy of `r accuracy * 100` percent. 
 
 ##ROC Curves
 
-We can examine the impact of setting our probability threshold using the `ROCR` package.
+We can examine the impact of setting our probability threshold using the `ROCR` package (be sure to install it using `install.packages("ROCR")`). 
+
+An ROC curve (Receiver-Operator-Characteristic) is a way of assessing how our probability threshold affects our Sensitivity (our ability to detect true positives) and Specificity (our ability to detect true negatives). Any test has a sensitivity/specificity tradeoff. We can actually use an ROC curve to select a threshold based on whether we value Sensitivity or Specificity.
 
 ```{r}
+library(ROCR)
 
+pr <- prediction(modelPredictedProbabilities, testSet$Readmit30)
+prf <- performance(pr, measure = "tpr", x.measure = "fpr")
+plot(prf)
 ```
 
+The area under the ROC curve (AUC) is one way we can summarize how well our model works. A model with perfect predictive ability has an AUC of 1. A random test (that is, a coin flip) has an AUC of 0.5. 
+
+```{r}
+auc <- performance(pr, measure = "auc")
+auc <- auc@y.values[[1]]
+auc
+```
+
+Our `LScore` + `AScore` model has an AUC of `r auc`, which is not super great. Perhaps you can make it better?
+
 ## More Info on Logistic Regression 
+
+Please note: this is a brief, non-comprehensive introduction to utilizing logistic regression for this class example. In addition to the R links at the end of this section, we highly recommend texts such as *Applied Logistic Regression* (Hosmer, Lemeshow and Sturidvant) for more detailed treatment of logistic regression, including topics such as model building strategies, diagnostics and assessment of fit as well as more complex designs which are beyond the scope of this assignment.
 
 This page https://www.r-bloggers.com/evaluating-logistic-regression-models/ does a nice job explaining how to run logistic regressions and various ways to evaluate logistic regression models. 
 
