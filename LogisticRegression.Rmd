@@ -178,6 +178,8 @@ Now you have built a model. What next? If you want to see the values that the mo
 
 If you look at the help entry for `predict.glm` it mentions that by setting the option of `type` to be `response`, you can directly get the predicted probabilities (that is, `prob(readmit=TRUE)`) from the model. We'll use these later when we compare the misclassification rates in our model.
 
+The interpretation of the `AScore` is different because we're treating it as categorical data (remember, if *no admission through ER* = 0, and *admission through ER* = 3). If there is an admission through emergency room, there is a `r expCoefs["AScore3"] * 100 - 100` percent increase in our predicted Odds Ratio.
+
 ```{r}
 modelPredictedProbabilities <- predict(laModel, newdata=testSet, type = "response")
 
