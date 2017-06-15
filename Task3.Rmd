@@ -15,7 +15,7 @@ This week we will be loading our data into a database type called SQLite. SQLite
 
 If you have not done last week's assignment, please do it now. You need to at least have downloaded the synthetic data set and made an RStudio project for that folder.
 
-##Installing the SQLite Package
+## Installing the SQLite Package
 
 The first thing you need to do is install the RSQLite package into R. This package contains the SQLite engine and will let you interact with SQLite databases directly.
 
@@ -29,7 +29,7 @@ Now that you have the RSQLite package, you need to load it up with the `library(
 library(RSQLite)
 ```
 
-##Initializing the Database File for Our Data Warehouse
+## Initializing the Database File for Our Data Warehouse
 
 The first thing we need to do is initialize our database file and connect to it. SQLite store an entire database into a single file. By using the `dbConnect()` command, we initialize a new SQLite database called `patient1.sqlite`. Note that if this database file already existed in our working directory, then we'd just be connecting to it, rather than creating it.
 
@@ -75,7 +75,7 @@ nrow(patient) == res
 
 Note that if you think the result of your query will return a large data table (in the millions of rows), using `dbGetQuery()` may not be the best way to get your result. (note that it is fine for all assignments for this class).  We can instead use a combination of `dbSendQuery()` and `fetch()` in a `while` loop to fetch results a thousand rows at a time. For more information, please refer to the R-Bootcamp, module 5.
 
-##Running a Simple Query
+## Running a Simple Query
 
 Let's ask a simple question about the `patient` table. How many female patients are there? There are two ways we can do this. The first would be to select those patients that are female with a `SELECT` statement, return those patients as a `data.frame`, and then just count the number of rows in the `data.frame`.
 
