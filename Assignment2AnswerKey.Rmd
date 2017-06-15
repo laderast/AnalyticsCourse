@@ -39,7 +39,7 @@ con <- dbConnect(SQLite(),dbname="patient2.sqlite")
 ICD9 <- c("250.40", "250.50", "250.60")
 
 DiaCompCo <- data.frame(ICD9)
-dbWriteTable(con, "DiaCompCo", DiaCompCo)
+dbWriteTable(con, "DiaCompCo", DiaCompCo, overwrite=TRUE)
 
 sqlStatement <- "SELECT patientid, SUM(DCCode) as NumDCCodes,
                 CASE WHEN SUM(DCCode) > 0 THEN 2
@@ -68,7 +68,7 @@ sqlStatement <- "SELECT patientid, SUM(Myo) as NumMyoCodes,
 
 
 myoScores <- dbGetQuery(con, sqlStatement)
-dbWriteTable(con, "MCComorbid", myoScores)
+dbWriteTable(con, "MCComorbid", myoScores, overwrite=TRUE)
 
 myoScores[1:15,]
 ```
@@ -77,10 +77,11 @@ Now we can merge these comorbidities back into our analytic table:
 
 ```{r}
 sqlStatement <- "SELECT a.*, m.MyoComorbid, d.DCComorbid, 
-                (m.MyoComorbid + d.DCComorbid) as CScore FROM analytic as a, 
-                DiaCompComorbid as d, 
-                MCComorbid as m WHERE a.patientID = m.patientid AND
-                a.patientID = d.patientid"
+                (m.MyoComorbid + d.DCComorbid) as CScore 
+                FROM analytic as a   
+                LEFT JOIN MCComorbid m ON a.patientID = m.patientid
+                LEFT JOIN DiaCompComorbid d ON
+                  a.patientID = d.patientid"
 
 analytic <- dbGetQuery(con, sqlStatement)
 analytic[1:10,]
@@ -89,14 +90,14 @@ dbRemoveTable(con, "analytic")
 dbWriteTable(con, "analytic", analytic)
 ```
 
-Now we can summarize our LACE score by using another 
+Now we can summarize our LACE score by just adding the scores together.
 
 ```{r}
 sqlStatement <- "SELECT *, (LScore + AScore + CScore + EScore) as LACE from analytic"
 ##
 analytic <- dbGetQuery(con, sqlStatement)
+analytic[1:20,]
 
 ##Save all of our hard work!
 write.table(analytic, "analytic-table-LACE.txt", quote=F, sep="\t", row.names=FALSE)
-
 ```

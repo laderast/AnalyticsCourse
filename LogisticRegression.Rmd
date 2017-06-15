@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 set.seed(1111)
 ```
 
-Here are some tips on getting started on running your analysis. One of the skills you will need to bring as a data scientist is interpreting the results. Here we use logistic regression as a way to predict readmissions. However, there are multiple other routes to work with the data, such as
+Here are some tips on getting started on running your analysis. One of the skills you will need to bring as a data scientist is interpreting the results. Here we use logistic regression as a way to predict readmissions. However, there are multiple other routes to work with the data, such as:
 
 - Looking at groupings in the data (clustering)
 - Linear regression
@@ -174,7 +174,7 @@ expCoefs  <- exp(coefs)
 expCoefs
 ```
 
-Looking at the exponentiated coefficient for `LScore`, this means that for a 1 unit increase in `LScore`, the `OddsRatio(Readmit score)` is  increased by `r 100 * expCoefs["LScore"] - 100` percent. This means that if you want to interpret the coefficients in the model in terms of increases in units, you need to first multiply the unit increase by the coefficient and then exponentiate. For example, going from 0 to 5 in our LScore (a 5 unit increase), our odds ratio increases by `exp(5 * CoefL)` or `r exp(5 * coefs["LScore"])`.
+Looking at the exponentiated coefficient for `LScore`, this means that for a 1 unit increase in `LScore`, the `OddsRatio(Readmit score)` is  increased by `r 100 * expCoefs["LScore"] - 100` percent. This means that if you want to interpret the coefficients in the model in terms of increases in units, you need to first multiply the unit increase by the coefficient and then exponentiate. For example, going from 1 to 6 in our LScore (a 5 unit increase), our odds ratio increases by `exp(5 * CoefL)` or `r exp(5 * coefs["LScore"])`.
 
 The interpretation of the `AScore` is different because we're treating it as a categorical variable (remember, if *no admission through ER* = 0, and *admission through ER* = 3). If there is an admission through emergency room, there is a `r expCoefs["AScore3"] * 100 - 100` percent increase in our predicted Odds Ratio.
 

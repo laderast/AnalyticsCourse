@@ -48,8 +48,7 @@ analytic3 <- dbGetQuery(con, sqlStatement)
 #confirm that we have calculated length of stay correctly
 analytic3[1:10,]
 
-dbRemoveTable(con, "analytic")
-dbWriteTable(con, "analytic", analytic3)
+dbWriteTable(con, "analytic", analytic3, overwrite=TRUE)
 ```
 
 ## Calculating A
@@ -63,8 +62,10 @@ sqlStatement <- "SELECT analytic.*, CASE WHEN Admit_source == 'Emergency Room'
 analytic4 <- dbGetQuery(con, sqlStatement)
 analytic4[1:10,]
 
-dbRemoveTable(con, "analytic")
-dbWriteTable(con, "analytic", analytic4)
+dim(analytic4)
+
+#dbRemoveTable(con, "analytic")
+dbWriteTable(con, "analytic", analytic4, overwrite=TRUE)
 ```
 
 ## Calculating E
@@ -84,9 +85,10 @@ Let's look at the subquery first. We want to merge our `analytic` table with our
 ```{r}
 sqlStatement <- "SELECT pe.*, 
                  CASE WHEN pe.encounter_type = 48 THEN 1 ELSE 0 END as EDvisits 
-                  from analytic, patient_encounter as pe 
-                  WHERE pe.patientID = analytic.patientid and 
-                 date(pe.Actual_Date) < date(analytic.Admit_date '- 6 month')"
+                  from analytic
+                  LEFT JOIN patient_encounter pe 
+                  ON pe.patientID = analytic.patientid and 
+                 date(pe.Actual_Date) < date(analytic.Admit_date, '-180 day')"
 subQuery <- dbGetQuery(con, sqlStatement)
 subQuery[1:30,]
 ```
@@ -100,9 +102,10 @@ Now that we have recoded our visits that meet our criteria, we can just sum the 
                   FROM
                  (SELECT pe.*, 
                  CASE WHEN pe.encounter_type = 48 THEN 1 ELSE 0 END as EDvisits 
-                  from analytic, patient_encounter as pe 
-                  WHERE pe.patientID = analytic.patientid and 
-                 date(pe.Actual_Date) < date(analytic.Admit_date, '- 180 day'))
+                  from analytic 
+                  LEFT JOIN patient_encounter pe 
+                  ON pe.patientID = analytic.patientid and 
+                 date(pe.Actual_Date) < date(analytic.Admit_date, '-180 day'))
                   GROUP BY (patientID)"
 
 
@@ -117,9 +120,11 @@ dbWriteTable(con, "EDvisits", peCases)
 Now that we have our `EDvisits` table, we can now join `EDvisits` with our analytic table.
 
 ```{r}
-sqlStatement <- "SELECT a2.*, e.EScore FROM EDvisits as e LEFT JOIN analytic a2 ON a2.patientID = e.patientID"
+sqlStatement <- "SELECT a.*, e.EScore FROM analytic as a 
+                  LEFT JOIN EDvisits e ON a.patientID = e.patientID"
 
 analytic5 <- dbGetQuery(con, sqlStatement)
+dim(analytic5)
 
 dbRemoveTable(con, "analytic")
 dbWriteTable(con, "analytic", analytic5)
