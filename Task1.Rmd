@@ -7,7 +7,7 @@ output: pdf_document
 
 In this module, we'll give an overview to the larger assignment and a gentle introduction to R/Rstudio.
 
-##Motivation for Prework
+## Motivation for Prework
 
 The LACE score is a summary score used in clinical data that is derived from 4 key clinical data elements in order to predict the probability of 30-day readmissions. Here are the individual elements of the LACE score:
 
@@ -22,7 +22,7 @@ Your overall goal in the pre-work will be to identify those cases in the dataset
 
 In order to achieve this goal, we will be slowly be exploring R and SQL over the next seven weeks of on-campus work.
 
-##Installing Software
+## Installing Software
 
 Your goal this week will be to install two pieces of software that we'll use for analysis: R and Rstudio. Once you've installed it, we'll take a look at the interface, load in a built-in dataset, and do some simple summary statistics.
 
@@ -30,7 +30,7 @@ The first thing to do is to install R. Go to https://cran.r-project.org and down
 
 Secondly, we will install Rstudio. Go to http://www.rstudio.com and install the appropriate version for your system. Rstudio is what's called an *Integrative Development Environment* (IDE), which will make working with R much easier. In order to use it, you need to have R installed.
 
-##Loading a built-in dataset and doing some summary statistics
+## Loading a built-in dataset and doing some summary statistics
 
 Now that everything is installed, open up RStudio. Your first thing to notice is that there are two main windows on your left: The console window (the bottom window) and the scripting window (the top window). We will mostly work by writing scripts in scripting window and executing them in the console window by highlighting the code and using the Run command or CTRL-Enter (for Windows/Linux) or CMD-Enter (for Macs).
 
