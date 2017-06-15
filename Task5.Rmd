@@ -7,7 +7,7 @@ output: pdf_document
 
 This is the final optional assignment. After this assignment, you should be able to conduct the queries required for the prework assignment.
 
-#Working with Dates
+## Working with Dates
 
 The one thing to note is that working with dates in R is very kludgy. Although SQLite technically does not have a date type, it includes some simple functionality for manipulating strings as dates. For this reason, you should restrict your queries with dates within RSQLite. Specifically, we are going to use the `date()` function that is built within SQLite to do our date queries. Let's first connect to the database.
 
@@ -64,7 +64,7 @@ queryResult[1:20,]
 
 ```
 
-#Self-Joins
+## Self-Joins
 
 Self-joins on a table can be extremely useful when we need to identify rows within a table that meet criteria based on other rows in the table. The classic example where a self join is useful is an `employee` table which has a column that shows who that employee reports to. This boss is also in the employee table, and so doing a self-join lets us parse the hierarchical structure of employees in the table.
 
@@ -124,7 +124,7 @@ queryResult[1:15,]
 
 Looking at this result, we have correctly identified the index admission dates. (Look at rows 1 and 2 (patient 1), and rows 6 and 7 (patient 5) for confirmation). Note that many patients only have a single admission date. 
 
-#Putting it all together
+## Putting it all together
 
 Your final problem in the prework is to identify the `index_admit` cases in the `patient_encounter_table` which have a readmission within 30 days of the `index_admit`'s discharge date. Code this as a case statement and save the results as another variable called `readmit30` in your table. Your final table should look like this:
 
