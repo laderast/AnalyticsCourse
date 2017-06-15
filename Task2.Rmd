@@ -5,7 +5,7 @@ date: "June 9, 2016"
 output: pdf_document
 ---
 
-##Goals for this week
+## Goals for this week
 
 This week we will download the datasets, load them into R, and do some more simple descriptive statistics on them.
 
@@ -15,7 +15,7 @@ You will want to start an RStudio project in this folder, since you will be acce
 
 If you do this, you can just click on the .Rproj file it generates and have everything easily accessible within the folder. R will able to "see" all of the data files in this folder.
 
-##The concept of a working directory
+## The concept of a working directory
 
 Let's load up Rstudio again. You can find out what your *working directory* is with the `getwd()` command.
 
@@ -38,7 +38,7 @@ list.files()
 setwd("~/Code/AnalyticsCourse/")
 ```
 
-##Loading in Data
+## Loading in Data
 
 Now that we've set our working directory, we can now load our data. Before you do this, you will want to check the readme file to let you know if there are any issues.
 
@@ -65,10 +65,10 @@ In order to access the individual columns, we can use the `$` operator to do ope
 table(patient$riskCat)
 ```
 
-##This Week's Assignment (optional but helpful)
+## This Week's Assignment
 
 Load in the `patient_encounter.txt` file into R, and confirm that you loaded it correctly. How many `No shows` were there in the dataset? (Look in the outcome field). If we want to count the number of readmissions, would we want patients with these values?
 
-##For More Information
+## For More Information
 
 Please refer to R-Bootcamp, [module 2](https://github.com/laderast/r-bootcamp/tree/master/module2) for more information about `data.frames`.

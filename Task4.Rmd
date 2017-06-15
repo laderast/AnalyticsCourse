@@ -9,7 +9,7 @@ This week we will be querying our database. We'll also be doing simple joins and
 
 If you haven't done last week's assignment (loading the dataset into SQLite), please do it now.
 
-##SQL Queries with Joins
+## SQL Queries with Joins
 
 Now that we have our SQLite database (our "data warehouse"), we can now start asking more complicated queries. 
 
@@ -93,7 +93,7 @@ queryResult[1:10,]
 
 **QUESTION**: How would we modify this query to select `Normal` Risk patients who had an outcome of `Rehab`?
 
-##The CASE statement
+## The CASE statement
 
 Sometimes you just want to code whether a row in a table meets a particular criteria or not. This can be useful when chaining queries or as a 'dummy' variable in statistical analysis. You can do this by using the `CASE` statement. 
 
@@ -149,6 +149,6 @@ table(queryResult$highRiskER, queryResult$outcome)
 
 **QUESTION:** Write a query that selects those High Risk patients who have a diagnosis of Acute myocardial infarction of anterolateral wall (ICD9 code is 410.00). How many are there?
 
-##Further Resources
+## Further Resources
 
 For more information, please refer to [Module 5](https://github.com/laderast/r-bootcamp/tree/master/module5) of the R-Bootcamp.
