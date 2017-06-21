@@ -1,0 +1,45 @@
+---
+title: "Answer Sheet 1"
+author: "Put your name here"
+date: "6/21/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+#ignore this section, it's just there for formatting.
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+## Question 1
+
+How many rows are there total?
+
+Answer: 
+
+```{r}
+##put the code that you used to find the answer to question 1 here.
+
+```
+
+## Question 2
+
+What is the maximum `Sepal.Length`? What units is it in? (Hint: look at the help file for the dataset again.)
+
+Answer: 
+
+```{r}
+##put the code that you used to find the answer to question 1 here.
+
+```
+
+## Question 3
+
+How many `setosa` samples are there in the iris dataset? 
+
+Answer: 
+
+```{r}
+##put the code that you used to find the answer to question 1 here.
+
+```

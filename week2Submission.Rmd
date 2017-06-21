@@ -1,0 +1,27 @@
+---
+title: "Week 2 Assignment"
+author: "Put your name here"
+date: "6/21/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Question 1
+
+How many `No shows` were there in the dataset? (Look in the outcome field). 
+
+Answer:
+
+```{r}
+##show the code you used to find this answer here
+
+```
+
+## Question 2
+
+If we want to count the number of readmissions, would we want patients with these values?
+
+Answer (you don't need to show code here): 
