@@ -1,0 +1,32 @@
+---
+title: 'Problem Set #1'
+author: "David Dorr and Ted Laderas"
+date: "August 18, 2016"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Identifying Appropriate Algorithms to Predict Readmission Risk
+
+Before you go ahead with this problem set, make sure that you have done the prework!
+
+**Purpose**:  To identify potential requirements for measuring readmissions and predicting readmission risk, and to map these from source data warehouse data.
+
+**Background**:  Several algorithms have been created to predict readmission risk. The LACE and Amarasingham papers are provided as prototypical examples of these algorithms.  An optional paper by Kansagara et al. highlights the overall performance of these algorithms.
+
+**Deliverables**:  
+1) First 20 lines of your table with L,A, and E scores
+2) The code you used to generate the scores
+
+## Suggested Steps:     
+
+0) Complete the prework assignment (week 6) - you need to have your data downloaded and stored into a SQLite database.
+1) Store all the data frames into a database in R, if you haven't; otherwise, load the data set / database.
+2) For the L Score, add to your analytic table that you started in your prework to calculate `Length_of_stay` and whether this was an admission from the ED.  Recode the `Length_of_stay` into the Lace Version.
+3) For the A score, you need to identify patients in `patient_encounter_hosp` that have been admitted through the Emergency Room. Recode these patients according to the LACE specification.
+4) Look in `patient_encounter` to find ED visits.  You may find the code file `t_encounter_type` useful.  Count the ED visits (in aggregate) per admission; recode the visits number into the LACE specification.
+5) Add these variables to your data dictionary.
+6) Advanced:  add more data points from the other files into your analytic file from other algorithms.
