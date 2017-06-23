@@ -18,6 +18,7 @@ How many rows are there total?
 Answer: 
 
 ```{r}
+data(iris)
 ##put the code that you used to find the answer to question 1 here.
 
 ```
@@ -43,3 +44,7 @@ Answer:
 ##put the code that you used to find the answer to question 1 here.
 
 ```
+
+## If you need help
+
+Please post questions to the Week 1 forum, or email Ted Laderas or Mark Klick through sakai.
