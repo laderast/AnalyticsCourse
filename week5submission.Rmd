@@ -1,0 +1,43 @@
+---
+title: "Week 4 Assignment"
+author: "Put your name here"
+date: "6/21/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Query Code
+
+Your final problem in the prework is to identify the `index_admit` cases in the `patient_encounter_table` which have a readmission within 30 days of the `index_admit`'s discharge date. Code this as a case statement and save the results as another variable called `readmit30` in your table. 
+
+There are multiple routes to do this: You can first identify the index cases, save that version of `patient_encounter_hosp` as a table in your database, and then identify the cases within the index variable. However, you can also combine the two cases into a single statement, because we know that there are only two types of entries in these table. How could you do that? (Hint: you will have to do another self-join.)
+
+Put your query code below.
+
+```{r}
+##show your code here
+
+```
+
+## Question 1
+
+1) How many index cases are there?
+
+Answer: 
+
+```{r}
+## put your code here
+```
+
+## Question 2
+
+2) How many readmit30 cases are there?
+
+Answer: 
+
+```{r}
+## put your code here
+```

@@ -145,9 +145,13 @@ Now that we have our `highRiskER` coded, we can ask some questions that require 
 table(queryResult$highRiskER, queryResult$outcome)
 ```
 
-**QUESTION:** How do we modify the above query for the a case variable `NormalClinic` that returns a 1 where the riskCategory is `Normal` and the admit source is `Clinic`?
+## Week 4 Assignment (3 points)
 
-**QUESTION:** Write a query that selects those High Risk patients who have a diagnosis of Acute myocardial infarction of anterolateral wall (ICD9 code is 410.00). How many are there?
+Submit this week's assignment using the `week4Submission.Rmd` file.
+
+1) Modify a query to create a case variable `NormalClinic` that returns a 1 where the riskCategory is `Normal` and the admit source is `Clinic` (we give you the base query in `week4Submission.Rmd`.
+
+2) Write a query that selects those High Risk patients who have a diagnosis of Acute myocardial infarction of anterolateral wall (ICD9 code is 410.00). How many are there?
 
 ## Further Resources
 

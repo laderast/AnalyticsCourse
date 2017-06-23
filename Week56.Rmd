@@ -5,7 +5,7 @@ date: "June 9, 2016"
 output: pdf_document
 ---
 
-This is the final optional assignment. After this assignment, you should be able to conduct the queries required for the prework assignment.
+This is the final assignment. After this assignment, you should be able to conduct the queries required for the prework assignment.
 
 ## Working with Dates
 
@@ -124,9 +124,11 @@ queryResult[1:15,]
 
 Looking at this result, we have correctly identified the index admission dates. (Look at rows 1 and 2 (patient 1), and rows 6 and 7 (patient 5) for confirmation). Note that many patients only have a single admission date. 
 
-## Putting it all together
+## Week 5-6 Assignment (5 points)
 
-Your final problem in the prework is to identify the `index_admit` cases in the `patient_encounter_table` which have a readmission within 30 days of the `index_admit`'s discharge date. Code this as a case statement and save the results as another variable called `readmit30` in your table. Your final table should look like this:
+Your final problem in the prework is to identify the `index_admit` cases in the `patient_encounter_table` which have a readmission within 30 days of the `index_admit`'s discharge date. Code this as a case statement and save the results as another variable called `readmit30` in your table. 
+
+Your final table should look like this:
 
 ```{r echo=FALSE}
 tab <- read.delim("peh_example.txt")
@@ -134,3 +136,8 @@ tab[1:10,]
 ```
 
 There are multiple routes to do this: You can first identify the index cases, save that version of `patient_encounter_hosp` as a table in your database, and then identify the cases within the index variable. However, you can also combine the two cases into a single statement, because we know that there are only two types of entries in these table. How could you do that? (Hint: you will have to do another self-join.)
+
+Submit all code you used to build the queries, along with the answers to the following questions:
+
+1) How many index cases are there?
+2) How many readmit30 cases are there?

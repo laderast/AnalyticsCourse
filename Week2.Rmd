@@ -9,15 +9,15 @@ output: pdf_document
 
 This week we will download the datasets, load them into R, and do some more simple descriptive statistics on them.
 
-Download the [synthetic dataset here](https://sakai.ohsu.edu/access/content/group/BMI-569-1-AI-Su16/modules/RawSyntheticData.zip), unzip it, and place the folder somewhere easily accessible (the Desktop is fine for now). 
+Download the [synthetic dataset here](https://sakai.ohsu.edu/access/content/group/BMI-569-1-AF-Su17/modules/RawSyntheticData.zip), unzip it, and place the folder somewhere easily accessible (the Desktop is fine for now). 
 
-You will want to start an RStudio project in this folder, since you will be accessing this data for the rest of the pre-work and the in-class sessions. (Go to ">File>New Project>Create Project in Existing Directory" and select the folder.) 
+You will want to start an RStudio project in this folder, since you will be accessing this data for the rest of the pre-work and the in-class sessions. (Go to `>File>New Project>Create Project in Existing Directory` and select the folder.) 
 
-If you do this, you can just click on the .Rproj file it generates and have everything easily accessible within the folder. R will able to "see" all of the data files in this folder.
+Once you do this, you can just click on the `.Rproj` file it generates and have everything easily accessible within the folder. R will able to "see" all of the data files in this folder.
 
 ## The concept of a working directory
 
-Let's load up Rstudio again. You can find out what your *working directory* is with the `getwd()` command.
+Let's load up Rstudio again and your project. You can find out what your *working directory* is with the `getwd()` command.
 
 ```{r}
 getwd()
@@ -65,9 +65,19 @@ In order to access the individual columns, we can use the `$` operator to do ope
 table(patient$riskCat)
 ```
 
-## This Week's Assignment
+## This Week's Assignment (1 point)
 
-Load in the `patient_encounter.txt` file into R, and confirm that you loaded it correctly. How many `No shows` were there in the dataset? (Look in the outcome field). If we want to count the number of readmissions, would we want patients with these values?
+Load in the `patient_encounter.txt` file into R, and confirm that you loaded it correctly. Submit your answers as a .R file, and show the code you used and your
+answers as comments (use `##` to show which lines are your answers)
+
+1) How many `No shows` were there in the dataset? (Look in the outcome field). 
+2) If we want to count the number of readmissions, would we want patients with these values?
+
+## How to submit
+
+Submit your answer using the `week2Submission.Rmd` file. This is an RMarkdown file and you can mix code and text using it. You can open this file directly into Rstudio. 
+
+Make sure to rename the `week2Submission.Rmd` file to `week2Submission-LASTNAME.Rmd` with your last name, so we can confirm that you submitted the assignment.
 
 ## For More Information
 

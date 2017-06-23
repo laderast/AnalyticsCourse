@@ -1,5 +1,5 @@
 ---
-title: 'Task 1: Introduction/Installing Software'
+title: 'Week 1: Introduction/Installing Software'
 author: "Ted Laderas"
 date: "June 9, 2016"
 output: pdf_document
@@ -26,7 +26,7 @@ In order to achieve this goal, we will be slowly be exploring R and SQL over the
 
 Your goal this week will be to install two pieces of software that we'll use for analysis: R and Rstudio. Once you've installed it, we'll take a look at the interface, load in a built-in dataset, and do some simple summary statistics.
 
-The first thing to do is to install R. Go to https://cran.r-project.org and download the appropriate binary for your system. If you are on a linux system and there is not a previously compiled binary for your distribution, you will need to install it with a package manager, such as `apt-get`. R is the statistical language that we are going to do all of our work in. 
+The first thing to do is to install R. Go to https://cran.r-project.org and download the appropriate binary for your system. If you are on a linux system and there is not a previously compiled binary for your distribution, you will need to install it with a package manager, such as `apt-get` or `conda`. R is the statistical language that we are going to do all of our work in. 
 
 Secondly, we will install Rstudio. Go to http://www.rstudio.com and install the appropriate version for your system. Rstudio is what's called an *Integrative Development Environment* (IDE), which will make working with R much easier. In order to use it, you need to have R installed.
 
@@ -60,20 +60,29 @@ We may want to know more information about the dataset. We can do some simple su
 summary(iris)
 ```
 
-**QUESTION**: How many `setosa` samples are there in the iris dataset? 
-
-**QUESTION**: What is the maximum `Sepal.Length`? What units is it in? (Hint: look at the help file for the dataset again.)
-
-We might also want to know how many columns and rows there are in the dataset. We can use the `ncol()` and `nrow()` commands to find these
+We might also want to know how many columns and rows there are in the dataset. We can use the `ncol()` and `nrow()` commands to find these:
 
 ```{r}
 nrow(iris)
 ncol(iris)
 ```
 
-**QUESTION**: How many rows are there total?
+## Assignment Week 1 (1 point)
+
+Answer these questions and submit as a .R file. Also note what code you used to find the answer.
+
+1) How many rows are there total?
+2) What is the maximum `Sepal.Length`? What units is it in? (Hint: look at the help file for the dataset again.)
+3) How many `setosa` samples are there in the iris dataset? 
+
+## How to submit
+
+Submit your answer using the `week1Submission.Rmd` file. This is an RMarkdown file and you can mix code and text using it. You can open this file directly into Rstudio. 
+
+Make sure to rename the `week1Submission.Rmd` file to `week1Submission-LASTNAME.Rmd` with your last name, so we can confirm that you submitted the assignment.
 
 ##For more information
 
 Please refer to R-Bootcamp, [Module 1](https://github.com/laderast/r-bootcamp/tree/master/module1) and [Module 2](https://github.com/laderast/r-bootcamp/tree/master/module2) for more information on the Rstudio software and `data.frames`.
 
+Also check out the DataCamp [Introduction to R](https://www.datacamp.com/courses/free-introduction-to-r) as another friendly introduction to R.
