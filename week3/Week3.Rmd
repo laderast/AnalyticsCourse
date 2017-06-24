@@ -122,7 +122,7 @@ selectResults <- dbGetQuery(SQLiteConnection, sqlStatement)
 selectResults[1:10,]
 ```
 
-##Assignment Week 3
+##Assignment Week 3 (2 Points)
 
 Load the rest of your tables into your SQLite Database. Remember, you will need to disconnect from the database using `dbDisconnect()` to save the tables into the database. You can do this after you write all the tables into the database. 
 

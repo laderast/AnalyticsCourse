@@ -2,7 +2,7 @@
 title: "Answer Sheet 1"
 author: "Put your name here"
 date: "6/21/2017"
-output: html_document
+output: pdf_document
 ---
 
 ```{r setup, include=FALSE}

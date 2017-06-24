@@ -30,10 +30,10 @@ list.files()
 You can set your working directory using the `setwd()` command. Here my data files are in the `~/Code/AnalyticsCourse/RawSyntheticData` folder, so I'll set it there:
 
 ```{r}
-setwd("~/Code/AnalyticsCourse/RawSyntheticData/")
-#confirm R can 'see' your files
-list.files()
+list.files(path="~/Code/AnalyticsCourse/RawSyntheticData/")
+```
 
+```{r}
 #change it back
 setwd("~/Code/AnalyticsCourse/")
 ```
@@ -65,7 +65,7 @@ In order to access the individual columns, we can use the `$` operator to do ope
 table(patient$riskCat)
 ```
 
-## This Week's Assignment (1 point)
+## This Week's Assignment (2 points)
 
 Load in the `patient_encounter.txt` file into R, and confirm that you loaded it correctly. Submit your answers as a .R file, and show the code you used and your
 answers as comments (use `##` to show which lines are your answers)

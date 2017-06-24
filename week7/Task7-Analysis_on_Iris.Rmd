@@ -3,6 +3,7 @@ title: "Analysis on Iris"
 author: "Ted Laderas & Mark Klick"
 date: "June 1, 2017"
 output: 
+  pdf_document
   html_document:
     toc: true
     depth: 3

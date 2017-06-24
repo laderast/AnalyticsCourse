@@ -131,7 +131,7 @@ Your final problem in the prework is to identify the `index_admit` cases in the 
 Your final table should look like this:
 
 ```{r echo=FALSE}
-tab <- read.delim("peh_example.txt")
+tab <- read.delim("RawSyntheticData/peh_example.txt")
 tab[1:10,]
 ```
 
