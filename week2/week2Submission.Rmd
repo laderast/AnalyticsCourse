@@ -9,6 +9,8 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+Note: Make sure that you can knit this document using `rmarkdown::render`
+
 ## Question 1
 
 How many `No shows` were there in the dataset? (Look in the outcome field). 
@@ -17,6 +19,8 @@ Answer:
 
 ```{r}
 ##show the code you used to find this answer here
+patient <- read.table("data/patient.txt", sep = "|", header=TRUE)
+
 
 ```
 

@@ -1,5 +1,5 @@
 ---
-title: 'Task 2: Loading External Datasets/Descriptive Statistics'
+title: 'Week 2: Loading External Datasets/Descriptive Statistics'
 author: "Ted Laderas"
 date: "June 9, 2016"
 output: pdf_document
@@ -9,11 +9,9 @@ output: pdf_document
 
 This week we will download the datasets, load them into R, and do some more simple descriptive statistics on them.
 
-Download the [synthetic dataset here](https://sakai.ohsu.edu/access/content/group/BMI-569-1-AF-Su17/modules/RawSyntheticData.zip), unzip it, and place the folder somewhere easily accessible (the Desktop is fine for now). 
+Download the [analyticsWorkspace zip](https://sakai.ohsu.edu/access/content/group/BMI-569-1-AF-Su17/modules/RawSyntheticData.zip), unzip it, and place the folder somewhere easily accessible (the Desktop is fine for now). 
 
-You will want to start an RStudio project in this folder, since you will be accessing this data for the rest of the pre-work and the in-class sessions. (Go to `>File>New Project>Create Project in Existing Directory` and select the folder.) 
-
-Once you do this, you can just click on the `.Rproj` file it generates and have everything easily accessible within the folder. R will able to "see" all of the data files in this folder.
+Open the `analyticsWorkspace.Rproj` file. It should open this project up in RStudio. This project is where you will be doing the rest of your work for the Analytics Course.
 
 ## The concept of a working directory
 
@@ -27,17 +25,6 @@ getwd()
 list.files()
 ```
 
-You can set your working directory using the `setwd()` command. Here my data files are in the `~/Code/AnalyticsCourse/RawSyntheticData` folder, so I'll set it there:
-
-```{r}
-list.files(path="~/Code/AnalyticsCourse/RawSyntheticData/")
-```
-
-```{r}
-#change it back
-setwd("~/Code/AnalyticsCourse/")
-```
-
 ## Loading in Data
 
 Now that we've set our working directory, we can now load our data. Before you do this, you will want to check the readme file to let you know if there are any issues.
@@ -45,7 +32,7 @@ Now that we've set our working directory, we can now load our data. Before you d
 Opening the file `patient.txt` in a text editor, we notice a few things. The fields are separated by the `|` character, so we need to specify that. Also, there is a header for the file.
 
 ```{r}
-patient <- read.table("RawSyntheticData/patient.txt", sep = "|", header=TRUE)
+patient <- read.table("data/patient.txt", sep = "|", header=TRUE)
 
 #confirm that we have loaded the data directly.
 head(patient)
@@ -64,6 +51,34 @@ In order to access the individual columns, we can use the `$` operator to do ope
 ```{r}
 table(patient$riskCat)
 ```
+
+## Knitting Your Submission File
+
+One of the great things about using `.Rmd` (Rmarkdown) files is that you can make reports that you can rerun. We will use a package called `rmarkdown` to do this.
+
+```{r eval=FALSE}
+##install knitr if you haven't already
+install.packages("rmarkdown")
+```
+
+Once `rmarkdown` is installed, try running the following commands in the console:
+
+```{r eval=FALSE}
+library(rmarkdown)
+rmarkdown::render("week2Submission.Rmd")
+#you can also use the "Knit" button above this script (it has a ball of yarn next to it).
+```
+
+Now open the `week2Submission.html` file that it generated. This is known as `Rmarkdown` output. You can see that it renders both `R` code and text into a single report. It's pretty slick and will prevent you from having to completely put together reports from scratch if the underlying data changes.
+
+## Notes on Rmarkdown
+
+Note that your code must work from scratch (that is, your code must load data and execute code before you can render the markdown file). When `render()` works, it starts from a completely blank workspace and it doesn't see anything in your current workspace. 
+I've started you out with the data loading in your `week2Submission.Rmd` script so you don't have to worry about it this time.
+
+The reason for this is to encourage *reproducibility* - having code that executes from raw data to final output is desirable. Note that we usually will have code in multiple stages, so we can use intermediate outputs, such as the database we'll be creating in Week 3.
+
+More info on RMarkdown is here: http://rmarkdown.rstudio.com
 
 ## This Week's Assignment (2 points)
 

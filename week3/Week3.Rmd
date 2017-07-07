@@ -1,5 +1,5 @@
 ---
-title: 'Task 3: SQLite Introduction'
+title: 'Week 3: SQLite Introduction'
 author: "Ted Laderas"
 date: "June 9, 2016"
 output: pdf_document
@@ -40,7 +40,7 @@ SQLiteConnection <- dbConnect(drv=SQLite(),dbname="patient1.sqlite")
 Let's load in one of our tables into R first and then save it as a table into the database:
 
 ```{r}
-patient <- read.table("RawSyntheticData/patient.txt", header=TRUE, sep="|")
+patient <- read.table("data/patient.txt", header=TRUE, sep="|")
 
 #write a table named "patient" with our patient table into the database
 dbWriteTable(conn = SQLiteConnection, name="patient", value=patient)
