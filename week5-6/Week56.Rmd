@@ -1,5 +1,5 @@
 ---
-title: 'Task 5: SQLite: Self Joins/Working with Dates'
+title: 'Weeks 5 and 6: SQLite: Self Joins/Working with Dates'
 author: "Ted Laderas"
 date: "June 9, 2016"
 output: pdf_document

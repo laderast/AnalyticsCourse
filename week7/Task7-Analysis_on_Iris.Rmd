@@ -4,12 +4,17 @@ author: "Ted Laderas & Mark Klick"
 date: "June 1, 2017"
 output: 
   pdf_document
+---
+
+```{r eval=FALSE, echo=FALSE}
   html_document:
     toc: true
     depth: 3
     number_sections: true
     theme: united
----
+
+```
+
 # Introduction
 
 In the first section of this Markdown document, I show how to run a strawman logistic regression on the iris dataset using the `glm` package. 

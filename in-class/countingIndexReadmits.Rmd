@@ -1,0 +1,40 @@
+---
+title: "Counting the readmissions/index cases"
+output: pdf_document
+---
+
+
+
+```{r}
+library(RSQLite)
+
+con <- dbConnect(SQLite(),dbname="patient.sqlite")
+
+#your query (fixed)
+sqlStatement<-  "SELECT peh.*,
+                CASE WHEN peh2.Admit_date IS NULL THEN 1 ELSE 0 END AS indexadmit,
+                CASE WHEN date(peh3.Admit_date) < date(peh.Discharge_date, '+30 
+                day') THEN 1 ELSE 0 END AS Readmit30
+                FROM patient_encounter_hosp peh LEFT JOIN patient_encounter_hosp peh2 
+                ON peh.patientid = peh2.patientid AND date(peh2.Admit_date) < date(peh.Admit_date)
+                LEFT JOIN patient_encounter_hosp peh3
+                ON peh.patientid = peh3.patientid AND date(peh.Admit_date) < date(peh3.Admit_date)"
+
+queryResult <- dbGetQuery(con, sqlStatement)
+
+#show result - this is correct
+queryResult[1:30,]
+```
+
+Here I summarize details of the data set. I first count the number of rows returned by this query. Then I count the index cases, and then I count the number of readmits. The readmits should be a subset (that is, have a smaller count) of the index cases. Additionally, the two of them (readmits/index cases) should add up to the total number of rows, since we know there are *only* index cases and readmits in the dataset.
+
+```{r}
+nrow(queryResult)
+
+#count index cases
+sum(queryResult$indexadmit)
+
+#count readmissions
+sum(queryResult$Readmit30)
+```
+

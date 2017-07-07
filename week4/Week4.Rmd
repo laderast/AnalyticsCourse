@@ -1,5 +1,5 @@
 ---
-title: 'Task 4: SQLite: Joining Tables and the CASE statement'
+title: 'Week 4: SQLite: Joining Tables and the CASE statement'
 author: "Ted Laderas"
 date: "June 9, 2016"
 output: pdf_document
@@ -20,14 +20,14 @@ In order to do this, we will do what is called a database join, where we map row
 Here are the first few rows of the `patient` table to remind you of what's in it. What variable are we looking for in this table?
 
 ```{r echo=FALSE}
-tab <- read.table("RawSyntheticData/patient.txt", sep="|", header = TRUE)
+tab <- read.table("data/patient.txt", sep="|", header = TRUE)
 head(tab)
 ```
 
 Here are the first few rows of the `patient_encounter_hosp` table to remind of what's in it. What variable are we looking for in this table?
 
 ```{r echo=FALSE}
-tab <- read.table("RawSyntheticData/patient_encounter_hosp.txt", sep="|", header=TRUE)
+tab <- read.table("data/patient_encounter_hosp.txt", sep="|", header=TRUE)
 head(tab)
 ```
 

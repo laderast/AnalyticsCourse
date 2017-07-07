@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Your Assignment
 
-Load all of the tables in the `RawSyntheticData` dataset into your SQLite Database. Remember, you will need to disconnect from the database using `dbDisconnect()` to save the tables into the database. You can do this after you write all the tables into the database.
+Load all of the tables in the `RawSyntheticData` dataset (that are in in the `data` folder) into your SQLite Database. Remember, you will need to disconnect from the database using `dbDisconnect()` to save the tables into the database. You can do this after you write all the tables into the database.
 
 Construct a query for each table to confirm that the number of rows of each loaded table is identical to the number of rows in the corresponding table you loaded into R. 
 
