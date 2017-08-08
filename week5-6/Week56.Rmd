@@ -1,11 +1,16 @@
 ---
 title: 'Weeks 5 and 6: SQLite: Self Joins/Working with Dates'
 author: "Ted Laderas"
-date: "June 9, 2016"
+date: "July 24, 2017"
 output: pdf_document
 ---
 
-This is the final assignment. After this assignment, you should be able to conduct the queries required for the prework assignment.
+```{r setup, include=FALSE}
+knitr::opts_knit$set(knit_root_dir = "~/Code/analyticsWorkspace/")
+```
+
+
+This is the final SQL assignment. After this assignment, you should be able to conduct the queries required for the prework assignment.
 
 ## Working with Dates
 
@@ -68,7 +73,9 @@ queryResult[1:20,]
 
 Self-joins on a table can be extremely useful when we need to identify rows within a table that meet criteria based on other rows in the table. The classic example where a self join is useful is an `employee` table which has a column that shows who that employee reports to. This boss is also in the employee table, and so doing a self-join lets us parse the hierarchical structure of employees in the table.
 
-In our case, we want to identify the first date a patient was admitted (the index admission date). We know that the `patient_encounter_hosp` table only has two kinds of encounters in it. The first kind of encounter is the `index` encounter, i.e., the first date when the patient was admitted. The other kind of encounter are readmission encounters.  In other words, in the `patient_encounter_hosp` table, each patient has at most two encounters. 
+In our case, we want to identify the first date a patient was admitted (the index admission date). We know that the `patient_encounter_hosp` table only has two kinds of encounters in it. 
+
+The first kind of encounter is the `index` encounter, i.e., the date when the patient was first admitted. The other kind of encounter are readmission encounters. In other words, in the `patient_encounter_hosp` table, **each patient has at most two encounters** (obviously in real life, this is not the case. For this dataset, we have simplified things somehwat). 
 
 Let's identify the index encounters first. We need to use a `CASE` statement to mark them (1 if an index case, 0 if not), and we will use a self-join to find them. Since we know that each patient has at most two entries, we just need to identify those cases
 
@@ -131,7 +138,7 @@ Your final problem in the prework is to identify the `index_admit` cases in the 
 Your final table should look like this:
 
 ```{r echo=FALSE}
-tab <- read.delim("RawSyntheticData/peh_example.txt")
+tab <- read.delim("data/peh_example.txt")
 tab[1:10,]
 ```
 
