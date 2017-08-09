@@ -1,0 +1,45 @@
+---
+title: "Week 7 Submission"
+author: "Ted Laderas"
+date: "8/8/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Homework Week 7
+
+## Problem 1 (2 pts)
+
+Modify `ageGenderModel` by changing the covariates. Justify why you think the covariates should be included in the model. Assess the predicted accuracy of your new model compared to the old one. Interpret the effect of one of your numerical covariates (`age`, `bmi`, `sbp` and `tchol`). Is the effect a large one? Which model is a better predictor of CVD? By how much? (use either accuracy or AUC when reporting your result.) 
+
+Note that you do *not* need to replicate the plots; they're mostly there for illustrative purposes. But definitely use anything you think is useful in setting up the discussion of your model.
+
+```{r}
+library(tidyverse)
+library(broom)
+library(caret)
+#set the random seed - necessary for comparing this with machine learning doc.
+set.seed(111)
+
+#load data from a dropbox folder
+cvd_patient <- read.csv("https://www.dropbox.com/s/ve6a3at7h2r9zkg/patient_cvd.csv?raw=1")
+
+#put the rest of your code here
+```
+
+## Problem 2 (1 pt)
+
+Should all of these covariates be included in our model: `sbp`, `htn`, and `smoking`? Why or why not? (Think about whether you are providing the same information by including all of these covariates.)
+
+
+
+## Problem 3 (Optional, 2 pts extra credit)
+
+If you are interested in this, check out the machine learning document to learn more about machine learning apporaches. Compare your model in problem 1 with models built using `lda` (linear discriminant analysis) and `rpart` (classification and regression trees) in terms of accuracy. Use the same covariates you used in Problem 1 to build your models. Do either of these methods do any better than logistic regression on this dataset?
+
+```{r}
+#put your code here
+```
