@@ -3,7 +3,6 @@ title: "Machine Learning on CVD Data"
 author: "Ted Laderas and Mark Klick"
 date: "8/8/2017"
 output:
-  pdf_document: default
   html_document: default
 ---
 
@@ -29,7 +28,7 @@ library(tidyverse)
 library(broom)
 library(caret)
 set.seed(111)
-cvd_patient <- read.csv("https://www.dropbox.com/s/ve6a3at7h2r9zkg/patient_cvd.csv?raw=1")
+cvd_patient <- read.csv("https://www.dropbox.com/s/2ozj84szrivjcpp/cvd_patient.csv?raw=1")
 
 summary(cvd_patient)
 ```

@@ -6,6 +6,8 @@ output: pdf_document
 ---
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE}
+#knitr::opts_chunk$set(root.dir = '~/Code/analyticsWorkspace/')
+
 if(file.exists("patient1.sqlite")){
   file.remove("patient1.sqlite")
 }
