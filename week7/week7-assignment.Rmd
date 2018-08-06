@@ -113,7 +113,7 @@ We're just going to summarize `analytic_table` in terms of a couple variables fi
 Let's talk about the `data` and `mapping` arguments first. The `data` argument is our `data.frame()` of interest: `analytic_table`. Things get a little more interesting with the `mapping` argument. Let's take it apart:
 
 ```
-aes(x=indexadmit)
+aes(x=Readmit30)
 ```
 
 The `aes()` function will return a mapping. Within that mapping, we see that we are mapping the `indexadmit` column to the `x` aesthetic, which corresponds to the the x-axis. 
@@ -129,13 +129,13 @@ The `geom_bar()` is the actual *geometric layout* that we are going to display t
 + linetype
 + size
 
-Only the `x` variable is required for `geom_bar`. 
+Only the `x` variable is required for `geom_bar`. Here's a list of all of the geoms: https://ggplot2.tidyverse.org/reference/#section-layer-geoms 
 
 The other thing to notice is that we chain the `ggplot()` and `geom_bar()` statements with a `+` sign. The strength of `ggplot2` is the fact that you can layer multiple datasets and multiple types of visualizations as layers on the ggplot. 
 
 ## Getting more complicated: adding a `fill` aesthetic
 
-We can get more complicated with mapping a variable to the fill column: 
+We can get more complicated with mapping a variable to the fill aesthetic: 
 
 ```{r}
  bar_plot1 <-  ggplot(data=analytic_table, 
