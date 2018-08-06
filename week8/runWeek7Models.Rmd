@@ -1,0 +1,139 @@
+---
+title: "CVD Risk Figures"
+author: "Ted Laderas"
+date: "8/7/2017"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+knitr::opts_knit$set(root.dir = "~/Code/AnalyticsCourse/")
+```
+
+## Predicting CVD Risk
+
+Cardiovascular disease risk is mediated by many factors, including BMI (body mass index), Age, as well as Gender. Our goal for today is to predict whether or not a patient is at risk or cardiovascular disease given a number of measured factors.
+
+For this task, we will attempt to predict cardiovascular risk using a patient dataset called `cvd_patient`, which we will load from a Dropbox folder. This dataset is completely synthetic, so don't worry about patient confidentiality. 
+
+Before we do anything, let's do a summary on the data.
+
+```{r}
+library(tidyverse)
+library(broom)
+library(caret)
+#set the random seed - necessary for comparing this with machine learning doc.
+set.seed(111)
+
+#load data from a dropbox folder
+cvd_patient <- read.csv("week7/cvd_patient.csv")
+
+summary(cvd_patient)
+```
+
+## Separating Our Data
+
+```{r}
+#grab indices of the dataset that represent 80% of the data
+trainingIndices <- createDataPartition(y = cvd_patient$cvd, p=.80,
+                                       list=FALSE)
+
+#show the first few training indices
+trainingIndices[1:10]
+
+#select the rows
+trainData <- cvd_patient[trainingIndices,]
+#confirm the number of rows (should be 80)
+nrow(trainData)
+
+#build our test set using the R-indexing
+#using the "-" operator
+testData <- cvd_patient[-trainingIndices,]
+
+#confirm the number of rows 
+nrow(testData)
+```
+
+## Grab Formulas and Thresholds
+
+```{r}
+library(tidyverse)
+library(readr)
+library(caret)
+
+models <- read_delim("week7/modeling_predictions.tsv", delim="\t") %>% 
+  dplyr::filter(!is.na(`Cutoff Value`))  %>% dplyr::filter(!grepl("raceBlackYN", `Model Formula`)) %>%
+  select(-`Method Sensitivity`, -`Method PPV`, -`Balanced Accuracy`, -Accuracy)
+
+runModel <- function(.x){
+  
+  model_formula <- as.formula(.x$`Model Formula`)
+  model <- glm(model_formula, data=trainData, family="binomial")
+  threshold <- .x$`Cutoff Value`
+  modelProbs <- predict(model, newdata=testData, type = "response")
+  modelThresholds <- ifelse(modelProbs < threshold, "N", "Y")
+  confStat <- caret::confusionMatrix(modelThresholds, testData$cvd,positive="Y")
+  out <- c(confStat$byClass[c("Sensitivity", "Pos Pred Value", "Balanced Accuracy")], confStat$overall["Accuracy"])
+  return(out)
+}
+
+mods <- lapply(1:nrow(models), function(x){datRow <- models[x,]; runModel(datRow)})
+
+modResults <- do.call(rbind, mods)
+
+output <- data.frame(models, modResults)
+
+output <- output %>% select(`ID`,`Model.Formula`, `Cutoff.Value`, sensitivity=Sensitivity, 
+                  pos_pred_value=`Pos.Pred.Value`, balanced_accuracy=`Balanced.Accuracy`)
+
+output %>% 
+  gather(metric,value,-`Model.Formula`,-`Cutoff.Value`,-ID) %>% mutate(metric=factor(metric)) %>%
+  ggplot(aes(x=metric, y=value, group=`metric`, color=`Model.Formula`)) + geom_boxplot() + geom_point()
+```
+
+```{r}
+library(stringr)
+
+modelsCourse <- read_delim("week7/modeling_predictions.tsv", delim="\t") %>% 
+  dplyr::filter(`Cohort Definition`!= "sampled set") %>% 
+  select(cohort=`Cohort Definition`,percent_in_cohort= `CVD Percent in Cohort`, 
+         sensitivity=`Method Sensitivity`, pos_pred_value=`Method PPV`, 
+         balanced_accuracy=`Balanced Accuracy`, accuracy=Accuracy) %>% 
+  mutate(percent_in_cohort=str_replace(percent_in_cohort, pattern = "%", replacement = "")) %>%
+  mutate(percent_in_cohort=as.numeric(percent_in_cohort))
+
+output2 <- output %>% mutate(Cohort="analytics_course") %>% select(Cohort, sensitivity, pos_pred_value, balanced_accuracy)
+
+graph1 <- modelsCourse %>% 
+  ggplot(aes(x=percent_in_cohort, y=balanced_accuracy)) + geom_point() 
+graph2 <- 
+  modelsCourse %>% ggplot(aes(x=percent_in_cohort, y=pos_pred_value)) + geom_point() #+ geom_smooth(method="lm", level=0)
+graph3 <- 
+  modelsCourse %>% ggplot(aes(x=percent_in_cohort, y=sensitivity)) + geom_point() 
+
+
+shortCourse <- modelsCourse %>% mutate(Cohort="short_course") %>% 
+  select(Cohort, sensitivity, pos_pred_value, balanced_accuracy)
+allScores <- rbind(output2, shortCourse)
+
+allScoresLong <- allScores %>% gather(key="metric", value="value", -Cohort) %>% dplyr::filter(!is.na(value)) %>%
+  mutate(groupVar=paste0(metric, "-", Cohort))
+
+comparisonGraph <- allScoresLong %>% ggplot(aes(x=metric, y=value, group=groupVar, linetype = Cohort)) + 
+  geom_boxplot() + facet_wrap(facets=~metric, scale="free_x") + theme(axis.text = NULL)
+
+
+pdf("comparison_graph.pdf")
+print(comparisonGraph)
+dev.off()
+
+library(gridExtra)
+
+lay <- rbind(c(1,2,3), c(4,4,4))
+
+pdf("figure_course_results.pdf")
+grid.arrange(graph1, graph2, graph3, comparisonGraph, layout_matrix=lay)
+dev.off()
+```

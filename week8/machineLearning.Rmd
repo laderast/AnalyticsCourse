@@ -1,0 +1,149 @@
+---
+title: "Machine Learning on CVD Data"
+author: "Ted Laderas and Mark Klick"
+date: "8/8/2017"
+output:
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Optional: Running multiple machine learning methods on the `cvd_patient` dataset
+
+The following section is optional. You can use a variety of other machine learning methods conveniently wrapped in the 'caret' package. Here we show how to use the following methods:
+
+  + `lda` - linear discriminant analysis, 
+  + `rpart` - Classification and regression trees 
+
+A full list of machine learning methods in `caret` is available here: http://topepo.github.io/caret/available-models.html Note that you will also have to install the corresponding packages listed for that method.
+
+## Predicting CVD Risk
+
+We will attempt to predict cardiovascular risk using a patient dataset called `cvd_patient`, which we will load from a Dropbox folder. This dataset is completely synthetic, so don't worry about patient confidentiality.
+
+```{r}
+library(tidyverse)
+library(broom)
+library(caret)
+set.seed(111)
+cvd_patient <- read.csv("https://www.dropbox.com/s/2ozj84szrivjcpp/cvd_patient.csv?raw=1")
+
+summary(cvd_patient)
+```
+
+## Separating Our Data
+
+One of the things we might like to check is the predictive power of the model. For this reason, we want to save a little bit of our data that the model doesn't "see" for testing the predicitve power of the model.
+
+We hold out 20 percent of the data by using the `createPartitionData()` function in `caret`. `createPartitionData()` returns a number of rows that we can use to subset the data into two sets: 1) our `test` dataset (20% of our data), which we'll use to test our model's predictive value, and 2) our `training` dataset (80% of our data), which we'll use to actually build (or train) our model.
+
+```{r}
+#grab indices of the dataset that represent 80% of the data
+trainingIndices <- createDataPartition(y = cvd_patient$cvd, p=.80,
+                                       list=FALSE)
+
+#show the first few training indices
+trainingIndices[1:10]
+
+#select the rows
+trainData <- cvd_patient[trainingIndices,]
+#confirm the number of rows (should be 80)
+nrow(trainData)
+
+#build our test set using the R-indexing
+#using the "-" operator
+testData <- cvd_patient[-trainingIndices,]
+
+#confirm the number of rows 
+nrow(testData)
+```
+
+##Build the Models using `caret`
+
+The `caret` package gives us a standard function to train our learners using the `train()` function. Notice that it uses a similar format to the `glm()` function, which we used for logistic regression.
+
+```{r warning=FALSE, message=FALSE}
+
+#train linear discriminant analysis method
+ldaCVD <- train(cvd ~ age + gender, method= "lda", data=trainData)
+
+#train classification and regression tree
+cartCVD <- train(cvd ~ age + gender, method= "rpart", data=trainData)
+```
+
+## Assessing the models on the Test Set
+
+Now that we have our models trained, we can evaluate them on our test dataset. To do this, we use the `predict` function, and pass both our trained learner `ldaCVD` and our `testData` into `predict`.
+
+```{r}
+#Predict cvd on test data
+classPredLDA <- predict(ldaCVD, newdata=testData)
+
+#Compare predictions directly with the truth
+data.frame(classPredLDA, truth=testData$cvd)[1:10,]
+```
+
+Here we evaluate our LDA model based on how accurately it classifies test set samples as the correct cvd.
+
+```{r}
+truthPredict_lda <-  table(testData$cvd, classPredLDA)
+
+#number of cases
+totalCases_lda <-  sum(truthPredict_lda)
+totalCases_lda
+
+#number of misclassified samples
+misclassified_lda <- truthPredict_lda[1,2] + truthPredict_lda[2,1]
+misclassified_lda
+
+accuracy_lda <- (totalCases_lda - misclassified_lda) / totalCases_lda
+accuracy_lda
+```
+
+We can also use the `caret` package to make the confusion matrices more quickly! Luckily when we compare the accuracy measures compute by our method and `caret` they are the same.
+
+```{r}
+#calculate confusion Matrix and other measures of accuracy
+confMatLDA <- confusionMatrix(testData$cvd, classPredLDA)
+
+#Show everything from `confusionMatrix`
+confMatLDA
+
+#access confusion matrix directly
+confMatLDA$table
+
+#Show accuracy values
+confMatLDA$overall
+
+#Show class agreement values
+confMatLDA$byClass
+```
+
+## So which algorithm did best?
+
+Let's run our predictions on the other learners as well, and compare accuracies:
+
+```{r}
+classPredCart <- predict(cartCVD, newdata = testData)
+
+#compare all the predictions directly
+#were there any rows where the predictions didn't match?
+data.frame(truth=testData$cvd, LDA=classPredLDA, CART=classPredCart)[1:10,]
+```
+
+### Comparing Accuracies of our models
+
+Here we compare the accuracies of our models.
+
+```{r}
+confMatCart <- confusionMatrix(classPredCart, testData$cvd)
+
+accuracyComparison = rbind(
+                       LDA = confMatLDA$overall,
+                       CART = confMatCart$overall
+                    )
+
+accuracyComparison
+```
