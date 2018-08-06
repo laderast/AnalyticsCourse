@@ -1,0 +1,58 @@
+---
+title: "Week 7 Assignment"
+author: "Ted Laderas"
+date: "8/6/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+
+analytic_table <- readr::read_csv("analytic.csv", 
+                                    col_types = cols(
+                                      encounter_type = col_factor(NULL),
+                                      outcome = col_factor(NULL),
+                                      Admit_source= col_factor(NULL),
+                                      indexadmit = col_factor(NULL),
+                                      Readmit30 = col_factor(NULL)
+                                    ))
+```
+
+In this assignment, we're going to focus on visualizing the readmissions and outcomes.
+
+## Problem 1
+
+Show the `outcome` by month of `Admit_date` as a dodged bar plot for `analytic_table`. Save the result as `outcome_graph`. (Hint: think about what needs to be mapped to `x` and `fill`.) Make sure to add a title.
+
+```{r}
+#space for your answer here
+```
+
+Do you notice anything special?
+
+## Problem 2
+
+As a bar graph, show the `Admit_source` on the `x` axis and `Readmit30` as a fill.
+
+```{r}
+#space for your answer here
+```
+
+## Problem 3
+
+Produce a histogram of `length_of_stay` and color by `Readmit30`. 
+
+```{r}
+
+```
+
+## Problem 4
+
+Use `patchwork` to arrange your graphs. You might use all 3, or only two. Do we know anything about readmits? What do we know? (answer in text below your plot)
+
+```{r}
+
+```
+
+text answer here.

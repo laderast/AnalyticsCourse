@@ -1,0 +1,213 @@
+---
+title: 'Week 7: Visualization and Dashboards'
+author: "Ted Laderas" 
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+library(readr)
+library(lubridate)
+library(ggplot2)
+library(dplyr)
+```
+
+This week we will try to understand the kinds of readmissions that are in our dataset. We're going to start with the analytic table we built in Assignment 5 and use some tools within R to do this. Before we get started, we need to install the `tidyverse` set of packages in R. The `tidyverse` is a set of R packages that help you visualize and data munge the data. If you haven't already installed the `tidyverse`, go ahead and do so:
+
+```
+install.packages("tidyverse")
+```
+
+## Loading the data in
+
+I'm providing you with a version of the `analytic` table we calculated in weeks 5/6 so we can do some visualization as `analytic.csv`. We'll take our analytic table and load it as a `data.frame` in R using the `readr` package.
+
+```{r message=FALSE}
+library(tidyverse)
+
+analytic_table <- readr::read_csv("analytic.csv")
+
+head(analytic_table)
+```
+
+Some things to notice: `readr::read_delim()` is smart enough to recognize dates from the formatting, and makes `Admit_date` and `Discharge_date` into the `<date>` format. However, there's a few columns in the table that we want to change the format of so they will be easier to work with. We're going to change the type of `encounter_type`, `outcome`, `Admit_source`, `indexadmit` and `Readmit30` variables to be `factor`, which is R's version of categorical variables. This will help us a lot when we are visualizing and filtering the data.
+
+We can do this by providing an argument to `col_types` about the data types we want to specify for each category. We do this by using the `cols()` function and specifying a named argument for each columns. For each column, we want to specify the value of, we need to name it and specify using a `col_` function what datatype we want to specify it as. There's five that are really useful to us: 
+
++ `col_logical()` (for TRUE/FALSE variables) 
++ `col_integer()` (for count variables)
++ `col_character()` (for strings)
++ `col_double()` (for decimals)
++ `col_factor()` (for factors)
+
+Here we're using `col_factor()` to specify the following columns to be factors. We need to specify a `NULL` argument so it will guess the categories (which are called *levels*) for our variables. Otherwise, we'd have to specify every level for every variable.
+
+```{r}
+analytic_table <- readr::read_csv("analytic.csv", 
+                                    col_types = cols(
+                                      encounter_type = col_factor(NULL),
+                                      outcome = col_factor(NULL),
+                                      Admit_source= col_factor(NULL),
+                                      indexadmit = col_factor(NULL),
+                                      Readmit30 = col_factor(NULL)
+                                    ))
+
+head(analytic_table)
+```
+
+Now we see everything is nicely formatted and ready to be visualized.
+
+## An overview of the data
+
+I'm going to use a package called `skimr` to summarize the data:
+
+```{r}
+library(skimr)
+skimr::skim(analytic_table)
+```
+
+Let's take a look at the summary table. How many observations are in the table? How many variables?
+
+## Another way to look at the data: `glimpse`
+
+The `glimpse` function is another useful tool to look at a `data.frame`:
+
+```{r}
+glimpse(analytic_table)
+```
+
+## What is a statistical graphic?
+
+What is a statistical graphic? Well, to quote Chester Ismay, a statistical graphic consists of the following:
+
+### A `mapping` of `data` variables
+### to `aes()`thetic attributes
+### of `geom_`etric objects.
+
+We'll go this in detail with an example below.
+
+## Your first `ggplot`
+
+We're just going to summarize `analytic_table` in terms of a couple variables first. The first thing we'll generate is a bar plot of the `Readmit30` variables.
+
+```{r}
+ bar_plot1 <-  ggplot(data=analytic_table, 
+                      mapping=aes(x=Readmit30)) + 
+               geom_bar()
+
+ bar_plot1
+```
+
+Let's talk about the `data` and `mapping` arguments first. The `data` argument is our `data.frame()` of interest: `analytic_table`. Things get a little more interesting with the `mapping` argument. Let's take it apart:
+
+```
+aes(x=indexadmit)
+```
+
+The `aes()` function will return a mapping. Within that mapping, we see that we are mapping the `indexadmit` column to the `x` aesthetic, which corresponds to the the x-axis. 
+
+The `geom_bar()` is the actual *geometric layout* that we are going to display the data on. 
+
+## Getting more complicated: adding a `fill` aesthetic
+
+We can get more complicated with mapping a variable to the fill column: 
+
+```{r}
+ bar_plot1 <-  ggplot(data=analytic_table, 
+                      mapping=aes(x=Readmit30, fill=Admit_source)) + 
+               geom_bar(color="black")
+
+ bar_plot1
+```
+
+## Proportional Plots
+
+We may just want to understand whether the proportion of emergency room admits is different for our readmission cases compared to the other cases. In this case, we can use a stacked proportional barplot:
+
+```{r}
+ bar_plot1 <-  ggplot(data=analytic_table, 
+                      mapping=aes(x=Readmit30, fill=Admit_source)) + 
+               geom_bar(color="black", position="fill")
+
+ bar_plot1
+```
+
+Try removing the `color="black"` argument. What happens to the plot?
+
+## Dodged bars
+
+If you prefer a dodged plot, you can specify `position="dodge"`:
+
+```{r}
+ bar_plot1 <-  ggplot(data=analytic_table, 
+                      mapping=aes(x=factor(Readmit30), fill=Admit_source)) + 
+               geom_bar(color="black", position="dodge")
+
+ bar_plot1
+```
+
+## Adding a title
+
+Take a look at the documentation for `ggtitle()` (`?ggtitle`). How do you add a title to a graph?
+
+## Working with Time
+
+We can manipulate dates using the `lubridate` package. Here I'm using the `month()` function to only use the month on our x-axis.
+
+```{r}
+ggplot(data=analytic_table, mapping = aes(x=month(Discharge_date), fill=Admit_source)) + geom_bar()
+```
+
+## Calculating length of stay
+
+Here I'm calculating the `length_of_stay` using the `mutate()` function, which lets me calculate a new variable based on the other variables. If we `glimpse()` our new table, we can see we have a new variabl called `length_of_stay`. What format is it in?
+
+```{r}
+analytic_table2 <- analytic_table %>% mutate(length_of_stay = Discharge_date - Admit_date)
+glimpse(analytic_table2)
+```
+
+## Showing a histogram of length of stay
+
+```{r}
+hist_stay <- ggplot(data=analytic_table2, mapping = aes(x=length_of_stay, fill = outcome)) + geom_histogram(bins = 120) +
+  ggtitle("Histogram of length of hospital stay")
+
+hist_stay
+```
+
+## Installing the `patchwork` package
+
+Patchwork is an experimental package that is meant for laying out multiple graphs on the same page. We'll use it to simulate some dashboards in our data. It isn't on CRAN yet, so we'll install it from the GitHub repo. 
+
+To install `patchwork`, you'll first need to install the `devtools` package:
+
+```
+install.packages(devtools)
+```
+
+Now with `devtools` installed, we can install `patchwork`:
+
+```
+devtools::install_github("thomasp85/patchwork")
+```
+
+## Putting Plots together: `patchwork`
+
+Now we can start grouping our plots together. Patchwork is good about scaling things to be 
+
+```{r}
+library(patchwork)
+
+combined_graph <- hist_stay + bar_plot1 + plot_layout(ncol=1, heights = c(3,1))
+
+combined_graph
+```
+
+## If you want to know more
+
+
+
