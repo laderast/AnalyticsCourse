@@ -5,7 +5,6 @@ date: "`r Sys.Date()`"
 output: 
   html_document:
     toc: true
-    toc_float: true
 ---
 
 ```{r setup, include=FALSE}
@@ -58,18 +57,26 @@ analytic_table <- readr::read_csv("analytic.csv",
 head(analytic_table)
 ```
 
-Now we see everything is nicely formatted and ready to be visualized.
+## Calculating length of stay
+
+Here I'm calculating the `length_of_stay` using the `mutate()` function, which lets me calculate a new variable based on the other variables. If we `glimpse()` our new table, we can see we have a new variable called `length_of_stay`. What format is it in?
+
+```{r}
+analytic_table <- analytic_table %>% mutate(length_of_stay = Discharge_date - Admit_date)
+```
 
 ## An overview of the data
 
 I'm going to use a package called `skimr` to summarize the data:
 
-```{r}
+```{r width=100}
 library(skimr)
 skimr::skim(analytic_table)
 ```
 
 Let's take a look at the summary table. How many observations are in the table? How many variables?
+
+Now we see everything is nicely formatted and ready to be visualized.
 
 ## Another way to look at the data: `glimpse`
 
@@ -80,6 +87,8 @@ glimpse(analytic_table)
 ```
 
 ## What is a statistical graphic?
+
+Ok, now we're happy with our `analytic_table`. Now we can finally get to visualize it!
 
 What is a statistical graphic? Well, to quote Chester Ismay, a statistical graphic consists of the following:
 
@@ -109,7 +118,20 @@ aes(x=indexadmit)
 
 The `aes()` function will return a mapping. Within that mapping, we see that we are mapping the `indexadmit` column to the `x` aesthetic, which corresponds to the the x-axis. 
 
-The `geom_bar()` is the actual *geometric layout* that we are going to display the data on. 
+The `geom_bar()` is the actual *geometric layout* that we are going to display the data on. If you look at the documentation for `geom_bar()` (`?geom_bar`) you can see that the geometic layout contains the following aesthetics that can be mapped:
+
++ x
++ y
++ alpha
++ colour
++ fill
++ group
++ linetype
++ size
+
+Only the `x` variable is required for `geom_bar`. 
+
+The other thing to notice is that we chain the `ggplot()` and `geom_bar()` statements with a `+` sign. The strength of `ggplot2` is the fact that you can layer multiple datasets and multiple types of visualizations as layers on the ggplot. 
 
 ## Getting more complicated: adding a `fill` aesthetic
 
@@ -123,6 +145,8 @@ We can get more complicated with mapping a variable to the fill column:
  bar_plot1
 ```
 
+Try removing the `color="black"` argument. What happens to the plot?
+
 ## Proportional Plots
 
 We may just want to understand whether the proportion of emergency room admits is different for our readmission cases compared to the other cases. In this case, we can use a stacked proportional barplot:
@@ -135,15 +159,13 @@ We may just want to understand whether the proportion of emergency room admits i
  bar_plot1
 ```
 
-Try removing the `color="black"` argument. What happens to the plot?
-
 ## Dodged bars
 
 If you prefer a dodged plot, you can specify `position="dodge"`:
 
 ```{r}
  bar_plot1 <-  ggplot(data=analytic_table, 
-                      mapping=aes(x=factor(Readmit30), fill=Admit_source)) + 
+                      mapping=aes(x=Readmit30, fill=Admit_source)) + 
                geom_bar(color="black", position="dodge")
 
  bar_plot1
@@ -158,22 +180,15 @@ Take a look at the documentation for `ggtitle()` (`?ggtitle`). How do you add a 
 We can manipulate dates using the `lubridate` package. Here I'm using the `month()` function to only use the month on our x-axis.
 
 ```{r}
-ggplot(data=analytic_table, mapping = aes(x=month(Discharge_date), fill=Admit_source)) + geom_bar()
-```
-
-## Calculating length of stay
-
-Here I'm calculating the `length_of_stay` using the `mutate()` function, which lets me calculate a new variable based on the other variables. If we `glimpse()` our new table, we can see we have a new variabl called `length_of_stay`. What format is it in?
-
-```{r}
-analytic_table2 <- analytic_table %>% mutate(length_of_stay = Discharge_date - Admit_date)
-glimpse(analytic_table2)
+ggplot(data=analytic_table, mapping = aes(x=month(Discharge_date), fill=Admit_source)) + geom_bar(color="black")
 ```
 
 ## Showing a histogram of length of stay
 
-```{r}
-hist_stay <- ggplot(data=analytic_table2, mapping = aes(x=length_of_stay, fill = outcome)) + geom_histogram(bins = 120) +
+Since `length_of_stay` is a numeric variable, we can plot it as a histogram: 
+
+```{r warning=FALSE}
+hist_stay <- ggplot(data=analytic_table, mapping = aes(x=length_of_stay)) + geom_histogram(bins = 120, color="black") +  
   ggtitle("Histogram of length of hospital stay")
 
 hist_stay
@@ -197,17 +212,20 @@ devtools::install_github("thomasp85/patchwork")
 
 ## Putting Plots together: `patchwork`
 
-Now we can start grouping our plots together. Patchwork is good about scaling things to be 
+Now we can start grouping our plots together. `patchwork` is good about scaling plots with common units to be on the same scale as the others.
 
 ```{r}
 library(patchwork)
 
-combined_graph <- hist_stay + bar_plot1 + plot_layout(ncol=1, heights = c(3,1))
+combined_graph <- hist_stay + bar_plot1 + 
+  #specify the plot layout - 1 column, and with 
+  #height of hist_stay to be 3 times larger than bar_plot1
+  plot_layout(ncol=1, heights = c(3,1))
 
 combined_graph
 ```
 
-## If you want to know more
+You can learn more about arranging plots using `patchwork` on the `patchwork` readme: https://github.com/thomasp85/patchwork/blob/master/README.md 
 
 
 

@@ -17,11 +17,14 @@ analytic_table <- readr::read_csv("analytic.csv",
                                       indexadmit = col_factor(NULL),
                                       Readmit30 = col_factor(NULL)
                                     ))
+
+#calculate length of stay
+analytic_table <- analytic_table %>% mutate(length_of_stay = Discharge_date - Admit_date)
 ```
 
 In this assignment, we're going to focus on visualizing the readmissions and outcomes.
 
-## Problem 1
+## Problem 1 (0.5 pt)
 
 Show the `outcome` by month of `Admit_date` as a dodged bar plot for `analytic_table`. Save the result as `outcome_graph`. (Hint: think about what needs to be mapped to `x` and `fill`.) Make sure to add a title.
 
@@ -31,7 +34,7 @@ Show the `outcome` by month of `Admit_date` as a dodged bar plot for `analytic_t
 
 Do you notice anything special?
 
-## Problem 2
+## Problem 2 (0.5 pt)
 
 As a bar graph, show the `Admit_source` on the `x` axis and `Readmit30` as a fill.
 
@@ -39,7 +42,7 @@ As a bar graph, show the `Admit_source` on the `x` axis and `Readmit30` as a fil
 #space for your answer here
 ```
 
-## Problem 3
+## Problem 3 (0.5 pt)
 
 Produce a histogram of `length_of_stay` and color by `Readmit30`. 
 
@@ -47,7 +50,7 @@ Produce a histogram of `length_of_stay` and color by `Readmit30`.
 
 ```
 
-## Problem 4
+## Problem 4 (0.5 pt)
 
 Use `patchwork` to arrange your graphs. You might use all 3, or only two. Do we know anything about readmits? What do we know? (answer in text below your plot)
 
@@ -55,4 +58,4 @@ Use `patchwork` to arrange your graphs. You might use all 3, or only two. Do we 
 
 ```
 
-text answer here.
+Put your text answer here.
