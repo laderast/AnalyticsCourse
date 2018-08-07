@@ -67,7 +67,7 @@ analytic_table <- analytic_table %>% mutate(length_of_stay = Discharge_date - Ad
 
 ## An overview of the data
 
-I'm going to use a package called `skimr` to summarize the data:
+I'm going to use a package called `skimr` to summarize the data - make sure you `install.packages("skimr")`:
 
 ```{r width=100}
 library(skimr)
@@ -80,7 +80,7 @@ Now we see everything is nicely formatted and ready to be visualized.
 
 ## Another way to look at the data: `glimpse`
 
-The `glimpse` function is another useful tool to look at a `data.frame`:
+The `glimpse` function, from the `dplyr` package, is another useful tool to look at a `data.frame`:
 
 ```{r}
 glimpse(analytic_table)
@@ -88,7 +88,7 @@ glimpse(analytic_table)
 
 ## What is a statistical graphic?
 
-Ok, now we're happy with our `analytic_table`. Now we can finally get to visualize it!
+Ok, now that we're happy with our `analytic_table` we can finally get to visualize it!
 
 What is a statistical graphic? Well, to quote Chester Ismay, a statistical graphic consists of the following:
 
@@ -96,7 +96,7 @@ What is a statistical graphic? Well, to quote Chester Ismay, a statistical graph
 ### to `aes()`thetic attributes
 ### of `geom_`etric objects.
 
-We'll go this in detail with an example below.
+We'll go over this in detail with an example below.
 
 ## Your first `ggplot`
 
@@ -204,7 +204,7 @@ To install `patchwork`, you'll first need to install the `devtools` package:
 install.packages(devtools)
 ```
 
-Now with `devtools` installed, we can install `patchwork`:
+Now with `devtools` installed, we can install `patchwork` (please note that ggplot2 needs to be updated to version 3.x):
 
 ```
 devtools::install_github("thomasp85/patchwork")
