@@ -1,12 +1,16 @@
 # Practical Coursework for BMI 569/669: Data Analytics
 
-This repo includes the practical coursework in R/SQL for our hybrid Data Analytics Course taught with Kaiser Permanente. 
+This repo includes the practical coursework in R/SQL for our hybrid Data Analytics Course taught with Kaiser Permanente. This course has been taught from 2013 to the present during summer quarter for students in the Biomedical Informatics program at OHSU.
+
+Please note that this is only half of the course, which also includes discussions on organizational behavior, implementing analytics projects within an organization, and discussions of the LACE score. For the full course syllabus, please refer to here.
 
 ## Learning Objectives:
 
 - Understand the basics of using R/Rstudio
-- Learn and apply basic SQL queries 
-- Learn, understand, and apply simple visualizations to communicate
+- Learn and apply basic SQL queries to a synthetic patient cohort
+- Implement a metric for predicting 30 day hospital readmissions (LACE score) for this patient cohort.
+- Learn, understand, and apply simple visualizations to communicate findings
+- Understand how to build and interpret logistic regression models
 
 ## Schedule (online)
 
@@ -26,7 +30,7 @@ All work is conducted within a RStudio workspace.
 
 The goal of the online portion is to build a predictive model using the synthetic patient dataset to predict 30 day readmissions. 
 
-Day 1: Calculating L (length of stay), A (Acuity), and E (Emergency room admisions)
-Day 2: Calculating C (co-morbidities) 
-Day 3: Initial predictive modeling for predicting/adding in genotypic component (Bonus) 
-Day 4: Final predictive model and presentation for Day 5
+Day 1: Calculating L (length of stay), A (Acuity), and E (Emergency room admissions) from synthetic patient cohort in SQLite database.
+Day 2: Calculating C (co-morbidities) from ICD-9 codes in SQLite database.
+Day 3: Initial predictive modeling for prediction using logistic regression/adding in genotypic component (Bonus) 
+Day 4: Build Final predictive model and presentation for Day 5
