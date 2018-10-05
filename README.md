@@ -30,7 +30,11 @@ All work is conducted within a RStudio workspace.
 
 The goal of the online portion is to build a predictive model using the synthetic patient dataset to predict 30 day readmissions. 
 
-Day 1: Calculating L (length of stay), A (Acuity), and E (Emergency room admissions) from synthetic patient cohort in SQLite database.
-Day 2: Calculating C (co-morbidities) from ICD-9 codes in SQLite database.
-Day 3: Initial predictive modeling for prediction using logistic regression/adding in genotypic component (Bonus) 
-Day 4: Build Final predictive model and presentation for Day 5
+- Day 1: Calculating L (length of stay), A (Acuity), and E (Emergency room admissions) from synthetic patient cohort in SQLite database.  
+- Day 2: Calculating C (co-morbidities) from ICD-9 codes in SQLite database.
+- Day 3: Initial predictive modeling for prediction using logistic regression/adding in genotypic component (Bonus) 
+- Day 4: Build Final predictive model and presentation for Day 5  
+
+## Acknowledgements
+
+The synthetic dataset and original task of calculating the LACE score was developed by David Dorr. All other materials and tutorials were developed by Ted Laderas.
