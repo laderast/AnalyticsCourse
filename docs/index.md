@@ -2,7 +2,7 @@
 
 This repo includes the practical coursework in R/SQL for our hybrid Data Analytics Course taught with Kaiser Permanente. This course has been taught from 2013 to the present during summer quarter for students in the Biomedical Informatics program at OHSU.
 
-Please note that this is only half of the course, which also includes discussions on organizational behavior, implementing analytics projects within an organization, and discussions of the LACE score. For the full course syllabus, please refer to [the syllabus](pdf/bmi_569_syllabus) and [the on-campus schedule of topics](pdf/on_campus_course_outline.pdf).
+Please note that this is only half of the course, which also includes discussions on organizational behavior, implementing analytics projects within an organization, and discussions of the LACE score. For the full course syllabus, please refer to [the syllabus](pdf/bmi_569_syllabus.pdf) and [the on-campus schedule of topics](pdf/on_campus_course_outline.pdf).
 
 ## Learning Objectives:
 
