@@ -37,4 +37,8 @@ The goal of the online portion is to build a predictive model using the syntheti
 
 ## Acknowledgements
 
-The synthetic dataset and original task of calculating the LACE score was developed by David Dorr. All other materials and tutorials were developed by Ted Laderas.
+The synthetic dataset and original task of calculating the LACE score was developed by David Dorr. All other materials and tutorials were developed by Ted Laderas, Mark Klick, and Shannon McWeeney.
+
+## License
+
+This course material is available under an Apache 2.0 License.
