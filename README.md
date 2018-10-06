@@ -12,29 +12,10 @@ Please note that this is only half of the course, which also includes discussion
 - Learn, understand, and apply simple visualizations to communicate findings
 - Understand how to build and interpret logistic regression models
 
-## Schedule (online)
+## For More Information
 
-The goal of the online portion of the course is to familiarize students with R and how to query the synthetic patient data in R. 
+Please refer to the [course website for further information](http://laderast.github.io/AnalyticsCourse).
 
-All work is conducted within a RStudio workspace.
+## Licensing
 
-- Week 1: Introduction to R/RStudio
-- Week 2: Loading datasets/simple descriptive statistics in R
-- Week 3: Introduction to SQLite in R
-- Week 4: SQL queries: Joins
-- Week 5/6: Working with Dates in SQLite/Self Joins
-- Week 7: Visualizing the data with `ggplot2` and `patchwork`
-- Week 8: Logistic Regression and machine learning
-
-## Schedule (in-class)
-
-The goal of the online portion is to build a predictive model using the synthetic patient dataset to predict 30 day readmissions. 
-
-- Day 1: Calculating L (length of stay), A (Acuity), and E (Emergency room admissions) from synthetic patient cohort in SQLite database.  
-- Day 2: Calculating C (co-morbidities) from ICD-9 codes in SQLite database.
-- Day 3: Initial predictive modeling for prediction using logistic regression/adding in genotypic component (Bonus) 
-- Day 4: Build Final predictive model and presentation for Day 5  
-
-## Acknowledgements
-
-The synthetic dataset and original task of calculating the LACE score was developed by David Dorr. All other materials and tutorials were developed by Ted Laderas.
+This course material is released under an Apache 2.0 License.
