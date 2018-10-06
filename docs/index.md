@@ -18,22 +18,22 @@ The goal of the online portion of the course is to familiarize students with R a
 
 All work is conducted within a RStudio workspace.
 
-- Week 1: [Introduction to R/RStudio](http://github.com/laderast/AnalyticsCourse/week1)
-- Week 2: [Loading datasets/simple descriptive statistics in R](http://github.com/laderast/AnalyticsCourse/week2)
-- Week 3: [Introduction to SQLite in R](http://github.com/laderast/AnalyticsCourse/week3)
-- Week 4: [SQL queries: Joins](http://github.com/laderast/AnalyticsCourse/week4)
-- Week 5/6: [Working with Dates in SQLite/Self Joins](http://github.com/laderast/AnalyticsCourse/weeks5-6)
-- Week 7: [Visualizing the data with `ggplot2` and `patchwork`](http://github.com/laderast/AnalyticsCourse/week7)
-- Week 8: [Logistic Regression and machine learning](http://github.com/laderast/AnalyticsCourse/week8)
+- Week 1: [Introduction to R/RStudio](https://github.com/laderast/AnalyticsCourse/tree/master/week1)
+- Week 2: [Loading datasets/simple descriptive statistics in R](http://github.com/laderast/AnalyticsCourse/tree/master/week2)
+- Week 3: [Introduction to SQLite in R](http://github.com/laderast/AnalyticsCourse/tree/master/week3)
+- Week 4: [SQL queries: Joins](http://github.com/laderast/AnalyticsCourse/tree/master/week4)
+- Week 5/6: [Working with Dates in SQLite/Self Joins](http://github.com/laderast/AnalyticsCourse/tree/master/weeks5-6)
+- Week 7: [Visualizing the data with `ggplot2` and `patchwork`](http://github.com/laderast/AnalyticsCourse/tree/master/week7)
+- Week 8: [Logistic Regression and machine learning](http://github.com/laderast/AnalyticsCourse/tree/master/week8)
 
 ## Schedule (in-class)
 
 The goal of the online portion is to build a predictive model using the synthetic patient dataset to predict 30 day readmissions. 
 
-- Day 1: [Calculating L (length of stay), A (Acuity), and E (Emergency room admissions)](http://github.com/laderast/AnalyticsCourse/in-class/Assignment1.Rmd) from synthetic patient cohort in SQLite database.  
-- Day 2: [Calculating C (co-morbidities) from ICD-9 codes in SQLite database.](http://github.com/laderast/AnalyticsCourse/in-class/Assignment2.Rmd)
-- Day 3: [Initial predictive modeling for prediction using logistic regression](http://github.com/laderast/AnalyticsCourse/in-class/LogisticRegression.Rmd)
-      - [adding in genotypic component](http://github.com/laderast/AnalyticsCourse/in-class/BonusAssignment.Rmd) (Bonus) 
+- Day 1: [Calculating L (length of stay), A (Acuity), and E (Emergency room admissions)](http://github.com/laderast/AnalyticsCourse/tree/master/in-class/Assignment1.Rmd) from synthetic patient cohort in SQLite database.  
+- Day 2: [Calculating C (co-morbidities) from ICD-9 codes in SQLite database.](http://github.com/laderast/AnalyticsCourse/tree/master/in-class/Assignment2.Rmd)
+- Day 3: [Initial predictive modeling for prediction using logistic regression](http://github.com/laderast/AnalyticsCourse/tree/master/in-class/LogisticRegression.Rmd)
+      - [adding in genotypic component](http://github.com/laderast/AnalyticsCourse/tree/master/in-class/BonusAssignment.Rmd) (Bonus) 
 - Day 4: Build Final predictive model and presentation for Day 5  
 
 ## Acknowledgements
