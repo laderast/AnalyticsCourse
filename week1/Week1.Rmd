@@ -1,11 +1,46 @@
 ---
-title: 'Week 1: Introduction/Installing Software'
+title: 'Week 1: Introduction/Connecting to our Database'
 author: "Ted Laderas"
-date: "June 9, 2016"
-output: pdf_document
+date: "June 21, 2019"
+output: html_notebook
 ---
 
-In this module, we'll give an overview to the larger assignment and a gentle introduction to R/Rstudio.
+## Learning Objectives
+
+By the end of this notebook, you will hopefully learn the following.
+
+1. Learn the basics behind RStudio Cloud and Notebooks
+2. Learn what a `data.frame` is
+3. Understand some basic summaries on a `data.frame`
+4. Connect to our database and summarize it.
+
+## RStudio Cloud and Notebooks
+
+If you're reading this, welcome to BMI569 in RStudio Cloud! It's a cloud based instance of RStudio, which is accessible anywhere in the web. We'll be doing our assignments in it. 
+
+All of the software packages that you need for this course has been preinstalled. As we get more advanced, I'll show you how to install other packages as well.
+
+Notebooks are part of what is called *literate programming*, where code is accompanied by textual explanations. What you're reading now is normal text.
+
+Below is a code block, which lets you execute code in the console window. Try hitting the green play button on the top right. 
+
+```{r}
+1 / 3
+```
+
+You should see a window with the code output below. 
+
+Do you want more info about how notebooks work? Here's a video: 
+
+## Saving your work
+
+Be sure to save your work after you're done (under "File > Save"). 
+
+## Submitting Homework
+
+When you start running code in a notebook, you'll notice that a `Week1.nb.html` file is also generated in the same folder as your work. That's what I want you to submit as your submission for an assignment in Sakai.
+
+Assignments will usually be in their own notebooks.
 
 ## Motivation for Prework
 
@@ -20,31 +55,30 @@ In class on-campus, we will calculate each of these elements. Added together, th
 
 Your overall goal in the pre-work will be to identify those cases in the dataset that are readmissions within a 30 day period. These are the cases for which we will then calculate the LACE score (in-class, on-campus) and examine how well it predicts readmissions.
 
-In order to achieve this goal, we will be slowly be exploring R and SQL over the next seven weeks of on-campus work.
-
-## Installing Software
-
-Your goal this week will be to install two pieces of software that we'll use for analysis: R and Rstudio. Once you've installed it, we'll take a look at the interface, load in a built-in dataset, and do some simple summary statistics.
-
-The first thing to do is to install R. Go to https://cran.r-project.org and download the appropriate binary for your system. If you are on a linux system and there is not a previously compiled binary for your distribution, you will need to install it with a package manager, such as `apt-get` or `conda`. R is the statistical language that we are going to do all of our work in. 
-
-Secondly, we will install Rstudio. Go to http://www.rstudio.com and install the appropriate version for your system. Rstudio is what's called an *Integrative Development Environment* (IDE), which will make working with R much easier. In order to use it, you need to have R installed.
+In order to achieve this goal, we will be slowly be exploring R and SQL over the next eight weeks of on-campus work.
 
 ## Loading a built-in dataset and doing some summary statistics
 
-Now that everything is installed, open up RStudio. Your first thing to notice is that there are two main windows on your left: The console window (the bottom window) and the scripting window (the top window). We will mostly work by writing scripts in scripting window and executing them in the console window by highlighting the code and using the Run command or CTRL-Enter (for Windows/Linux) or CMD-Enter (for Macs).
+Your first thing to notice is that there are two main windows on your left: The console window (the bottom window) and the scripting window (the top window). We will mostly work by writing scripts in scripting window and executing them in the console window by highlighting the code and using the Run command or CTRL-Enter (for Windows/Linux) or CMD-Enter (for Macs).
 
 ![RStudio Console Image](image/consolewindow.jpg)
 
-In the console window, load the built in Iris dataset with the `data()` command. This loads in a built in dataset called `iris`. Try this, and try getting help on this dataset by using `?iris`.
+In this code chunk, we load the built in `iris` dataset with the `data()` function. This loads in a built in dataset called `iris`. Try this, and try getting help on this dataset by using `?iris`.
 
 ```{r}
 data(iris)
-#For more information, type the following in:
+
+```
+
+Try getting help on `iris` by running the following:
+
+```{r}
 ?iris
 ```
 
-After reading the help file, we now know that the iris dataset is in `data.frame` format. This is the basic format that we'll be using for tables in R. We'll explore some properties of the data.frame by 
+If there's a function that you don't know, using the `?` before the command name will pop up the help file.
+
+After reading the help file, we now know that the iris dataset is in `data.frame` format. This is the basic format that we'll be using for tables in R. We'll explore some properties of the data.frame to get used to them. 
 
 The first thing is to look at the data directly. If we use the `head()` command we can see the first few rows of the iris data. Each row in the `iris` data corresponds to a single flower that has been measured, and each column corresponds to a variable that was measured on that flower. 
 
@@ -67,22 +101,87 @@ nrow(iris)
 ncol(iris)
 ```
 
+## Some terminology
+
+Usually for our data, the rows and columns have some meaning. In a `data.frame`, the columns represent different variables, and can have different types. For example, the `Species` column in the `iris` table is actually called a `factor`. `factor`s are R's special way of representing categorical data. On the other hand, the `Sepal.Width` column of `iris` is `numeric`, because it's representing a continous variable.
+
+The rows represent different observations. What do the rows represent in the `patient` table?
+
+## Good Job!
+
+Take a break before moving on.
+
+
+## Connecting to our Database
+
+Ok, we've looked at some built in data. How about the data for the class?
+
+Our data lives in a database, which is in the `data/` folder of this project. The database is in a format called SQLite. SQLite is a database engine that's open-source and is widely used. We'll use it to simulate our data warehouse that we will calculate our analytics on. We'll learn Structured Query Language (SQL), which will let us query our patient database. As we move on, we'll do more and more complicated queries with the database. 
+
+QUESTION: What is the database named? (Hint: look in the `data/` folder.)
+
+We're going to use a library, which is bit of code that extends R's functionality. We need to open a connection to our database.
+
+```{r}
+library(RSQLite)
+library(here)
+#start our connection to the database
+con <- DBI::dbConnect(RSQLite::SQLite(), here("data/patient1.sqlite"))
+```
+
+Okay, nothing happened. But now we can use `dbListTables()`, a function to list the tables in the database. Try running it and look at the output.
+
+```{r}
+#list all of the tables in the database
+dbListTables(con)
+```
+
+QUESTION: How many tables are there in the database?
+
+What if we want to actually look at one of the tables? We can use our connection along with the `tbl()` function to query the table.
+
+```{r}
+#get the patient table
+patient_table <- tbl(src=con, from="patient") 
+```
+
+
+```{r}
+patient_table
+```
+
+## The Difference Between In-memory and a Connection
+
+Did you try to look at the number of rows in `patient_table`? Something funny happens:
+
+```{r}
+
+nrow(patient_table)
+```
+
+Huh, that's weird. The reason for this is that we're only seeing the first few rows of the dataset. The SQLite connection is cautious - it only returns a smaller subset of the rows than are actually in the database. 
+
+We can force the database to give us all the data by using the `collect()` function on our `patient_table` object.
+
+```{r}
+patient_table <- tbl(con, "patient") 
+patient_table_inmemory <- collect(patient_table)
+```
+
+## Wrapping Up
+
+The last thing we want to do is disconnect from our database. When you are writing information into the database, disconnecting will save that information.
+
+```{r}
+dbDisconnect(con)
+```
+
+
 ## Assignment Week 1 (1 point)
 
-Answer these questions and submit as a .R file. Also note what code you used to find the answer.
+Answer these questions about the `patient` table in the database in `week1Submission.Rmd`. Show your code in your submitted notebook that you used to answer the question.
 
-1) How many rows are there total?
-2) What is the maximum `Sepal.Length`? What units is it in? (Hint: look at the help file for the dataset again.)
-3) How many `setosa` samples are there in the iris dataset? 
+1) How many rows are there?
+2) What variables are missing all information (represented by `NA`s) and why might it be missing?
+3) What is the maximum `riskscore` value?
 
-## How to submit
-
-Submit your answer using the `week1Submission.Rmd` file. This is an RMarkdown file and you can mix code and text using it. You can open this file directly into Rstudio. 
-
-Make sure to rename the `week1Submission.Rmd` file to `week1Submission-LASTNAME.Rmd` with your last name, so we can confirm that you submitted the assignment.
-
-##For more information
-
-Please refer to R-Bootcamp, [Module 1](https://github.com/laderast/r-bootcamp/tree/master/module1) and [Module 2](https://github.com/laderast/r-bootcamp/tree/master/module2) for more information on the Rstudio software and `data.frames`.
-
-Also check out the DataCamp [Introduction to R](https://www.datacamp.com/courses/free-introduction-to-r) as another friendly introduction to R.

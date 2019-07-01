@@ -1,99 +1,188 @@
 ---
-title: 'Week 2: Loading External Datasets/Descriptive Statistics'
+title: 'Week 2: Exploratory Data Analysis'
 author: "Ted Laderas"
 date: "June 9, 2016"
-output: pdf_document
+output: html_notebook
 ---
 
 ## Goals for this week
 
-This week we will download the datasets, load them into R, and do some more simple descriptive statistics on them.
+This week we will do some more simple descriptive statistics on the tables in the database. We'll use two summarization tools, one visual (`visdat`) and one tabular (`skimr`). 
 
-Download the [analyticsWorkspace zip](https://sakai.ohsu.edu/access/content/group/BMI-569-1-AF-Su17/modules/RawSyntheticData.zip), unzip it, and place the folder somewhere easily accessible (the Desktop is fine for now). 
+## Exploratory Data Analysis
 
-Open the `analyticsWorkspace.Rproj` file. It should open this project up in RStudio. This project is where you will be doing the rest of your work for the Analytics Course.
+If we're given data, we will need to discover what's in the data. 
 
-## The concept of a working directory
+Our overall goal in Exploratory Data Analysis is to assess whether we can use the available data for our task.
 
-Let's load up Rstudio again and your project. You can find out what your *working directory* is with the `getwd()` command.
+We are going to examine the `patient` table in our database.
 
-```{r}
-getwd()
+## Data Dictionaries
 
-#list all the files in my current working directory 
-#(these are the files in my current working directory)
-list.files()
-```
+The best case scenario is if someone gives us a *data dictionary* for our dataset. The data dictionary will tell us lots of important information.
 
-## Loading in Data
+## Tools for exploring your data
 
-Now that we've set our working directory, we can now load our data. Before you do this, you will want to check the readme file to let you know if there are any issues.
-
-Opening the file `patient.txt` in a text editor, we notice a few things. The fields are separated by the `|` character, so we need to specify that. Also, there is a header for the file.
-
-```{r}
-patient <- read.table("data/patient.txt", sep = "|", header=TRUE)
-
-#confirm that we have loaded the data directly.
-head(patient)
-```
+We've seen one tool already for understanding what is in a `data.frame`: `summary()`. 
 
 Now that we have the data loaded, we can confirm some properties of the data. Let's do a `summary()` first to get a basic idea of what the data looks like. How many patients are High risk versus Normal Risk? (Hint: look at the `riskCat` field.)
 
 ```{r}
-summary(patient)
-nrow(patient)
-colnames(patient)
+library(RSQLite)
+library(here)
+library(tidyverse)
+#start our connection to the database
+con <- DBI::dbConnect(RSQLite::SQLite(), here("data/patient1.sqlite"))
+
+patient <- tbl(src=con, from="patient")
+patient_all <- collect(patient)
+dbDisconnect(con)
+
+summary(patient_all)
 ```
+
+Huh. One thing to notice is that there are `numeric` variables and `character` variables. That seems kind of limited. Why is this so?
+
+## Datatypes in SQLite
+
+SQLite, the database system we're using, only has five datatypes:
+
+- NULL. The value is a NULL value.
+- INTEGER. The value is a signed integer, stored in 1, 2, 3, 4, 6, or 8 bytes depending on the magnitude of the value.
+- REAL. The value is a floating point value, stored as an 8-byte IEEE floating point number.
+- TEXT. The value is a text string, stored using the database encoding (UTF-8, UTF-16BE or UTF-16LE).
+- BLOB. The value is a blob of data, stored exactly as it was input.
+
+This means that there are no explicit ways to represent categorical data in SQLite, just the TEXT representation. So to actually do useful exploratory statistics on our tables, we'll need to *cast* our some of our variables as `factor`s, which are how R represents categorical data.
+
+## Which variables are categories?
+
+You might ask what variables are categorical ones. We'll have to guess, but there are a few 
+
+We're going to cast `GENDER`, `PCP`, `race`, `postalcode`, `riskCat`, and `source` variables as `factor`s. We'll use the `mutate()` verb in `dplyr` to process these variables in place.
+
+```{r}
+patient_all <- patient_all %>% 
+  dplyr::mutate(GENDER=factor(GENDER), 
+                race=factor(race), facility=factor(facility),
+                riskCat=factor(riskCat), PCP=factor(PCP), 
+                postalcode=factor(postalcode), 
+                source=factor(source))
+```
+
+Now, if we run our `summary()`, we get much more useful information:
+
+```{r}
+summary(patient_all)
+```
+
+## skimr
+
+Another useful package for exploring data is `skimr`. The `skimr` package has a function called `skim()` that is very useful for summarizing data as well.
+
+```{r}
+skimr::skim(patient_all)
+```
+
+## visdat
+
+One tool I like to use to assess patterns of missingness is the `visdat` package. The `vis_dat()` function will display the data graphically, where each horizontal line of the graphic corresponds to a row in our `data.frame`.
+
+Because we're on Rstudio.cloud, there are memory limitations. We can't generate a visual summary for all of the rows in our data. We will have to *sample* the data somehow.
+
+Here, we look at the first 2000 rows using the `[]` (bracket) operator on `patient_all`. 
+
+table[rows, columns]
+
+the `1:2000` is called a `sequence`. It means return all of the values from 1 to 2000 in order as a vector. We will use this vector as an `index` to refer to rows in our table.
+
+So by doing `patient_all[1:2000,]`, we are saying we want the first 2000 rows of `patient_all`.
+
+```{r}
+#a sequence
+1:10
+
+visdat::vis_dat(patient_all[1:2000,])
+```
+
+QUESTION: how would we return the first five *columns* of `patient_all`?
+
+Another approach is to use the `sample()` function to randomly sample rows from our table. We can randomly sample rows from our matrix by selecting row numbers from random. Try this out:
+
+```{r}
+sample(1:10, 5)
+```
+
+We know we can get the number of rows by `nrow()`. So we can randomly sample from our rows by doing the following.
+
+```{r}
+all_rows <- 1:nrow(patient_all)
+sampled_rows <- sample(x= all_rows, size = 2000)
+visdat::vis_dat(patient_all[sampled_rows,])
+```
+
+## Diving Deeper into Individual Variables
 
 In order to access the individual columns, we can use the `$` operator to do operation on the individual columns. Here I'm running a simple `table()` operation to count the number of rows within each category for the `riskCat` variable.
 
 ```{r}
-table(patient$riskCat)
+table(patient_all$riskCat)
 ```
 
-## Knitting Your Submission File
+Try out `table()` on the `first_name` category. Are the results what you expected?
 
-One of the great things about using `.Rmd` (Rmarkdown) files is that you can make reports that you can rerun. We will use a package called `rmarkdown` to do this.
-
-```{r eval=FALSE}
-##install knitr if you haven't already
-install.packages("rmarkdown")
+```{r}
+table()
 ```
 
-Once `rmarkdown` is installed, try running the following commands in the console:
+To save you some time, I'm going to show you a trick to run `table()` on all of the columns. `lapply()` is a function that we can use to apply the `table()` function to all of the columns. The output isn't super elegant, but it can help you dive into the data.
 
-```{r eval=FALSE}
-library(rmarkdown)
-rmarkdown::render("week2Submission.Rmd")
-#you can also use the "Knit" button above this script (it has a ball of yarn next to it).
+```{r}
+lapply(patient_all, table)
 ```
 
-Now open the `week2Submission.html` file that it generated. This is known as `Rmarkdown` output. You can see that it renders both `R` code and text into a single report. It's pretty slick and will prevent you from having to completely put together reports from scratch if the underlying data changes.
+## Summarizing our findings - putting together a data dictionary
 
-## Notes on Rmarkdown
+We'll have to fend for ourselves with this dataset and start to put together a data dictionary for our database.
 
-Note that your code must work from scratch (that is, your code must load data and execute code before you can render the markdown file). When `render()` works, it starts from a completely blank workspace and it doesn't see anything in your current workspace. 
-I've started you out with the data loading in your `week2Submission.Rmd` script so you don't have to worry about it this time.
+Here's what we know so far:
 
-The reason for this is to encourage *reproducibility* - having code that executes from raw data to final output is desirable. Note that we usually will have code in multiple stages, so we can use intermediate outputs, such as the database we'll be creating in Week 3.
+### Data Dictionary: patient table
 
-More info on RMarkdown is here: http://rmarkdown.rstudio.com
+*patientid* - identifier of patient
+*GENDER* - gender of patient. Values: male or female.
+*First_name* - first name of patient - appears to be redacted. Values: Gill or Gilly. 
+*Last_name* - last name of patient - appears to be redacted. Values: Doe
+*DOB* - Date of Birth, appears to be redacted. Values: missing
+*age* - Numeric - appears to be redacted. Values: missing
+*status* - Unsure what this is. Values: 4 
+*PCP* - Appears to be the primary care provider id. Value: 14
+*CM_ID* - missing.
+*referraldate* - missing.
+*Insurance_ID* - ID of insurance company. Values: 3
+*race* - Numerical code of race. Values: ranges from 1 to 7.
+*postalcode* - Zipcode of patient. Values: 97035 to 97203.
+*riskCat* - Apparently a risk categorization. Values: High or Normal.
+*riskScore* - A rating of how risky a patient is. Values: 1 to 7.
+*deleted* - Deletion status. Values: 0.
+*date_deleted* - Date patient record is deleted. Not provided.
+*facility* - Facility patient recieved at. Values: 500.
+*source* - Patient source. Values: "deid".
 
 ## This Week's Assignment (2 points)
 
-Load in the `patient_encounter.txt` file into R, and confirm that you loaded it correctly. Submit your answers as a .R file, and show the code you used and your
-answers as comments (use `##` to show which lines are your answers)
+Load in the `patient_encounter` table into R, and confirm that you loaded it correctly. Submit your answers as a .R file, and show the code you used and your answers as comments (use `##` to show which lines are your answers)
 
-1) How many `No shows` were there in the dataset? (Look in the outcome field). 
-2) If we want to count the number of readmissions, would we want patients with these values?
+1) For the `patient_encounter` table, produce a data dictionary (you can use the format above in the `week2submission.nb.html`, or save it as an excel file). Submit your data dictionary as part of the assignment.
+
+2) How many `No shows` were there in the dataset? (Look in the outcome variable). 
+
+3) We will want to predict 30 day readmissions in our dataset, which means that we want to predict whether a patient will be readmitted to the hospital within 30 days of being readmitted. 
+
+There are multiple reasons for a patient being readmission, but we're interested in the ones that we can prevent. If we want to count the number of readmissions, would we want to include patients who are just `No shows`?
 
 ## How to submit
 
-Submit your answer using the `week2Submission.Rmd` file. This is an RMarkdown file and you can mix code and text using it. You can open this file directly into Rstudio. 
+Submit your answer using the `week2Submission.Rmd` file. This is an RMarkdown file and you can mix code and text using it. 
 
-Make sure to rename the `week2Submission.Rmd` file to `week2Submission-LASTNAME.Rmd` with your last name, so we can confirm that you submitted the assignment.
-
-## For More Information
-
-Please refer to R-Bootcamp, [module 2](https://github.com/laderast/r-bootcamp/tree/master/module2) for more information about `data.frames`.
+Make sure to rename the `week2Submission.nb.html` file to `week2Submission-LASTNAME.nb.html` with your last name, so we can confirm that you submitted the assignment.

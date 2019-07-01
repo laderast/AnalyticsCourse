@@ -1,8 +1,8 @@
 ---
-title: "Answer Sheet 1"
-author: "Put your name here"
-date: "6/21/2017"
-output: pdf_document
+title: "Assignment 1 Answer Key"
+author: "Answer Key"
+date: "6/21/2019"
+output: html_notebook
 ---
 
 ```{r setup, include=FALSE}
@@ -11,40 +11,65 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```
 
-## Question 1
+## Assignment Week 1 (1 point)
 
-How many rows are there total?
+Answer these questions about the `patient` table in the database. Show your code in your submitted notebook that you used to answer the question.
 
-Answer: 
+Note that I am using an extra package called `here`. This has to do with how notebooks look for files. They always look for files *relative* to their location. `here` lets you always specify the working directory as the root directory of your project. The way I've set up your assignments, you won't need to use them.
+
+1) How many rows are there?
 
 ```{r}
-data(iris)
+library(RSQLite)
+library(tidyverse)
+library(here)
+#start our connection to the database
+con <- DBI::dbConnect(RSQLite::SQLite(), here("data/patient1.sqlite"))
+patient_table <- tbl(con, "patient") 
+patient_table_inmemory <- collect(patient_table)
 ##put the code that you used to find the answer to question 1 here.
 
+nrow(patient_table_inmemory)
 ```
+
+Answer: There are 34,432 patients in our patient table.
 
 ## Question 2
 
-What is the maximum `Sepal.Length`? What units is it in? (Hint: look at the help file for the dataset again.)
+What variables are missing all information (represented by NAs) and why might it be missing?
 
-Answer: 
+Answer: By using the `summary` command, we can see the following variables are completely missing values:
+
+- `DOB`
+- `age`
+- `referraldate`
+- `CM_ID`
+- `date_deleted`
+
+The probable reason is that these are considered protected health infomration (PHI) and are redacted in our data warehouse.
 
 ```{r}
-##put the code that you used to find the answer to question 1 here.
+##put the code that you used to find the answer to question 2 here.
 
+summary(patient_table_inmemory)
 ```
 
 ## Question 3
 
-How many `setosa` samples are there in the iris dataset? 
+3) What is the maximum `riskscore` value?
 
-Answer: 
+Answer: There are multiple ways to find this. The easiest way is to read the output of the `summary()` function we used in question 2. The maximum value is 7.
+
+Another way is below (I didn't explain this, so I'm not expecting you to know it). You can access the values of a variable within a `data.frame` directly by using `$`. The function to access the maximum value is `max()`. So by combin
 
 ```{r}
-##put the code that you used to find the answer to question 1 here.
+##put the code that you used to find the answer to question 3 here.
+max(patient_table_inmemory$riskscore)
 
+##Don't forget to disconnect!
+dbDisconnect(con)
 ```
 
 ## If you need help
 
-Please post questions to the Week 1 forum, or email Ted Laderas or Mark Klick through sakai.
+Please post questions to the BMI569 slack, or email Ted Laderas or Aaron through sakai.

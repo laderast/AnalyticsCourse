@@ -9,23 +9,58 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-Note: Make sure that you can knit this document using `rmarkdown::render`
+Load in the `patient_encounter` table into R, and confirm that you loaded it correctly. Submit your answers as a .R file, and show the code you used and your answers as comments (use `##` to show which lines are your answers)
 
 ## Question 1
 
-How many `No shows` were there in the dataset? (Look in the outcome field). 
+For the `patient_encounter` table, produce a data dictionary (you can use the format above in the `week2submission.nb.html`, or save it as an excel file). Submit your data dictionary as part of the assignment.
+
+```{r}
+##show the code you used to find this answer here
+library(RSQLite)
+library(here)
+library(tidyverse)
+#start our connection to the database
+con <- DBI::dbConnect(RSQLite::SQLite(), here("data/patient1.sqlite"))
+
+patient_encounter <- tbl(src=con, from="patient_encounter")
+patient_encounter <- collect(patient_encounter)
+dbDisconnect(con)
+
+```
+
+Run `summary()` - are there any `character` or `numeric` variables that might be categories? Recast them as `factors` by using `mutate`.
+
+```{r}
+
+```
+
+Produce a visual summary (visdat) and a skimr summary of the data. Are there any things you notice about this table?
+
+```{r}
+
+```
+
+Add your data dictionary here, or submit as an excel file.
+
+
+## Question 2
+
+How many `No shows` were there in the dataset? (Look in the `outcome` variable). 
 
 Answer:
 
 ```{r}
 ##show the code you used to find this answer here
-patient <- read.table("data/patient.txt", sep = "|", header=TRUE)
 
 
 ```
 
-## Question 2
+## Question 3
 
-If we want to count the number of readmissions, would we want patients with these values?
+We will want to predict 30 day readmissions in our dataset, which means that we want to predict whether a patient will be readmitted to the hospital within 30 days of being readmitted. 
 
-Answer (you don't need to show code here): 
+There are multiple reasons for a patient being readmission, but we're interested in the ones that we can prevent. If we want to count the number of readmissions, would we want to include patients who are just `No shows`?
+
+Answer (no need to show code here):
+
