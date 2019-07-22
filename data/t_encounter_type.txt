@@ -1,0 +1,35 @@
+t_encounter_type|encounterName|WebUsed
+1|CM Office Visit|1
+3|MD/PROV Office Visit|1
+4|Home/Community Visit|1
+5|Telephone Contact|1
+6|Group Visit/Class|1
+8|Letter/Fax|1
+9|Record Review|1
+21|Care Conference|1
+22|In-patient|1
+23|Telephone Contact|0
+24|Home Visit|0
+26|Group Visit/Class|0
+27|MD Office Visit|0
+28|CM Office Visit|0
+29|Email/Letter/Fax|0
+30|Record Review|0
+31|Diab Followup|0
+32|Diab Initial|0
+33|MHI Conference|0
+34|Diab Insulin Start|0
+35|E-Access|0
+36||0
+37|Diab Class 4|0
+38|Diab Class 1|0
+39|0000-00-00|0
+40|Diab Additional Class|0
+41|Diab Class 3|0
+42|Care Conference|0
+43|In-patient|0
+44|Other Clinician Visit|1
+45|Secure Message|1
+46|EHR Telephone Contact|1
+47|Care Plan Encounter|1
+48|Emergency Room|0

@@ -11,25 +11,26 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Question 1
 
-Modify a query to create a case variable `NormalClinic` that returns a 1 where the riskCategory is `Normal` and the admit source is `Clinic` (we give you the base query in `week4Submission.Rmd`. Make sure that your query runs on your SQLite Database.
+Put the following SQL statement in order:
 
-```{r}
-##show your code here
-
-sqlStatement <- "SELECT patient.patientid, riskCat, Admit_source, outcome, 
-                 CASE 
-                    WHEN
-                      patient.riskCat = 'High'  
-                      AND patient_encounter_hosp.Admit_source = 'Emergency Room'
-                    THEN 1
-                 ELSE 0 
-                 END highRiskER
-                 FROM patient, patient_encounter_hosp
-                 WHERE patient.patientid = patient_encounter_hosp.patientid"
+```
+INNER JOIN patient_encounter_hosp ON
+WHERE 
+patient.riskCat = "High"
+SELECT COUNT(*) FROM patient
+patient.patientid = patient_encounter_hosp.patientid
 ```
 
 
 ## Question 2
+
+Modify your answer of Question 1 to include the criteria `Admit_source = 'Emergency Room' in the WHERE clause. You don't have to run this query
+
+```
+#space for your answer here
+```
+
+## Question 3
 
 2) Write a query that selects those High Risk patients who have a diagnosis of Acute myocardial infarction of anterolateral wall (ICD9 code is 410.00). How many are there?
 
@@ -37,4 +38,30 @@ Answer:
 
 ```{r}
 ## put your code here
+```
+
+
+## Question 4
+
+Modify a query to create a case variable `NormalClinic` that returns a 1 where the riskCategory is `Normal` and the admit source is `Clinic`. Make sure that your query runs on your SQLite Database.
+
+```{r}
+##show your code here
+
+sqlStatement <- "SELECT patient.patientid, riskCat, Admit_source, outcome, 
+                 CASE 
+                   .... 
+                 END normalClinic
+                 FROM patient
+                 INNER JOIN patient_encounter_hosp
+                 ON patient.patientid = patient_encounter_hosp.patientid"
+result <- tbl(con, sql(sqlStatement))
+result
+
+```
+
+## Don't forget to Disconnect!
+
+```{r}
+dbDisconnect(con)
 ```

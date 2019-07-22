@@ -1,13 +1,35 @@
 ---
 title: 'Week 4: SQLite: Joining Tables and the CASE statement'
 author: "Ted Laderas"
-date: "June 9, 2016"
-output: pdf_document
+date: "`r Sys.Date()`"
+toc: true
+output:
+  html_document:
+    df_print: paged
 ---
 
 This week we will be querying our database. We'll also be doing simple joins and queries to show the power of SQLite. We'll also be using the CASE statement to identify cases that meet our criteria.
 
-If you haven't done last week's assignment (loading the dataset into SQLite), please do it now.
+This week we will be querying our database. We'll also be doing simple joins and queries to show the power of SQLite. We'll also be using the CASE statement to identify cases that meet our criteria.
+
+## Run me First
+
+```{r}
+library(RSQLite)
+library(here)
+library(tidyverse)
+#start our connection to the database
+con <- DBI::dbConnect(RSQLite::SQLite(), here("data/patient1.sqlite"))
+```
+
+## Learning Objectives
+
+- Understand the terminology behind joins: *Left Table*, *Right Table*, *Keys*
+- Utilize this understanding to build SQL statements that join tables together
+- Understand the difference between INNER JOIN and LEFT JOIN
+- Chain a JOIN with a specific query using WHERE
+- Use Aliases to make your queries shorter and easier to read
+- Use the CASE clause to recode variables
 
 ## SQL Queries with Joins
 
@@ -15,80 +37,109 @@ Now that we have our SQLite database (our "data warehouse"), we can now start as
 
 For example: *How many high risk patients had emergency room admissions?*
 
-In order to do this, we will do what is called a database join, where we map rows in one table (in this case the `patient` table) to another table (`patient_encounter_hosp`) through a mapping key, `patientid`. After we do the join, we can use our filtering criteria as before. We do this by joining our criteria using a "where" statement.
+In order to do this, we will do what is called a *database join*, where we map rows in one table (in this case the `patient` table) to another table (`patient_encounter_hosp`) through a mapping key, `patientid`. After we do the join, we can use our filtering criteria as before. We will do this by joining our criteria using a "where" statement.
 
-Here are the first few rows of the `patient` table to remind you of what's in it. What variable are we looking for in this table?
+## Some Terminology
 
-```{r echo=FALSE}
-tab <- read.table("data/patient.txt", sep="|", header = TRUE)
-head(tab)
+![Terminology](image/Slide1.JPG)
+
+`left table` and `right table`: Whenever we join two tables, we will have a *left* table (in this case, the `patient` table) and a *right* table (in this case, `patient_encounter_hosp`, see above). Note we've simplified both tables and removed.
+
+`key`: we want to answer a question about our patients, so we have to somehow map the rows of our left table (`patient`) with the rows of our other table (`patient_encounter_hosp`). We do this by joining together rows with a common variable. In our case, we need to join rows based on `patientid`. The variable that we join on is called a *key*. 
+
+In the above example, we see that there is a row in `patient` whose patientid is 655, and there is a row in `patient_encounter_hosp` whose `patientid` is 655 as well. So it makes sense to join these two rows together.
+
+Note that the name of this variable is the same for both `patient` and `patient_encounter_hosp`. We'll need to use the dot notation to refer to each variable precisely: `patient.patientid` and `patient_encounter_hosp.patientid`.
+
+## JOINing Syntax
+
+![](image/Slide2.JPG) 
+
+How do we actually write a query that produces one table from both of our tables? We need to add a "JOIN" clause to our SQL statement. 
+
+Again, we know we want to map rows together that have the same patient table, so we need the condition `patient.patientid = patient_encounter_hosp` somewhere.
+
+Here's the syntax for a JOIN statement, called INNER JOIN. 
+
+```
+SELECT [columns] FROM
+   [Left Table] INNER JOIN [Right Table] ON
+   [left table key] = [right table key]
 ```
 
-Here are the first few rows of the `patient_encounter_hosp` table to remind of what's in it. What variable are we looking for in this table?
+In our example above, this is:
 
-```{r echo=FALSE}
-tab <- read.table("data/patient_encounter_hosp.txt", sep="|", header=TRUE)
-head(tab)
+```
+SELECT * FROM
+   patient INNER JOIN patient_encounter_hosp ON 
+   patient.patientid = patient_encounter_hosp.patientid
 ```
 
-Now that you have seen both tables, we will need to combine them into a single table to query using a join. The common element between the two tables that we will join on is `patientid`, or the patient identifier. Note that this variable name is the same for both tables. In order to specify the join, we will need to specify the origin of both variables by using the `.` operator. That is, if we want to use the `patientid` column from the `patient` table, we need to specify it as `patient.patientid`.
+![](image/Slide3.JPG)
 
-```{r warning=FALSE}
-#load the RSQLite library
-library(RSQLite)
+## Run the query
 
-#connect to our database
-#if you have named your database differently, change the dbname argument
-SQLiteConnection <- dbConnect(drv=SQLite(),dbname="patient.sqlite")
+Try running the INNER JOIN query above, but using SELECT COUNT(*) instead of SELECT *. How many rows did this query return?
 
-#merge the two tables on the common id
-#note that we have to specify the origins of each variable to merge
-#with the `.` operator. For readablity, it's always good practice
-#to specify the origin of a variable name.
-
-sqlStatement <- "SELECT patient.patientid, riskCat, Admit_source, outcome 
-                 FROM patient, patient_encounter_hosp
-                 WHERE patient.patientid = patient_encounter_hosp.patientid
-                 AND patient.riskCat = 'High' 
-                 AND patient_encounter_hosp.Admit_source = 'Emergency Room'"
-
-queryResult <- dbGetQuery(SQLiteConnection, sqlStatement)
-
-#show first ten rows of result
-queryResult[1:10,]
-
-#What were the outcomes for these patients?
-table(queryResult$outcome)
+```{r}
+#put your modified query here.
+sqlStatement <- "SELECT COUNT(*) FROM PATIENT"
+joined_table <- tbl(con, from=sql(sqlStatement))
+joined_table
 ```
+
+
+## A Different kind of JOIN: LEFT JOIN
+
+![](image/Slide4.JPG)
+
+We have seen the INNER JOIN, which only returns a merged table whose keys are in both tables. In some ways, we have thrown away some information from both the left table and the right table. 
+
+There are two other ways to join the data. The first is a LEFT JOIN, where we want to return all rows in the left table (`patient`) regardless of whether the row has a key match in the right table. In our example above, there are two rows (patientid 1232 and 1677), which don't have corresponding rows in the right table. 
+
+We specify our left join with the following syntax:
+
+```
+SELECT * FROM patient 
+   LEFT JOIN patient_encounter_hosp ON
+   patient.patientid = patient_encounter_hosp.patientid
+```
+
+Depending on your query, it may make sense to retain unmapped keys. For example, if you were running a query over all patients in the hospital, it makes sense to do a LEFT JOIN.
+
+## Aliases: Shortcuts so you don't have to type as much
+
 
 One good shortcut that can prevent you from typing too much in your queries is creating *aliases* (or shortcuts) for a table name using the `AS` statement. Here we rewrite the above statement by specifying the alias `p1` for the `patient` table and the alias `peh` for the `patient_encounter_table`. Note that even though the `SELECT` statement goes before our declaring the aliases, it's ok to use the the alias anyway.
 
 ```{r}
-sqlStatement <- "SELECT p1.patientid, riskCat, Admit_source, outcome 
-                 FROM patient AS p1, patient_encounter_hosp AS peh
-                 WHERE p1.patientid = peh.patientid
-                 AND p1.riskCat = 'High' 
-                 AND peh.Admit_source = 'Emergency Room'"
+sqlStatement <- "SELECT p1.patientid, p1.riskCat, peh.Admit_source, peh.outcome 
+                 FROM patient AS p1
+                 INNER JOIN patient_encounter_hosp AS peh ON 
+                  p1.patientid = peh.patientid
+                 WHERE 
+                  p1.riskCat = 'High' AND 
+                  peh.Admit_source = 'Emergency Room'"
 
-queryResult <- dbGetQuery(SQLiteConnection, sqlStatement)
+queryResult <- tbl(con, sql(sqlStatement))
 
 #show first ten rows of result
-queryResult[1:10,]
+queryResult
 ```
 
 Strictly speaking, we don't need `AS` to declare an alias, we can just put the alias following the table or variable of interest. The following is identical to the above query, except we provide a new alias for `Admit_source` (`ads`) and `outcome` (`o`):
 
 ```{r}
 sqlStatement <- "SELECT p1.patientid, riskCat, Admit_source ads, outcome o 
-                 FROM patient p1, patient_encounter_hosp peh
-                 WHERE p1.patientid = peh.patientid
+                 FROM patient p1 INNER JOIN patient_encounter_hosp peh
+                 ON p1.patientid = peh.patientid
                  AND p1.riskCat = 'High' 
                  AND peh.Admit_source = 'Emergency Room'"
 
-queryResult <- dbGetQuery(SQLiteConnection, sqlStatement)
+queryResult <- tbl(con, sql(sqlStatement))
 
-#show first ten rows of result
-queryResult[1:10,]
+#show result
+queryResult
 ```
 
 **QUESTION**: How would we modify this query to select `Normal` Risk patients who had an outcome of `Rehab`?
@@ -99,7 +150,7 @@ Sometimes you just want to code whether a row in a table meets a particular crit
 
 The case statement has the following syntax:
 
-```{eval=FALSE}
+```
 CASE WHEN [condition] 
      THEN [expression1] 
      ELSE [expression2] END 
@@ -120,18 +171,24 @@ sqlStatement <- "SELECT patient.patientid, riskCat, Admit_source, outcome,
                     THEN 1
                  ELSE 0 
                  END highRiskER
-                 FROM patient, patient_encounter_hosp
-                 WHERE patient.patientid = patient_encounter_hosp.patientid"
+                 FROM patient INNER JOIN patient_encounter_hosp
+                 ON patient.patientid = patient_encounter_hosp.patientid"
                  
 
-queryResult <- dbGetQuery(SQLiteConnection, sqlStatement)
+queryResult <- tbl(con, sql(sqlStatement))
 
 #confirm that our case statement worked (there are two rows here that meet the criteria)
-queryResult[20:50,]
+queryResult
+```
 
+Here's another way to confirm whether our query worked:
+
+```{r}
 #another way to confirm the query worked 
 #confirm that those cases with highRiskER == 1 meet our criteria
-filteredResult <- queryResult[queryResult$highRiskER == 1,]
+collectedResult <- collect(queryResult)
+
+filteredResult <- collectedResult[collectedResult$highRiskER == 1,]
 
 filteredResult[1:20,]
 ```
@@ -142,17 +199,16 @@ Now that we have our `highRiskER` coded, we can ask some questions that require 
 
 ```{r}
 #note that we have to specify the variable names using the $ operator
-table(queryResult$highRiskER, queryResult$outcome)
+table(collectedResult$highRiskER, collectedResult$outcome)
+```
+
+## Be sure to disconnect!
+
+```
+dbDisconnect(con)
 ```
 
 ## Week 4 Assignment (2 points)
 
 Submit this week's assignment using the `week4Submission.Rmd` file.
 
-1) Modify a query to create a case variable `NormalClinic` that returns a 1 where the riskCategory is `Normal` and the admit source is `Clinic` (we give you the base query in `week4Submission.Rmd`.
-
-2) Write a query that selects those High Risk patients who have a diagnosis of Acute myocardial infarction of anterolateral wall (ICD9 code is 410.00). How many are there?
-
-## Further Resources
-
-For more information, please refer to [Module 5](https://github.com/laderast/r-bootcamp/tree/master/module5) of the R-Bootcamp.

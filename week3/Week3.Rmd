@@ -1,16 +1,11 @@
 ---
-title: 'Week 3: SQLite Introduction'
+title: 'Week 3: SQL Introduction'
 author: "Ted Laderas"
 date: "June 9, 2016"
-output: pdf_document
+output: html_notebook
 ---
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE}
-#knitr::opts_chunk$set(root.dir = '~/Code/analyticsWorkspace/')
-
-if(file.exists("patient1.sqlite")){
-  file.remove("patient1.sqlite")
-}
 ```
 
 This week we will be loading our data into a database type called SQLite. SQLite is a database engine that's open-source and is widely used. We'll use it to simulate our data warehouse that we will calculate our analytics on. Loading into a database system will also let us produce more complicated queries that join the different tables in our dataset. 
@@ -29,74 +24,40 @@ Now that you have the RSQLite package, you need to load it up with the `library(
 
 ```{r warning=FALSE}
 library(RSQLite)
+library(here)
+library(tidyverse)
+#start our connection to the database
+con <- DBI::dbConnect(RSQLite::SQLite(), here("data/patient1.sqlite"))
 ```
-
-## Initializing the Database File for Our Data Warehouse
-
-The first thing we need to do is initialize our database file and connect to it. SQLite store an entire database into a single file. By using the `dbConnect()` command, we initialize a new SQLite database called `patient1.sqlite`. Note that if this database file already existed in our working directory, then we'd just be connecting to it, rather than creating it.
-
-```{r}
-SQLiteConnection <- dbConnect(drv=SQLite(),dbname="patient1.sqlite")
-```
-
-Let's load in one of our tables into R first and then save it as a table into the database:
-
-```{r}
-patient <- read.table("data/patient.txt", header=TRUE, sep="|")
-
-#write a table named "patient" with our patient table into the database
-dbWriteTable(conn = SQLiteConnection, name="patient", value=patient)
-
-#in order to save our table, we must disconnect from the database
-dbDisconnect(SQLiteConnection)
-```
-
-Let's confirm that you saved the data in your SQLite database correctly by running a query on the table. Here we're just counting the number of patients by counting the number of patient IDs.
-
-The first thing we do is set up the query, which counts the number of rows in our newly saved table in our database. By using `dbGetQuery()`, we run the query and fetch the result as a `data.frame`. 
-
-```{r}
-#show number of rows in table
-nrow(patient)
-
-#initialize database connection again
-SQLiteConnection <- dbConnect(drv=SQLite(),dbname="patient1.sqlite")
-
-#Here we specify our query 
-sqlStatement <- "select count(*) from patient"
-
-#confirm the answer for the database is the same as the table in R
-res <- dbGetQuery(SQLiteConnection, sqlStatement)
-
-#show result
-res
-
-#Confirm the two are equal
-nrow(patient) == res
-```
-
-Note that if you think the result of your query will return a large data table (in the millions of rows), using `dbGetQuery()` may not be the best way to get your result. (note that it is fine for all assignments for this class).  We can instead use a combination of `dbSendQuery()` and `fetch()` in a `while` loop to fetch results a thousand rows at a time. For more information, please refer to the R-Bootcamp, module 5.
 
 ## Running a Simple Query
 
+Let's start to use SQL (Structured Query Language). SQL is the language for searching and manipulating data in databases. Writing good SQL queries will always be a useful skill no matter what field you decide to go into.
+
 Let's ask a simple question about the `patient` table. How many female patients are there? There are two ways we can do this. The first would be to select those patients that are female with a `SELECT` statement, return those patients as a `data.frame`, and then just count the number of rows in the `data.frame`.
 
+Here we use another form of the `tbl()` function. The `src` (source) argument is our connection, but our `from` argument is our SQL.
+
 ```{r}
+# SQL to return all columns from patient table
+# where Gender is female
 sqlStatement <- "SELECT * from patient WHERE Gender == 'Female'"
 
-femalePatients <- dbGetQuery(SQLiteConnection, sqlStatement)
+femalePatients <- tbl(src=con, from=sql(sqlStatement))
+
+femalePatients <- collect(femalePatients)
 
 nrow(femalePatients)
 ```
 
-Or, we can combine our statement with the `count` statement from above and get the answer directly.
+Or, we can combine our statement with `count` statement from above and get the answer directly.
 
 ```{r}
 #note that for matching strings, we have to use single quotes in our SQL
 #statement. Otherwise, R gets confused where the statement begins or ends.
 sqlStatement <- "SELECT COUNT(*) FROM patient WHERE Gender == 'Female'"
 
-numberFemalePatients <- dbGetQuery(SQLiteConnection, sqlStatement)
+numberFemalePatients <- tbl(src=con, from=sql(sqlStatement))
 
 numberFemalePatients
 ```
@@ -105,10 +66,11 @@ If we wanted the number of Female patients with a normal `riskCat`, we can chain
 
 ```{r}
 #Again, enclosing strings within single quotes so we don't confuse R
-sqlStatement <- "SELECT count(*) FROM patient WHERE GENDER == 'Female' 
+sqlStatement <- 
+  "SELECT count(*) FROM patient WHERE GENDER == 'Female' 
                   AND riskCat == 'Normal'"
 
-numberFemaleNormalPatients <- dbGetQuery(SQLiteConnection, sqlStatement)
+numberFemaleNormalPatients <- tbl(con, sql(sqlStatement))
 
 numberFemaleNormalPatients
 ```
@@ -124,13 +86,9 @@ selectResults <- dbGetQuery(SQLiteConnection, sqlStatement)
 selectResults[1:10,]
 ```
 
-##Assignment Week 3 (2 Points)
+## Assignment 3
 
-Load the rest of your tables into your SQLite Database. Remember, you will need to disconnect from the database using `dbDisconnect()` to save the tables into the database. You can do this after you write all the tables into the database. 
-
-Construct a query for each table to confirm that the number of rows of each loaded table is identical to the number of rows in the corresponding table you loaded into R. 
-
-Submit all of your loading and querying code using the `week3Submission.Rmd` file. 
+Please refer to `week3Submission.Rmd` for this week's assignment.
 
 ##For More Information
 

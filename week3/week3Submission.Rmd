@@ -2,20 +2,30 @@
 title: "Week 3 Assignment"
 author: "Put your name here"
 date: "6/21/2017"
-output: html_document
+output: html_notebook
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Your Assignment
+## Your Assignment (2 pts)
 
-Load all of the tables in the `RawSyntheticData` dataset (that are in in the `data` folder) into your SQLite Database. Remember, you will need to disconnect from the database using `dbDisconnect()` to save the tables into the database. You can do this after you write all the tables into the database.
-
-Construct a query for each table to confirm that the number of rows of each loaded table is identical to the number of rows in the corresponding table you loaded into R. 
+1. Construct a query for each table in the database to output the number of rows for each table. 
 
 ```{r}
 ##show your code here
 
+```
+
+2. How many patient encounters in in `patient_encounter_hosp` were from the emergency room and were discharged home? 
+
+```{r}
+##show your code here
+```
+
+3. How many patients in `patient_encounter` had complete outcomes and an encounter type of 48?
+
+```{r}
+##show your code here
 ```

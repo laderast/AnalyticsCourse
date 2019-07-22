@@ -1,0 +1,130 @@
+---
+title: "Week 4 Assignment"
+author: "Put your name here"
+date: "6/21/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Question 1
+
+Put the following SQL statement in order:
+
+```
+INNER JOIN patient_encounter_hosp ON
+WHERE 
+patient.riskCat = "High"
+SELECT COUNT(*) FROM patient
+patient.patientid = patient_encounter_hosp.patientid
+```
+
+## Answer
+
+```
+SELECT COUNT(*) FROM patient
+INNER JOIN patient_encounter_hosp ON
+patient.patientid = patient_encounter_hosp.patientid
+WHERE 
+patient.riskCat = "High"
+```
+
+One issue with this statement is that we used the "" (double quotes) for the condition for `patient.riskCat`. If we use double quotes around our entire SQL statement this can cause problems. To alleviate this, you can use '' (single quotes) for the condition like this:
+
+```
+sqlStatement <- "SELECT COUNT(*) FROM patient
+INNER JOIN patient_encounter_hosp ON
+patient.patientid = patient_encounter_hosp.patientid
+WHERE 
+patient.riskCat = 'High'" # note the single quotes around High
+
+```
+## Question 2
+
+Modify your answer of Question 1 to include the criteria `Admit_source = 'Emergency Room' in the WHERE clause. You don't have to run this query
+
+## Answer
+
+```
+SELECT COUNT(*) FROM patient
+INNER JOIN patient_encounter_hosp ON
+patient.patientid = patient_encounter_hosp.patientid
+WHERE 
+patient.riskCat = 'High' AND
+patient_encounter_hosp.Admit_source = 'Emergency Room'
+```
+
+
+## Question 3
+
+2) Write a query that selects those High Risk patients who have a diagnosis of Acute myocardial infarction of anterolateral wall (ICD9 code is 410.00). How many are there?
+
+## Answer
+
+This question is a diagnosis, and it requires us to join the `patient` table with the `patient_diagnosis` table.
+
+```{r}
+##show your code here
+library(RSQLite)
+library(here)
+library(tidyverse)
+#start our connection to the database
+con <- DBI::dbConnect(RSQLite::SQLite(), here("data/patient1.sqlite"))
+
+
+sqlStatement <- "SELECT COUNT(*) FROM patient
+INNER JOIN patient_diagnosis ON
+patient.patientid = patient_diagnosis.patientid
+WHERE 
+patient.riskCat = 'High' AND
+patient_diagnosis.ICD9Code = '410.00'"
+
+tbl(con, sql(sqlStatement))
+
+```
+
+
+## Question 4
+
+Modify a query to create a case variable `NormalClinic` that returns a 1 where the riskCategory is `Normal` and the admit source is `Clinic`. Make sure that your query runs on your SQLite Database.
+
+## Answer
+
+This query is a little tricky. Luckily, if we realize that we are using conditions to produce the labels, then it is a little easier to undersand. 
+
+We want the conditions `patient.riskCat = 'Normal'` AND `patient_encounter_hosp = 'Clinic`. These conditions go into the first part of our CASE statement, followed by a `THEN` clause telling the value to recode (1).
+
+We want everything else to be coded 0, hence `ELSE 0`.
+
+I'm using `collect()` on our query result `result` just to show more rows in the table, so we can confirm the recoding worked.
+
+```{r}
+##show your code here
+
+sqlStatement <- "SELECT patient.patientid, riskCat, Admit_source, outcome, 
+                 CASE 
+                   WHEN
+                   patient.riskCat = 'Normal' AND
+                   patient_encounter_hosp.Admit_source = 'Clinic'
+                   THEN 1
+                   ELSE 0
+                 END normalClinic
+                 FROM patient
+                 INNER JOIN patient_encounter_hosp
+                 ON patient.patientid = patient_encounter_hosp.patientid"
+
+result <- tbl(con, sql(sqlStatement))
+result <- collect(result)
+print(result, n=30)
+
+```
+
+You can see that rows 18 and 28 are coded as 1.
+
+## Don't forget to Disconnect!
+
+```{r}
+dbDisconnect(con)
+```
