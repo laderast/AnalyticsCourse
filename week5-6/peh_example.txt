@@ -1,0 +1,31 @@
+patientid	Event_ID	encounter_type	outcome	Admit_date	Discharge_date	Admit_source	readmit30	index_admit
+1	1	108	22	SNF	01/01/14	01/08/14	Emergency Room	1	1
+2	1	109	22	SNF	01/13/14	01/20/14	Transfer	0	0
+3	2	1333	22	Discharged Home	01/01/14	01/13/14	Clinic	0	1
+4	3	71	22	SNF	01/01/14	01/07/14	Transfer	0	1
+5	4	886	22	Discharged Home	01/01/14	01/07/14	Emergency Room	0	1
+6	5	73	22	Discharged Home	01/01/14	01/08/14	Emergency Room	1	1
+7	5	74	22	Discharged Home	01/16/14	01/25/14	Emergency Room	0	0
+8	6	98	22	SNF	01/01/14	01/08/14	Emergency Room	1	1
+9	6	99	22	SNF	01/19/14	02/01/14	Transfer	0	0
+10	7	893	22	Rehab	01/01/14	01/16/14	Emergency Room	0	1
+11	8	2556	22	SNF	01/01/14	01/06/14	Transfer	0	1
+12	9	649	22	SNF	01/01/14	01/08/14	Emergency Room	0	1
+13	10	979	22	SNF	01/01/14	01/04/14	Emergency Room	0	1
+14	11	1815	22	SNF	01/01/14	01/02/14	Transfer	0	1
+15	12	863	22	Discharged Home	01/01/14	01/20/14	Emergency Room	0	1
+16	13	1663	22	SNF	01/01/14	01/04/14	Transfer	0	1
+17	14	999	22	SNF	01/01/14	01/02/14	Emergency Room	0	1
+18	15	1699	22	Discharged Home	01/01/14	01/09/14	Clinic	0	1
+19	16	11	22	Rehab	01/01/14	01/08/14	SNF	0	1
+20	17	587	22	SNF	01/01/14	01/03/14	Transfer	0	1
+21	18	1868	22	SNF	01/01/14	01/03/14	Emergency Room	0	1
+22	19	1570	22	Discharged Home	01/01/14	01/05/14	Clinic	0	1
+23	20	1480	22	Discharged Home	01/01/14	01/17/14	Clinic	0	1
+24	21	1180	22	SNF	01/01/14	02/21/14	Transfer	1	1
+25	21	1181	22	SNF	03/04/14	03/19/14	Transfer	0	0
+26	22	153	22	Discharged Home	01/01/14	01/16/14	Clinic	0	1
+27	23	1920	22	SNF	01/01/14	01/07/14	Transfer	0	1
+28	24	1154	22	Discharged Home	01/01/14	01/05/14	Emergency Room	0	1
+29	25	187	22	Discharged Home	01/01/14	01/08/14	Clinic	0	1
+30	26	126	22	Discharged Home	01/01/14	01/16/14	Emergency Room	1	1

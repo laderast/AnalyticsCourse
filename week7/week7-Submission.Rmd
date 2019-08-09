@@ -2,14 +2,15 @@
 title: "Week 7 Assignment"
 author: "Ted Laderas"
 date: "8/6/2018"
-output: html_document
+output: html_notebook
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+library(here)
 
-analytic_table <- readr::read_csv("analytic.csv", 
+analytic_table <- readr::read_csv(here("data/analytic.csv"), 
                                     col_types = cols(
                                       encounter_type = col_factor(NULL),
                                       outcome = col_factor(NULL),
@@ -26,7 +27,7 @@ In this assignment, we're going to focus on visualizing the readmissions and out
 
 ## Problem 1 (0.5 pt)
 
-Show the `outcome` by month of `Admit_date` as a dodged bar plot for `analytic_table`. Save the result as `outcome_graph`. (Hint: think about what needs to be mapped to `x` and `fill`.) Make sure to add a title.
+Show the `outcome` by month of `Admit_date` as a proportionaal plot for `analytic_table`. Save the result as `outcome_graph`. (Hint: think about what needs to be mapped to `x` and `fill`.) Make sure to add a title.
 
 ```{r}
 #space for your answer here
@@ -44,11 +45,32 @@ As a bar graph, show the `Admit_source` on the `x` axis and `Readmit30` as a fil
 
 ## Problem 3 (0.5 pt)
 
-Produce a histogram of `length_of_stay` and color by `Readmit30`. 
+Play with the heatmap code by tweaking the `low` and `high` color arguments and tweaking the `breaks` argument to change the color bins. You can see a list of color names here: http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf
+
+Did you find a better way to represent the data? Describe why you think so below.
 
 ```{r}
+analytic_table_summarized <- analytic_table %>% 
+  mutate(discharge_month = month(Discharge_date)) %>% 
+  group_by(discharge_month, Admit_source) %>%
+  summarize(discharge_count = n()) 
 
+analytic_table_summarized
+
+heatmap_analytic <- ggplot(data=analytic_table_summarized, 
+       mapping = aes(x=discharge_month, y=Admit_source, 
+                     fill=discharge_count)) + 
+  # lay the data out as a tile
+  geom_tile(color = "black") + 
+  scale_fill_gradient(low="white", high="red", breaks=c( 100, 1000, 5000)) +
+  geom_text(aes(label=discharge_count), color="black") + 
+  #remove the legend
+  theme(legend.position = "none")
+
+heatmap_analytic
 ```
+
+My representation is better because:
 
 ## Problem 4 (0.5 pt)
 
