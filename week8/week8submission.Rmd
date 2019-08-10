@@ -1,0 +1,96 @@
+---
+title: "Week 8 Assignment"
+author: "Put your name here"
+date: "`r Sys.Date()`"
+output: html_notebook
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Train a New Model
+
+Your objective is to train two machine learning models - a logistic regression model and one other model of your choice. Previously, we only used a few select features. You may now use any or all features available to you; you do not need to try different combinations of variables (i.e. you just need to train one of each model).
+
+Aside from the logistic regression model, you are free to use any of the models we've already covered OR a new model. First, we'll load the data and downsample it. Depending on which model you choose, you may need to normalize the feature space, too.
+
+```{r, message=FALSE}
+library(tidyverse)
+library(caret)
+library(ROCR)
+
+## load dataset
+cvd_patient <- readRDS('data/cvd_data.Rds')
+
+## grab indices of the dataset that represent 80% of the data
+train_idx <- createDataPartition(y = cvd_patient$cvd, p = 0.80, list=FALSE)
+
+## select the rows
+train_data <- cvd_patient[train_idx,]
+test_data <- cvd_patient[-train_idx,]
+
+## downsample our training dataset to the lowest-represented class and remove the 'Class' column
+train_data <- downSample(train_data, train_data$cvd) %>%
+  select(-Class)
+
+shuffle_idx <- sample(nrow(train_data))
+train_data <- train_data[shuffle_idx,]
+```
+
+
+## Build your logistic regression model below
+
+```{r}
+## put your code here
+```
+
+
+## Build your other machine learning model below
+
+```{r}
+## put your code here
+```
+
+
+## Question 1
+
+What is the AUC of your logistic regression model? Accuracy? Sensitivity? Specificity? How interpretable is your model?
+
+Answer: 
+
+```{r}
+## put your code here
+```
+
+## Question 2
+
+What is the AUC of your other machine learning model? Accuracy? Sensitivity? Specificity? How interpretable is your model?
+
+Answer: 
+
+```{r}
+## put your code here
+```
+
+## Question 3
+
+While accuracy can be a good measure of model performance, it assumes that each class is evenly represented. For diseases and disorders, this is often not the case, so we instead evaluate sensitivity (percentage of true positives called positive by the model), specificity (percentage of true negatives called negative by the model), and a combination of the two (area under the receiver operating characteristics curve; AUC).
+
+For the three following scenarios, would you prioritize sensitivity or specificity? An interpretable model or a "black box" model? Why?
+
+
+A) You are a 45 year-old male with an increased BMI who recently quit smoking. In essence, you are an "edge case" for the CVD risk models.
+
+Answer: 
+
+
+B) You are a healthcare provider at a large healthcare organization.
+
+Answer: 
+
+
+C) You are an executive at a large healthcare organization.
+
+Answer: 
