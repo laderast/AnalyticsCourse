@@ -12,9 +12,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Train a New Model
 
-Your objective is to train two machine learning models - a logistic regression model and one other model of your choice. Previously, we only used a few select features. You may now use any or all features available to you; you do not need to try different combinations of variables (i.e. you just need to train one of each model).
+Your objective is to train two machine learning models - a logistic regression model and either a decision tree or a neural network. Previously, we only used `age` and `htn` as predictors. Please select one other predictor variable to add to your models.
 
-Aside from the logistic regression model, you are free to use any of the models we've already covered OR a new model. First, we'll load the data and downsample it. Depending on which model you choose, you may need to normalize the feature space, too.
+First, we'll load the data and downsample it. Depending on which model you choose, you may need to normalize the feature space, too.
 
 ```{r, message=FALSE}
 library(tidyverse)
@@ -56,6 +56,12 @@ train_data <- train_data[shuffle_idx,]
 
 ## Question 1
 
+What was your reason for including your predictor variable? No need to cite any sources here, a simple justification will suffice.
+
+Answer:
+
+
+## Question 2
 What is the AUC of your logistic regression model? Accuracy? Sensitivity? Specificity? How interpretable is your model?
 
 Answer: 
@@ -64,7 +70,8 @@ Answer:
 ## put your code here
 ```
 
-## Question 2
+
+## Question 3
 
 What is the AUC of your other machine learning model? Accuracy? Sensitivity? Specificity? How interpretable is your model?
 
@@ -74,11 +81,12 @@ Answer:
 ## put your code here
 ```
 
-## Question 3
+
+## Question 4
 
 While accuracy can be a good measure of model performance, it assumes that each class is evenly represented. For diseases and disorders, this is often not the case, so we instead evaluate sensitivity (percentage of true positives called positive by the model), specificity (percentage of true negatives called negative by the model), and a combination of the two (area under the receiver operating characteristics curve; AUC).
 
-For the three following scenarios, would you prioritize sensitivity or specificity? An interpretable model or a "black box" model? Why?
+For the three following scenarios, would you prioritize sensitivity or specificity? Why? Would you care if the model was interpretable? Why or why not?
 
 
 A) You are a 45 year-old male with an increased BMI who recently quit smoking. In essence, you are an "edge case" for the CVD risk models.

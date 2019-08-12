@@ -107,22 +107,22 @@ Now we train our decision tree. To create a split (i.e. two diverging branches),
 
 Note that we're using the formula interface here to describe which variables are predictors, and which variable is the outcome. Specifically, we specify;
 
-`cvd ~ age + gender + htn`
+`cvd ~ age + htn`
 
-Here, `cvd` is our outcome variable, and `age`, `gender` and `htn` are the predictors.
+Here, `cvd` is our outcome variable, and `age` and `htn` are the predictors.
  
 ```{r fig.width=12}
 ## train the decision tree and plot its structure
-decision_tree <- ctree(cvd ~ age + gender + htn, data = train_data, controls = ctree_control(minbucket = 15000, minsplit = 30000))
+decision_tree <- ctree(cvd ~ age + htn, data = train_data, controls = ctree_control(minbucket = 10000, minsplit = 30000))
 plot(decision_tree)
 ```
 
-Here's the structure of our model. What we see is that out of the 7 variables in the training data, only `age` and `sbp` were most informative for predicting `cvd`. The probability bars at the terminal nodes tell us two things:
+Here's the structure of our model. The probability bars at the terminal nodes tell us two things:
 
 1) Which class a sample will be classified as if it lands in said node
 2) The probability that it actually belongs to that class
 
-So, the far left bar is a `N` for `cvd` (i.e. the person *does not* have CVD). Out of all the training samples used to build this tree, ~8% were misclassified (the darker gray area). In contrast, the far right bar is `Y` for `cvd` (i.e. the person *does* have CVD) and the number of training samples correctly classified as such were around ~82%.
+So, the far left bar is a `N` for `cvd` (i.e. the person *does not* have CVD). Out of all the training samples used to build this tree, ~8% were misclassified (the darker gray area). In contrast, the far right bar is `Y` for `cvd` (i.e. the person *does* have CVD) and the number of training samples correctly classified as such were around ~55%.
 
 ## Testing
 
@@ -156,13 +156,19 @@ tree_conf
 We can see that the AUC isn't great (`r round(tree_auc, 3)`), but definitely better than chance! Also, note that while sensitivity is fairly high (`r round(tree_conf$byClass[1], 3)`), specificity is on the lower end (`r round(tree_conf$byClass[2], 3)`). That said, we've built a *highly* interpretable model and easy-to-use model. The set of rules in the decision tree would be fairly straightforward for a physician to memorize and could use this model in their practice.
 
 # Neural Networks
-While the decision tree is highly interpretable, it leaves much to be desired in terms of performance. Artificial neural networks (ANN) are another type of machine learning algorithm that simulate biological neural networks to perform classification or regression. An ANN can have many layers, and each layer can contain many nodes, and all of these nodes have weighted connections between them. For now, imagine that nodes are simply ON/OFF switches and the weighted connections turn those switches ON or OFF. During the training process, we adjust these weights so that the single node in the final layer is ON when a person has CVD and OFF when they do not.
+While the decision tree is highly interpretable, it leaves much to be desired in terms of performance. Artificial neural networks (ANN) are another type of machine learning algorithm that simulate biological neural networks to perform classification or regression. An ANN can have many layers, and each layer can contain many nodes, and all of these nodes have weighted connections between them. Each node can actually just be thought of as a regression function and neural network is simply stringing these all together.
 
-[Image describing neural network - perhaps from https://nolisllc.com/assets/presentations/rnyconf-1-deep-learning.pptx]
+<center>
+![](img/neural_net.png)
+</center>
+
+For now, imagine that nodes are simply ON/OFF switches and the weighted connections turn those switches ON or OFF. During the training process, we adjust these weights so that the single node in the final layer is ON when a person has CVD and OFF when they do not. If you're interested in learning more, you should check out [Jacqueline Nolis' presentation on Deep Learning.](https://nolisllc.com/assets/presentations/rnyconf-1-deep-learning.pptx)
 
 ## Data Manipulation
 
-[Describe the scaling and what it is doing here]
+For most machine learning tasks, we will want to normalize our feature vectors into the [-1, 1] or [0, 1] range. This is because the weights were are adjusting for are in the range 0 to 1. So, if we multiply these weights by a large value (e.g. `tchol == 245`), then the algorithm might assume that `tchol` is a more important predictor than, say, `gender`, which would be binarized to equal either 0 or 1.
+
+To do this, we will first use the `data.matrix()` function to convert our dataframe into a data.matrix (all values become numeric). Then, for each value in a column, subtract the smallest value found in that column. Finally, that value by the difference between the maximum and minimum values in said column. This will put each value in a column into the [0,1] range.
 
 ```{r}
 ## some Intel CPUs need this option set for Keras to work
@@ -170,11 +176,10 @@ While the decision tree is highly interpretable, it leaves much to be desired in
 Sys.setenv('KMP_DUPLICATE_LIB_OK'='True')
 
 
-## for most machine learning tasks, you should normalize your feature vectors into the [-1, 1] or [0, 1] range
 ## first let's remember what our data looks like
 head(train_data)
 
-## now we normalize both the train and test datasets
+## normalize data
 scaled_train <- apply(data.matrix(train_data), 2, function(x) (x-min(x))/(max(x) - min(x)))
 scaled_test <- apply(data.matrix(test_data), 2, function(x) (x-min(x))/(max(x) - min(x)))
 
@@ -184,11 +189,15 @@ head(scaled_train)
 
 
 ## Training
-Now we can begin building our model. Just so we can compare apples to apples, we'll only use the variables `age` and `sbp`, since they were identified as significant predictors in the decision tree model.
+Now we can begin building our model. Just so we can compare apples to apples, we'll only use the variables `age` and `htn`, since that's what we used in the decision tree model.
 
-To begin, we tell `keras` that we're going to be building a sequential model (i.e. layer 1 feeds into layer 2, and layer 2 into layer 3, etc.). Then we use the pipe operator to add our layers. The first layer we'll add is a fully-connected dense layer consisting of 70 nodes. Each node will have the ReLU activation function applied to it. We then pass the information from that layer to the next layer, which contains 35 nodes that use the same activation function. That layer then passes to the final layer, which contains a single node with a sigmoid activation function, since we're performing binary classification.
+To begin, we tell `keras` that we're going to be building a sequential model (i.e. layer 1 feeds into layer 2, and layer 2 into layer 3, etc.). Then we use the pipe operator to add our layers. The first layer we'll add is a fully-connected dense layer consisting of 140 nodes. Each node will have the ReLU activation function applied to it. We then pass the information from that layer to the next layer, which also contains 140 nodes that use the same activation function. That layer then passes to the final layer, which contains a single node with a sigmoid activation function, since we're performing binary classification.
 
-You'll notice that in between each of the dense layers is a 50% dropout layer. What this does is, during training, randomly selects 50% of the weights and sets them to 0. This is a form of regularization that helps prevent the model from overfitting to the dataset.
+You'll notice that in between each of the dense layers is a 50% dropout layer. What this does is, during training, the model randomly selects 50% of the weights and sets them to 0. This is a form of regularization that helps prevent the model from overfitting to the dataset.
+
+<center>
+![](img/dropout.png)
+</center>
 
 ```{r}
 ## instantiate the model framework and let keras know we'll be building a sequential model
@@ -199,7 +208,7 @@ model <- keras_model_sequential()
 model %>%
 	layer_dense(units = 140, activation = 'relu', input_shape = ncol(scaled_train[,c(2,6)])) %>%
 	layer_dropout(0.25) %>%
-  layer_dense(units = 140, activation = 'relu') %>%
+	layer_dense(units = 140, activation = 'relu') %>%
 	layer_dropout(0.25) %>%
 	layer_dense(units = 1, activation = 'sigmoid')
 
@@ -208,19 +217,19 @@ model %>%
 ## we'll use simple stochastic gradient decent as our optimizer
 ## and we'll monitor the accuracy of both the train and test sets to let us evaluate model performance
 model %>% compile(loss = "binary_crossentropy", optimizer = optimizer_sgd(lr = 0.1), metrics = c('acc'))
-
-
-## check the overall structure of the model
-model %>% summary()
 ```
 
 The model summary above shows that our model was built as described, so we're ready to begin training. We pass the `fit` argument to `model` and specify that we'd like to train using as subset of the `scaled_train` matrix and that the associated labels are in another subset of the same matrix. Furthermore, we tell our model to use the last 20% of the dataset for validation so that we can monitor the training process and avoid overfitting. Finally, we tell the algorithm to update the weights of our model every time 5000 samples from the training dataset pass through (`batch_size`) AND that we'd like the whole training dataset to be trained on 25 times (`epochs`).
 
-[talk about mapping the predictors - maybe use some dplr statements to make them more clear]
+We'd like to compare this model to the decision tree above. To do so, we need to select the predictor variables, and split those into separate X and Y matrices.
 
 ```{r, results='hide'}
+## select our predictor and outcome variables 
+scaled_train_x <- scaled_train[, c('age','htn')]
+scaled_train_y <- scaled_train[, 'cvd']
+
 ## train the model
-training <- model %>% fit(x = scaled_train[,c(2,6)], y = scaled_train[,1], validation_split = 0.20, batch_size = 5000, epochs = 25)
+training <- model %>% fit(x = scaled_train_x, y = scaled_train_y, validation_split = 0.20, batch_size = 5000, epochs = 25)
 plot(training)
 ```
 
