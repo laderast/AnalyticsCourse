@@ -12,9 +12,10 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 # Background
+
 As mentioned in the last module, cardiovascular disease risk is mediated by many factors, including (but not limited to) BMI, age, and gender. Today, we will use machine learning techniques to predict whether or not a patient is at risk for cardiovascular disease given a set of known information.
 
-We'll be using the synthetic patient dataset, `cvd_patient`, which can be loaded from Dropbox. Even though we performed a summary on this data last time, it's always good practice to reinspect in case anything has changed.
+We'll be using the synthetic patient dataset, `cvd_patient`. Even though we performed a summary on this data last time, it's always good practice to reinspect in case anything has changed.
 
 ```{r, message=FALSE}
 library(tidyverse)
@@ -38,6 +39,7 @@ Everything still looks good here. We have a number of covariates we might use to
 We're going to want to check the predictive power of the model, so we'll want to partition our data into separate train and test sets, using the `createPartitionData()` function in `caret`. Reminder: `createPartitionData()` returns a number of row indices that we can use to subset the data into two sets:
 
 1) Test dataset (20% of our data), which we’ll use to test our model’s predictive value
+
 2) Training dataset (80% of our data), which we’ll use to actually build (or train) our model.
 
 ```{r}
