@@ -103,22 +103,29 @@ A decision tree is a machine learning method that uses a tree-like structure to 
 
 ## Training
 
-Now we train our decision tree. To create a split (i.e. two diverging branches), we require there to be at least 30,000 samples in the node being split AND a terminal node can contain no less than 15,000 samples. We *could* allow smaller numbers here, but this could lead to overfitment of our model.
+Now we train our decision tree. To create a split (i.e. two diverging branches), we require there to be at least 30,000 samples in the node being split AND a terminal node can contain no less than 15,000 samples. We *could* allow smaller numbers here, but this could lead to overfitting of our model.
+
+Note that we're using the formula interface here to describe which variables are predictors, and which variable is the outcome. Specifically, we specify;
+
+`cvd ~ age + gender + htn`
+
+Here, `cvd` is our outcome variable, and `age`, `gender` and `htn` are the predictors.
  
 ```{r fig.width=12}
 ## train the decision tree and plot its structure
-decision_tree <- ctree(cvd ~ ., data = train_data, controls = ctree_control(minbucket = 15000, minsplit = 30000))
+decision_tree <- ctree(cvd ~ age + gender + htn, data = train_data, controls = ctree_control(minbucket = 15000, minsplit = 30000))
 plot(decision_tree)
 ```
 
 Here's the structure of our model. What we see is that out of the 7 variables in the training data, only `age` and `sbp` were most informative for predicting `cvd`. The probability bars at the terminal nodes tell us two things:
+
 1) Which class a sample will be classified as if it lands in said node
 2) The probability that it actually belongs to that class
 
 So, the far left bar is a `N` for `cvd` (i.e. the person *does not* have CVD). Out of all the training samples used to build this tree, ~8% were misclassified (the darker gray area). In contrast, the far right bar is `Y` for `cvd` (i.e. the person *does* have CVD) and the number of training samples correctly classified as such were around ~82%.
 
-
 ## Testing
+
 For machine learning, training set performance isn't necessarily indicative of real-world performace. That's why we use a held-out test set. Let's see how well our model really works, by evaluating its performance on the test dataset.
 
 ```{r}
@@ -148,13 +155,15 @@ tree_conf
 
 We can see that the AUC isn't great (`r round(tree_auc, 3)`), but definitely better than chance! Also, note that while sensitivity is fairly high (`r round(tree_conf$byClass[1], 3)`), specificity is on the lower end (`r round(tree_conf$byClass[2], 3)`). That said, we've built a *highly* interpretable model and easy-to-use model. The set of rules in the decision tree would be fairly straightforward for a physician to memorize and could use this model in their practice.
 
-
-
 # Neural Networks
 While the decision tree is highly interpretable, it leaves much to be desired in terms of performance. Artificial neural networks (ANN) are another type of machine learning algorithm that simulate biological neural networks to perform classification or regression. An ANN can have many layers, and each layer can contain many nodes, and all of these nodes have weighted connections between them. For now, imagine that nodes are simply ON/OFF switches and the weighted connections turn those switches ON or OFF. During the training process, we adjust these weights so that the single node in the final layer is ON when a person has CVD and OFF when they do not.
 
+[Image describing neural network - perhaps from https://nolisllc.com/assets/presentations/rnyconf-1-deep-learning.pptx]
 
 ## Data Manipulation
+
+[Describe the scaling and what it is doing here]
+
 ```{r}
 ## some Intel CPUs need this option set for Keras to work
 ## if in doubt, just leave this command uncommented
@@ -206,6 +215,8 @@ model %>% summary()
 ```
 
 The model summary above shows that our model was built as described, so we're ready to begin training. We pass the `fit` argument to `model` and specify that we'd like to train using as subset of the `scaled_train` matrix and that the associated labels are in another subset of the same matrix. Furthermore, we tell our model to use the last 20% of the dataset for validation so that we can monitor the training process and avoid overfitting. Finally, we tell the algorithm to update the weights of our model every time 5000 samples from the training dataset pass through (`batch_size`) AND that we'd like the whole training dataset to be trained on 25 times (`epochs`).
+
+[talk about mapping the predictors - maybe use some dplr statements to make them more clear]
 
 ```{r, results='hide'}
 ## train the model
