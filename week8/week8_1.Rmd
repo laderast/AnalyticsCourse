@@ -1,15 +1,24 @@
 ---
 title: "Predicting CVD Risk"
 author: "Ted Laderas, Mark Klick and Shannon McWeeney"
-date: "8/7/2017"
+date: "8/13/2019"
 output:
-  html_document: default
+  html_document: 
+    toc: true
+    toc_float: true
   pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, message = FALSE)
 ```
+
+## Learning Objectives
+
+- Learn how to build logistic regression models
+- Interpret logistic regression coefficients
+- Understand how stakeholder values affect how a model is built
+- Assess the predictive power of a model using sensitivity and specificity
 
 ## Predicting CVD Risk
 
@@ -23,8 +32,8 @@ Before we do anything, let's do a summary on the data.
 library(tidyverse)
 library(broom)
 library(caret)
-library(here)
-
+library(ggplot2)
+library(plotly)
 
 #set the random seed - necessary for comparing this with machine learning doc.
 set.seed(111)
@@ -48,7 +57,9 @@ There are a number of covariates we might use to predict whether a patient has c
 
 ## Separating Our Data
 
-One of the things we might like to check is the predictive power of the model. For this reason, we want to save a little bit of our data that the model doesn't "see" for testing the predicitve power of the model.
+One of the things we might like to check is the predictive power of the model. For this reason, we want to save a little bit of our data that the model doesn't "see" for testing the predicitve power of the model. 
+
+The dataset that we train with model with is called the *training* dataset, and the dataset that we test our model's predictive ability is called the *test* dataset.
 
 We hold out 20 percent of the data by using the `createPartitionData()` function in `caret`. `createPartitionData()` returns a number of row indices that we can use to subset the data into two sets: 1) our `test` dataset (20% of our data), which we'll use to test our model's predictive value, and 2) our `training` dataset (80% of our data), which we'll use to actually build (or train) our model.
 
@@ -62,6 +73,7 @@ trainingIndices[1:10]
 
 #select the rows
 trainData <- cvd_patient[trainingIndices,]
+
 #confirm the number of rows (should be 80)
 nrow(trainData)
 
@@ -115,6 +127,10 @@ We note that both of our predictors (`age` and `gender`) are significant terms i
 
 How can we use these coefficients? You cannot interpret the Logistic model coefficients strictly in terms of probabilities, because the logistic model is actually non-linear in terms of probabilities. 
 
+## Understanding Odds Ratios
+
+*Note: This section is optional and explains why we use Odds Ratios in logistic regression. Jump to the TL:DR if you just want to learn how to intepret them.*
+
 However, the coefficients in the model can be interpreted in terms of Odds Ratio. What is the Odds Ratio?  Remember that odds can be expressed as `numberCases:numberNonCases`. For example, an odds of 5:1 (win:lose) means that 5 times out of 6, we expect to win, and 1 times out of 6 we expect not to win. The odds ratio (OR) is just `numberCases/numberNonCases`. In the case of 5:1 odds, the OR is 5/1 = 5. The probability of winning in this case would be `numberCases / (numberCases + numberNonCases)` or 5/(1+5) = 0.833333. 
 
 So mathematically, the Odds Ratio for our model using our `age` as an independent variable can be calculated as:
@@ -156,7 +172,11 @@ $$
 OddsRatio(cvd=TRUE) = exp(\frac{prob(cvd=TRUE)}{1-prob(cvd=TRUE)}) \\ = exp(Constant) * exp(CoefAge* age) * exp(CoefGender*gender)
 $$
 
-So we find that the `OddsRatio(cvd = TRUE)` is calculated by multiplying `exp(Constant)`, `exp(CoefAge * age)` and `exp(CoefGender * gender)`, which is a nice result. This means that in order to interpret the coefficients in terms of odds, we need to exponentiate them. We can then interpret these transformed coefficients in terms of an associated increase in the Odds Ratio. So let's first transform our coefficients by exponentiating them:
+So we find that the `OddsRatio(cvd = TRUE)` is calculated by multiplying `exp(Constant)`, `exp(CoefAge * age)` and `exp(CoefGender * gender)`, which is a nice result. 
+
+## TL:DR about interpreting Odds Ratios
+
+This mathematical digression means that in order to interpret the coefficients in terms of odds, we need to exponentiate them. We can then interpret these transformed coefficients in terms of an associated increase in the Odds Ratio. So let's first transform our coefficients by exponentiating them:
 
 ```{r}
 coefs <- coef(ageGenderModel)
@@ -183,13 +203,13 @@ modelPredictedProbabilities <- predict(ageGenderModel, newdata=testData, type = 
 testData <- data.frame(testData, predProb=modelPredictedProbabilities)
 #testDataAugment <- augment(ageGenderModel)
 
-plot(testData$age, testData$predProb)
+testData %>% ggplot(aes(x=age, y=predProb)) + geom_point()
 ```
 
 Looking at this plot, we can see two things: our predicted probabilities are in two groups of points. The bottom set of points are the ones for which our `gender` is 0, and the top set of points are where `gender` is 3. This becomes more obvious if we color the points according by `gender`.
 
 ```{r}
-plot(testData$age, testData$predProb, col=testData$gender)
+testData %>% ggplot(aes(x=age, y=predProb, color=gender)) + geom_point()
 ```
 
 There are two other things to notice: our predicted probabilities are not that high (the maximum is 0.3) and that the relation between the predicted probabilities and `age` isn't linear. 
@@ -204,8 +224,10 @@ modelPredictedLogOddsRatio <- predict(ageGenderModel,newdata = testData)
 testDataPred <- data.frame(testData, predLogit = modelPredictedLogOddsRatio)
 
 #plot the age versus logit (coloring by gender)
-plot(testDataPred$age, testDataPred$predLogit, col=testDataPred$gender)
+testDataPred %>% ggplot(aes(x=age, y=predLogit, color=gender)) + geom_point()
+```
 
+```{r}
 #transform the logit to the predictedOdds ratio
 modelPredictedOddsRatio <- exp(modelPredictedLogOddsRatio)
 modelPredictedOddsRatio[1:10]
@@ -214,8 +236,10 @@ modelPredictedOddsRatio[1:10]
 testDataPred <- data.frame(testDataPred, predOR = modelPredictedOddsRatio)
 
 #plot Odds ratio versus age
-plot(testDataPred$age, testDataPred$predOR, col=testDataPred$gender)
+testDataPred %>% ggplot(aes(x=age, y=predOR, col=gender)) + geom_point()
+```
 
+```{r}
 exp(coef(ageGenderModel))
 ```
 
@@ -226,13 +250,15 @@ So you might notice that we have predicted probabilities of CVD risk for each pa
 How do we decide the threshold? One simple way to decide is to do a histogram of the *predicted probabilities*. We note that there is a drop in the predicted probabilities between 0.1 and 0.3. 
 
 ```{r}
+modelPredictedProbabilities %>% data.frame %>% ggplot(x=)
+
 hist(modelPredictedProbabilities)
 ```
 
 What happens when we set our probability threshold at 0.225? We can use `ifelse()` to recode the probabilities using this threshold. 
 
 ```{r}
-modelPredictions <- ifelse(modelPredictedProbabilities < 0.225, 0, 1)
+modelPredictions <- ifelse(modelPredictedProbabilities < 0.225, "N", "Y")
 modelPredictions[1:10]
 ```
 
@@ -255,21 +281,136 @@ accuracy
 
 For our `age + gender` model, our prediction threshold of 0.225 has an accuracy of `r accuracy * 100` percent. Try a different threshold and see whether it improves.
 
-##ROC Curves
+## Getting more information: confusionMatrix()
 
-We can examine the impact of setting our probability threshold using the `ROCR` package (be sure to install it using `install.packages("ROCR")`). 
+There is a function called `confusionMatrix()` that will give us more metrics on our confusion matrix.
+
+
+```{r}
+
+confusionMatrix(factor(testData$cvd), factor(modelPredictions), positive = "Y")
+```
+
+## Thinking about the cutoff
+
+The AUC gives us the general performance of the model across a set of cutoffs. However, to actually use our regression model, we need to adjust the cutoff depending on our stakeholder's values. These values are different depending on who these stakeholders are.
+
+What do I mean by values? It has to do with how we prioritize *false positives* and *false negatives*. In selecting a threshold, we need to decide whether catching false positives or false negatives are important to us. 
+
+If I were a patient, and I was given a *false positive*, what are the consequences? That is, if I were told I had cardiovascular disease, and it wasn't true. One might argue that because of the possible interventions (change in diet, exercise, and medication), the impact would be relatively small for the patient. 
+
+That is, if I was told that I have cardiovascular disease, I might change my diet, exercise more, and take some statins. The impact of doing these interventions on my quality of life is much less drastic than if I had a *false positive* for a breast cancer test. For a positive breast cancer screen, the interventions are much more drastic (radiation treatment, surgery, chemotherapy), and the impact on my quality of life is much more. 
+
+What about false negatives? Think of the impact of a false negative on you if we were testing for cardiovascular disease. What would be the consequences?
+
+In the homework, we're going to ask you to think about what your values are for different stakeholders: 
+
+1) individual patients, 
+2) at the clinician level, and 
+3) the healthcare organization level. 
+
+## Now we've decided our values
+
+As a patient, I have decided that concentrating on false negatives are more important, because I could be at risk and the impact of a false negative (having untreated heart disease) is way more drastic than the impact of a false positive. 
+
+We can adjust our cutoff and see how it impacts the sensitivity and specificity of our model. Depending on our priorities, we will adjust the cutoff to maximize one or the other.
+
+Remember:
+
+Sensitivity: Prioritize *false negatives* by making this as high as possible.
+Specificity: Prioritize *false positives* by making this as high as positive.
+
+In the code below, I'm running a bunch of different cutoffs to calculate sensitivity and specificity using the `confusionMatrix()` function built into the `e1071` package. 
+
+```{r}
+truth <- factor(testData$cvd, levels=c("Y","N"))
+#seq() function allows us to make a sequence of cutoffs
+cutoffs <- seq(from=0.01,to=1, by = 0.01)
+cutoffs
+```
+
+Now, we'll define a function that produces a confusion matrix over all of the cutoffs.
+
+```{r}
+# this function will produce a confusion matrix
+# for a particular cutoff
+run_cutoff <- function(cutoff){
+  #Do thresholding with cutoff       
+  predictions <- ifelse(modelPredictedProbabilities < cutoff, "N", "Y")
+  #run confusion matrix on predictions
+  caret::confusionMatrix(
+          factor(predictions, levels=c("Y", "N")), 
+                  truth, 
+                  positive="Y")
+  }
+```
+
+Now we can run our function over all the cutoffs, extract the sensitivity and specificity for each cutoff, and then put everything together into a `data.frame` called `cutoff_frame`.
+
+```{r}
+#run our function on all of our cutoffs
+#the output is a list of confusion matrices
+confusion_matrices <- lapply(cutoffs, run_cutoff)
+
+#get the sensitivity out of the list of confusion matrices
+sensitivities <- lapply(confusion_matrices, function(x){return(x$byClass["Sensitivity"])})
+
+#get the sensitivity out of the list of confusion matrices
+specificities <- lapply(confusion_matrices, function(x){return(x$byClass["Specificity"])})
+
+#make sensitivities and specificities into vectors
+sensitivities <- unlist(sensitivities)
+specificities <- unlist(specificities)
+
+#produce a data frame with all of the cutoffs
+cutoff_frame <- data.frame(cutoff=cutoffs, sensitivity =sensitivities, specificity = specificities)
+cutoff_frame
+```
+
+## ROC Curves (the hard way)
+
+Now, let's do something with these cutoffs and sensitivity/specificities.
+
+To see how the cutoff affects our sensitivity and specificity, we can plot what is called an Receiver Operating Characteristic (ROC) curve, which plots `1-specificity` on the x axis, and `sensitivity` on the y-axis.
+
+I'm using an additional library called `plotly` here that can give you tooltips when you mouse over a point. To add sensitivity and specificity, note I'm mapping them as aesthetics in the `ggplot()` statement. 
+
+`plotly::ggplotly` will attempt to take a ggplot and make it into an interactive plot. We can control what variables the tooltip shows with the `tooltip` argument.
+
+Pick a point that maximizes sensitivity - what is the cost to the specificity?
+
+Likewise, pick a point that maximizes specificity - what is the cost to sensitivity?
+
+```{r}
+library(ggplot2)
+roc_plot <- cutoff_frame %>% ggplot(aes(x=1-specificity, y=sensitivity, cutoff=cutoff, specificity=specificity)) + geom_point() + ggtitle("ROC Curve for Age + Gender Model") + xlim(c(0,1)) + ylim(c(0,1))
+
+plotly::ggplotly(roc_plot, tooltip=c("cutoff", "sensitivity", "specificity")) 
+```
+
+## Is there an optimal cutoff on the ROC curve?
+
+I really caution you against trying to balance sensitivity versus specificity without thinking about the values of your stakeholders. 
+
+Part of your value as an analyst is translating organizational values and making the models meaningful in that light. 
+
+Technically, you can balance specificity and sensitivity of your model by taking the point closest to the top right corner, but this balance probably does not speak to the values of your organization or stakeholders.
+
+## ROC Curves (an easier way)
+
+I don't expect you to generate the ROC curve using the above method. We can examine the impact of setting our probability threshold using the `ROCR` package (be sure to install it using `install.packages("ROCR")`). 
 
 An ROC curve (Receiver-Operator-Characteristic) is a way of assessing how our probability threshold affects our Sensitivity (our ability to detect true positives) and Specificity (our ability to detect true negatives). Any test has a sensitivity/specificity tradeoff. We can actually use an ROC curve to select a threshold based on whether we value Sensitivity or Specificity.
 
 ```{r}
 library(ROCR)
 
-pr <- prediction(modelPredictedProbabilities, testData$cvd)
-prf <- performance(pr, measure = "tpr", x.measure = "fpr")
+pr <- ROCR::prediction(modelPredictedProbabilities, testData$cvd)
+prf <- ROCR::performance(pr, measure = "tpr", x.measure = "fpr")
 plot(prf, main="ROC Curve")
 ```
 
-The area under the ROC curve (AUC) is one way we can summarize our model performance. A model with perfect predictive ability has an AUC of 1. A random test (that is, a coin flip) has an AUC of 0.5. 
+The area under the ROC curve (AUC) is one way we can summarize our model performance over all possible cutoffs. A model with perfect predictive ability has an AUC of 1. A random test (that is, a coin flip) has an AUC of 0.5. 
 
 ```{r}
 auc <- performance(pr, measure = "auc")
@@ -277,7 +418,9 @@ auc <- auc@y.values[[1]]
 auc
 ```
 
-Our `age` + `gender` model has an AUC of `r auc`, which is not super great. Perhaps you can make it better?
+Our `age` + `gender` model has an AUC of `r auc`, which is not super great. Perhaps you can make it better? Try adding another covariate to your model, but be thoughtful about why you add that covariate.
+
+AUC is useful for you in comparing models, but perhaps not in reporting the most effective model. We'll talk more about this when we talk about data storytelling in class.
 
 ## More Info on Logistic Regression 
 
@@ -288,30 +431,3 @@ This page https://www.r-bloggers.com/evaluating-logistic-regression-models/ does
 https://www.r-bloggers.com/how-to-perform-a-logistic-regression-in-r/ is also a good resource for understanding logistic regression models. This page http://www.ats.ucla.edu/stat/mult_pkg/faq/general/odds_ratio.htm is a good page for understanding odds ratios and predicted probabilities.
 
 
-# Homework Week 7
-
-## Problem 1 (2 pts)
-
-Modify `ageGenderModel` by changing the covariates. Justify why you think the covariates should be included in the model. Assess the predicted accuracy of your new model compared to the old one. Interpret the effect of one of your numerical covariates (`age`, `bmi`, `sbp` and `tchol`). Is the effect a large one? Which model is a better predictor of CVD? By how much? (use either accuracy or AUC when reporting your result.) 
-
-Note that you do *not* need to replicate the plots; they're mostly there for illustrative purposes. But definitely use anything you think is useful in setting up the discussion of your model.
-
-## Problem 2 (1 pt)
-
-Should all of these covariates be included in our model: `sbp`, `htn`, and `smoking`? Why or why not? (Think about whether you are providing the same information by including all of these covariates.)
-
-## Problem 3 (Optional, 2 pts extra credit)
-
-If you are interested in this, check out the machine learning document to learn more about machine learning apporaches. Compare your model in problem 1 with models built using `lda` (linear discriminant analysis) and `rpart` (classification and regression trees) in terms of accuracy. Use the same covariates you used in Problem 1 to build your models. Do either of these methods do any better than logistic regression on this dataset?
-
-```{r eval = FALSE, echo=FALSE}
-load("~/Code/cvdRiskData/data/cvd_patient.rda")
-cvd_patient <- cvd_patient %>% select(cvd, age=numAge, gender, bmi, sbp, htn, smoking)
-
-cvd_patient$cvd <- ordered(cvd_patient$cvd, levels=c("N","Y"))
-cvd_patient$smoking <- ordered(cvd_patient$smoking, levels = c("N","Y"))
-cvd_patient <- cvd_patient %>% dplyr::filter(age > 40)
-cvd_patient <- cvd_patient
-save(cvd_patient, file="~/Dropbox/analytics/cvd_patient.rda")
-write.csv(cvd_patient, "~/Dropbox/analytics/cvd_patient.csv", row.names = FALSE)
-```

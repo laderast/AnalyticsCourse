@@ -12,7 +12,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Train a New Model
 
-Your objective is to train two machine learning models - a logistic regression model and either a decision tree or a neural network. Previously, we only used `age` and `htn` as predictors. Please select one other predictor variable to add to your models.
+Your objective is to train two machine learning models - a logistic regression model and either a decision tree or a neural network. Previously, we only used `age` and `gender` as predictors. Please select one other predictor variable to add to your models. 
+
+## Loading the Data in
 
 First, we'll load the data and downsample it. Depending on which model you choose, you may need to normalize the feature space, too.
 
@@ -20,6 +22,7 @@ First, we'll load the data and downsample it. Depending on which model you choos
 library(tidyverse)
 library(caret)
 library(ROCR)
+library(e1071)
 
 ## load dataset
 cvd_patient <- readRDS('data/cvd_data.Rds')
@@ -42,12 +45,16 @@ train_data <- train_data[shuffle_idx,]
 
 ## Build your logistic regression model below
 
+Using the above `train_data` dataset and your new predictor, specify and build your logistic regression model (it should be of the form `cvd ~ age + gender + ...`. Use the test data to produce the predicted probabilities. Decide on a cutoff for your model based on a histogram of the predicted probabilities. Assess your model's performance by producing a confusion matrix.
+
 ```{r}
 ## put your code here
 ```
 
 
 ## Build your other machine learning model below
+
+Choose one of the machine learning methods (decision trees or neural nets) and train your model that includes the new predictor using `train_data`. Assess your model performance based on the confusion matrix for your model.
 
 ```{r}
 ## put your code here
@@ -86,19 +93,25 @@ Answer:
 
 While accuracy can be a good measure of model performance, it assumes that each class is evenly represented. For diseases and disorders, this is often not the case, so we instead evaluate sensitivity (percentage of true positives called positive by the model), specificity (percentage of true negatives called negative by the model), and a combination of the two (area under the receiver operating characteristics curve; AUC).
 
-For the three following scenarios, would you prioritize sensitivity or specificity? Why? Would you care if the model was interpretable? Why or why not?
+For the three following scenarios, would you: 
+
+1) prioritize sensitivity or specificity? Why?  
+2) Would you care if the model was interpretable? Why or why not?
+
+Start by articulating the values and priorities at each scenario. 
 
 
-A) You are a 45 year-old male with an increased BMI who recently quit smoking. In essence, you are an "edge case" for the CVD risk models.
+A) You are a 45 year-old female with an increased BMI who recently quit smoking. You know you ought to exercise some more and improve your diet, but your screen says you're negative for cardiovascular disease.
+
+Answer: 
+
+
+B) You are a healthcare provider at a large healthcare organization. You want to make sure that you don't miss any potentical CVD patients.
 
 Answer: 
 
 
-B) You are a healthcare provider at a large healthcare organization.
+C) You are an executive at a large healthcare organization and want to target members for a cardiac disease prevention program.
 
 Answer: 
 
-
-C) You are an executive at a large healthcare organization.
-
-Answer: 
