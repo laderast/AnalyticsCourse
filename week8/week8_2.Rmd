@@ -13,15 +13,17 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Background
 
-As mentioned in the last module, cardiovascular disease risk is mediated by many factors, including (but not limited to) BMI, age, and gender. Today, we will use machine learning techniques to predict whether or not a patient is at risk for cardiovascular disease given a set of known information.
+As mentioned in the last module, cardiovascular disease risk is mediated by many factors, including (but not limited to) `bmi`, `age`, and `gender`. Today, we will use machine learning techniques to predict whether or not a patient is at risk for cardiovascular disease given a set of known information.
 
-We'll be using the synthetic patient dataset, `cvd_patient`. Even though we performed a summary on this data last time, it's always good practice to reinspect in case anything has changed.
+We'll be using the synthetic patient dataset, `cvd_patient` that we used in the logistic regression notebook. Even though we performed a summary on this data last time, it's always good practice to reinspect in case anything has changed.
 
 ```{r, message=FALSE}
 library(tidyverse)
 library(caret)
+#library for decision trees
 library(party)
 library(ROCR)
+#library for neural networks
 library(keras)
 
 ## load da## load dataset
@@ -69,11 +71,13 @@ nrow(test_data)
 table(train_data$cvd)
 ```
 
-Notice above that we have an imbalanced dataset (i.e. there are far more people in our dataset *without* CVD than there are with CVD). For simpler machine learning models, this doesn't pose much of an issue. More advanced methods, however, will tend to overfit to the more-represented class. What does this mean in practice? It means our model would likely be very good at predicting when someone *doesn't* have CVD, but might suffer when they *do* have CVD.
+Notice above that we have an imbalanced dataset (i.e. there are far more people in our dataset *without* CVD than there are with CVD). For simpler machine learning models, this doesn't pose much of an issue. 
 
-We can get around this issue by upsampling or downsampling our dataset. With upsampling, we randomly draw samples from the smaller class and add them to our dataset until the classes are balanced. This leaves us with a large, balanced dataset, *but* it will contain many repeats of the smaller class and could still lead to our model overfitting on the less-represented class.
+More advanced methods, however, will tend to overfit to the more-represented class. What does this mean in practice? It means our model would likely be very good at predicting when someone *doesn't* have CVD, but might suffer when they *do* have CVD.
 
-Downsampling, on the other hand, randomly removes instances from the more-represented class until the class sizes are equal. The pitfall here is that the overall dataset size will only be twice as large as the number of instances in the less-represented class, *but* it won't contain any repeat observations.
+We can get around this issue by *upsampling* or *downsampling* our dataset. With *upsampling*, we randomly draw samples from the smaller class and add them to our dataset until the classes are balanced. This leaves us with a large, balanced dataset, *but* it will contain many repeats of the smaller class and could still lead to our model overfitting on the less-represented class.
+
+*Downsampling*, on the other hand, randomly removes instances from the more-represented class until the class sizes are equal. The pitfall here is that the overall dataset size will only be twice as large as the number of instances in the less-represented class, *but* it won't contain any repeat observations.
 
 Given the models we're going to train, 11,256 samples (2 * less-represented class) *should* be enough, so we will use downsampling with the `downSample()` function in `caret`. This function automatically creates a new column named `Class` and orders the rows by `Class`. We'll remove `Class` and keep the `cvd` column since they contain the same information, then reshuffle the dataset.
 
@@ -84,6 +88,7 @@ Below, you'll also notice use of the pipe operator (`%>%`). This essentially all
 train_data <- downSample(train_data, train_data$cvd) %>%
   select(-Class)
 
+## show the downsampled data
 head(train_data)
 
 ## reshuffle the dataset since downSample() orders the dataset by class
@@ -156,10 +161,10 @@ tree_conf
 We can see that the AUC isn't great (`r round(tree_auc, 3)`), but definitely better than chance! Also, note that while sensitivity is fairly high (`r round(tree_conf$byClass[1], 3)`), specificity is on the lower end (`r round(tree_conf$byClass[2], 3)`). That said, we've built a *highly* interpretable model and easy-to-use model. The set of rules in the decision tree would be fairly straightforward for a physician to memorize and could use this model in their practice.
 
 # Neural Networks
-While the decision tree is highly interpretable, it leaves much to be desired in terms of performance. Artificial neural networks (ANN) are another type of machine learning algorithm that simulate biological neural networks to perform classification or regression. An ANN can have many layers, and each layer can contain many nodes, and all of these nodes have weighted connections between them. Each node can actually just be thought of as a regression function and neural network is simply stringing these all together.
+While the decision tree is highly interpretable, it leaves much to be desired in terms of performance. Artificial neural networks (ANN) are another type of machine learning algorithm that simulate biological neural networks to perform classification or regression. An ANN can have many layers, and each layer can contain many nodes, and all of these nodes have weighted connections between them. Each node in a layer can actually just be thought of as a regression function and neural network is simply stringing these all together.
 
 <center>
-![](img/neural_net.png)
+![Source: Deep Learning by Jacqueline Nolis](img/neural_net.png)
 </center>
 
 For now, imagine that nodes are simply ON/OFF switches and the weighted connections turn those switches ON or OFF. During the training process, we adjust these weights so that the single node in the final layer is ON when a person has CVD and OFF when they do not. If you're interested in learning more, you should check out [Jacqueline Nolis' presentation on Deep Learning.](https://nolisllc.com/assets/presentations/rnyconf-1-deep-learning.pptx)
@@ -174,7 +179,6 @@ To do this, we will first use the `data.matrix()` function to convert our datafr
 ## some Intel CPUs need this option set for Keras to work
 ## if in doubt, just leave this command uncommented
 Sys.setenv('KMP_DUPLICATE_LIB_OK'='True')
-
 
 ## first let's remember what our data looks like
 head(train_data)
@@ -196,7 +200,7 @@ To begin, we tell `keras` that we're going to be building a sequential model (i.
 You'll notice that in between each of the dense layers is a 50% dropout layer. What this does is, during training, the model randomly selects 50% of the weights and sets them to 0. This is a form of regularization that helps prevent the model from overfitting to the dataset.
 
 <center>
-![](img/dropout.png)
+![From Jacqueline Nolis' deep learning presentation](img/dropout.png)
 </center>
 
 ```{r}
@@ -235,6 +239,8 @@ plot(training)
 
 ## Testing
 
+Here we are using our neural net to predict `cvd` on the `scaled_test` set. Once we have the predictions, we can use different metrics, such as ROC and sensitivity and specificity to understand the performance of our model.
+
 ```{r}
 ## as before, we have our model make predictions on the test dataset
 nn_predictions <- model %>% predict_proba(scaled_test[,c(2,6)])
@@ -264,7 +270,7 @@ nn_conf
 
 With the simple neural network we've built, we've increased the AUC to `r round(nn_auc, 3)`. A closer look shows us that, although the *overall* AUC is similar, the sensitivity (`r round(nn_conf$byClass[1], 3)`) actually dropped a bit, but specificity (`r round(nn_conf$byClass[2], 3)`) increased.
 
-But how is this model making its predictions? Which factors are important? Which aren't? Unfortunately, with neural networks and other advanced machine learning techniques, they can be hard to interpret and are often referred to as "black boxes." As it currently stands, there is a definite trade-off between model performance and model interpretability.
+But how is this model making its predictions? Which factors are important? Which aren't? Unfortunately, with neural networks and other advanced machine learning techniques, they can be hard to interpret and are often referred to as "black boxes." As it currently stands, there is a definite trade-off between model performance and model interpretability. We'll talk more about this for the in-class week.
 
 
 ## Week 8 Assignment
