@@ -1,3 +1,5 @@
+# Code of Conduct for Analytics Course
+
 ## 1. Purpose
 
 A primary goal of Data Analytics is to be inclusive and of value to the largest number of contributors, with the most varied and diverse backgrounds possible. As such, we are committed to providing a friendly, safe and welcoming environment for all, regardless of age, gender, gender identity or expression, culture, ethnicity, language, national origin, political beliefs, profession, race, religion, sexual orientation, socioeconomic status, and technical ability. We will not tolerate discrimination based on any of the protected characteristics above, including participants with disabilities.
@@ -14,8 +16,7 @@ The following behaviors are expected and requested of all community members:
 *   Exercise consideration and respect in your speech and actions.
 *   Attempt collaboration before conflict.
 *   Refrain from demeaning, discriminatory, or harassing behavior and speech (we have a zero tolerance policy)
-*   Be mindful of your surroundings and of your fellow participants. Alert community leaders if you notice a dangerous situation, someone in distress, or violations of this Code of Conduct, even if they seem inconsequential.
-*   Remember that community event venues may be shared with members of the public; please be respectful to all patrons of these locations.
+*   Be mindful of your surroundings and of your fellow participants. Alert instructors if you notice a dangerous situation, someone in distress, or violations of this Code of Conduct, even if they seem inconsequential.
 
 ## 3. Unacceptable Behavior
 
