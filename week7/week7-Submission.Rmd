@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(here)
 
-analytic_table <- readr::read_csv(here("data/analytic.csv"), 
+analytic_table <- readr::read_csv(file = here::here("data/analytic.csv"), 
                                     col_types = cols(
                                       encounter_type = col_factor(NULL),
                                       outcome = col_factor(NULL),
@@ -20,16 +20,23 @@ analytic_table <- readr::read_csv(here("data/analytic.csv"),
                                     ))
 
 #calculate length of stay
-analytic_table <- analytic_table %>% mutate(length_of_stay = Discharge_date - Admit_date)
+analytic_table <- analytic_table %>% mutate(length_of_stay = Discharge_date - Admit_date) %>% filter(indexadmit ==1)
+
+
 ```
 
 In this assignment, we're going to focus on visualizing the readmissions and outcomes.
 
 ## Problem 1 (0.5 pt)
 
-Show the `outcome` by month of `Admit_date` as a proportionaal plot for `analytic_table`. Save the result as `outcome_graph`. (Hint: think about what needs to be mapped to `x` and `fill`.) Make sure to add a title.
+Show the `outcome` by month of `Admit_date` as a proportional plot for `analytic_table`. Save the result as `outcome_graph`. (Hint: think about what needs to be mapped to `x` and `fill`.) Make sure to add a title.
 
 ```{r}
+library(lubridate)
+
+outcome_graph <- analytic_table %>% ggplot(aes(x=month(Discharge_date), fill=outcome)) + geom_bar(position="fill", color="black") + ggtitle("Outcomes by Admit Month")
+
+outcome_graph
 #space for your answer here
 ```
 
@@ -39,7 +46,11 @@ Do you notice anything special?
 
 As a bar graph, show the `Admit_source` on the `x` axis and `Readmit30` as a fill.
 
+Hmm, based on the the graph, the majority of cases come from the emergency room. Even adjusting for that, it appears a large majority 
+
 ```{r}
+analytic_table %>% ggplot(aes(x=Admit_source, fill=Readmit30)) + geom_bar(color="black")
+
 #space for your answer here
 ```
 
@@ -62,7 +73,7 @@ heatmap_analytic <- ggplot(data=analytic_table_summarized,
                      fill=discharge_count)) + 
   # lay the data out as a tile
   geom_tile(color = "black") + 
-  scale_fill_gradient(low="white", high="red", breaks=c( 100, 1000, 5000)) +
+  scale_fill_gradient(low="white", high="lightblue", breaks=c( 10, 100, 1000, 5000)) +
   geom_text(aes(label=discharge_count), color="black") + 
   #remove the legend
   theme(legend.position = "none")
@@ -72,12 +83,21 @@ heatmap_analytic
 
 My representation is better because:
 
+Using a light color makes it a little easier to read. 
+
 ## Problem 4 (0.5 pt)
 
 Use `patchwork` to arrange your graphs. You might use all 3, or only two. Do we know anything about readmits? What do we know? (answer in text below your plot)
 
 ```{r}
+library(patchwork)
 
+combined_graph <- outcome_graph + heatmap_analytic + 
+  #specify the plot layout - 1 column, and with 
+  #height of hist_stay to be 3 times larger than bar_plot1
+  plot_layout(ncol=1, heights = c(3,1))
+
+combined_graph
 ```
 
 Put your text answer here.

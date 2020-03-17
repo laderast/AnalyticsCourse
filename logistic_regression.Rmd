@@ -25,16 +25,12 @@ Before we even start to model, we want to have an idea of how our outcome (30 da
 
 ```{r}
 #load analytic data
-analytic <- read.delim("analytic-table-LACE.txt")
-
+analytic <- read.delim("data/analytic-table-LACE.txt")
 #because AScore is categorical (0/3), we need to cast it as a factor:
 analytic$AScore <- factor(analytic$AScore)
-
 #cross tab of LScore - is there a correlation between Readmit30 and LScore?
 readmitLscoreTab <- table(analytic$Readmit30, analytic$LScore)
-
 readmitLscoreTab
-
 #calculate proportions between readmits=TRUE and readmits=FALSE
 #note that as L increases, this proportion increases.
 readmitLscoreTab[2,]/readmitLscoreTab[1,]
@@ -53,7 +49,6 @@ One of the things we might like to check is the predictive power of the model. F
 ```{r}
 #how many rows?
 nrow(analytic)
-
 #show analytic table
 analytic[1:10,]
 ```
@@ -65,7 +60,6 @@ dataSize <- nrow(analytic)
 #
 testSize <- floor(0.1 * dataSize)
 testSize
-
 #build our sample index from our row numbers
 testIndex <- sample(dataSize,size = testSize,replace = FALSE)
 #show first 10 indices (each of these corresponds to a row number in analytic)
@@ -81,14 +75,11 @@ For our `trainSet`, we can use the `-` (minus) operator. `-testIndex` is an oper
 ```{r}
 #build testSet (we'll use this later)
 testSet <- analytic[testIndex,]
-
 #show first 10 rows of testSet (compare row numbers to testIndex[1:10])
 testIndex[1:10]
 testSet[1:10,]
-
 #confirm that number of rows in testSet is equal to testSize
 nrow(testSet)
-
 #build training set (used to build model)
 trainSet <- analytic[-testIndex,]
 ```
@@ -104,7 +95,6 @@ Here we load the analytic data with our LACE scores and perform a logistic regre
 ```{r}
 #show variable names in analytic data.frame
 colnames(trainSet)
-
 #run a simple logistic regression model just using LScore and Ascore
 #we can cast AScore as categorical data using factor()
 laModel <- glm(Readmit30 ~ LScore + AScore, family = "binomial", data=trainSet)
@@ -117,7 +107,6 @@ Let's look at the output of our model. This gives us the coefficients on the log
 ```{r}
 #Summarize the model
 summary(laModel)
-
 #grab coefficients themselves
 coef(laModel)
 ```
@@ -190,11 +179,8 @@ The interpretation of the `AScore` is different because we're treating it as cat
 
 ```{r}
 modelPredictedProbabilities <- predict(laModel, newdata=testSet, type = "response")
-
 ##add the modelPredictedProbabilities as a column in testSet
-
 testSet <- data.frame(testSet, predProb=modelPredictedProbabilities)
-
 plot(testSet$LScore, testSet$predProb)
 ```
 
@@ -211,24 +197,17 @@ So, let's visualize the logit instead. If you do not specify the `type` paramete
 ```{r}
 #predict the logit instead for our testSet
 modelPredictedLogOddsRatio <- predict(laModel,newdata = testSet)
-
 #add as another column in our table
 testSetPred <- data.frame(testSet, predLogit = modelPredictedLogOddsRatio)
-
 #plot the LScore versus logit (coloring by AScore)
 plot(testSetPred$LScore, testSetPred$predLogit, col=testSetPred$AScore)
-
-
 #transform the logit to the predictedOdds ratio
 modelPredictedOddsRatio <- exp(modelPredictedLogOddsRatio)
 modelPredictedOddsRatio[1:10]
-
 #add as column in our table
 testSetPred <- data.frame(testSetPred, predOR = modelPredictedOddsRatio)
-
 #plot Odds ratio versus LScore
 plot(testSetPred$LScore, testSetPred$predOR, col=testSetPred$AScore)
-
 #
 exp(coef(laModel))
 ```
@@ -277,7 +256,6 @@ An ROC curve (Receiver-Operator-Characteristic) is a way of assessing how our pr
 
 ```{r}
 library(ROCR)
-
 pr <- prediction(modelPredictedProbabilities, testSet$Readmit30)
 prf <- performance(pr, measure = "tpr", x.measure = "fpr")
 plot(prf, main="ROC Curve")

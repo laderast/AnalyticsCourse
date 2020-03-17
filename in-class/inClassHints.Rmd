@@ -1,8 +1,8 @@
 ---
 title: "More Hints on SQLite"
 author: "Ted Laderas"
-date: "August 17, 2016"
-output: pdf_document
+date: "August 13, 2019"
+output: html_notebook
 ---
 
 ```{r setup, include=FALSE}
@@ -17,13 +17,18 @@ You can find the difference between two dates by using the `julianday()` functio
 
 ```{r cars}
 library(RSQLite)
-con <- dbConnect(SQLite(),dbname="patient.sqlite")
+library(dplyr)
+library(dbplyr)
+library(here)
+
+con <- dbConnect(SQLite(),dbname=here("data/patient1.sqlite"))
 
 sqlStatement <- "select peh.*, julianday('2015-01-01') - julianday(peh.Admit_date) 
     as TimeFromNewYear FROM
     patient_encounter_hosp as peh"
 
-queryResult <- dbGetQuery(con, sqlStatement)
+queryResult <- tbl(con, sql(sqlStatement))
+queryResult <- collect(queryResult)
 queryResult[1:10,]
 ```
 
@@ -40,7 +45,8 @@ sqlStatement <- "select pe.patientID, pe.reason, CASE
     FROM
     patient_encounter as pe"
 
-queryResult <- dbGetQuery(con, sqlStatement)
+queryResult <- tbl(con, sql(sqlStatement))
+queryResult <- collect(queryResult)
 
 #show those rows that have reason = 3 (and should have recoded_reason = 1)
 reason3 <- queryResult[queryResult$reason == 3,]
@@ -64,7 +70,8 @@ sqlStatement <- "SELECT patientID, Actual_date, encounterName FROM (
                       t_encounter_type as te
                       WHERE pe.encounter_type = te.t_encounter_type)"
 
-queryResult <- dbGetQuery(con, sqlStatement)
+queryResult <- tbl(con, sql(sqlStatement))
+queryResult <- collect(queryResult)
 
 queryResult[1:30,]
 ```
@@ -77,7 +84,8 @@ Oftentimes, we need to calculate something by a patient id. For example, we migh
 sqlStatement <- "SELECT patientID, COUNT(Actual_date) as numVisits FROM patient_encounter
                  GROUP BY patientID"
 
-queryResult <- dbGetQuery(con, sqlStatement)
+queryResult <- tbl(con, sql(sqlStatement))
+queryResult <- collect(queryResult)
 
 queryResult[1:20,]
 ```
@@ -108,7 +116,8 @@ sqlStatement <- "SELECT peh.* from patient_encounter_hosp as peh,
               outcomeTable as oc
               WHERE peh.outcome = oc.outcomesOfInterest"
 
-queryResult <- dbGetQuery(con, sqlStatement)
+queryResult <- tbl(con, sql(sqlStatement))
+queryResult <- collect(queryResult)
 queryResult[1:20,]
 ```
 
@@ -120,7 +129,8 @@ Here we are selecting everything from the `patient` table that have postal codes
 
 ```{r}
 sqlStatement <- "SELECT * from patient where postalcode LIKE '970%'"
-queryResult <- dbGetQuery(con, sqlStatement)
+queryResult <- tbl(con, sql(sqlStatement))
+queryResult <- collect(queryResult)
 queryResult[1:20,]
 ```
 
@@ -129,7 +139,9 @@ We can chain multiple `LIKE` clauses using boolean operators such as `AND`, `OR`
 ```{r}
 sqlStatement <- "SELECT * from patient where postalcode LIKE '970%' AND 
                 riskCat NOT LIKE 'Norm%'"
-queryResult <- dbGetQuery(con, sqlStatement)
+
+queryResult <- tbl(con, sql(sqlStatement))
+queryResult <- collect(queryResult)
 queryResult[1:20,]
 ```
 
@@ -140,6 +152,7 @@ Did you ever want to add or subtract two columns together? Well, now you can:
 ```{r}
 sqlStatement <- "SELECT *, (Event_ID + patientID) as UselessVar from patient_encounter_hosp"
 
-queryResult <- dbGetQuery(con, sqlStatement)
+queryResult <- tbl(con, sql(sqlStatement))
+queryResult <- collect(queryResult)
 queryResult[1:20,]
 ```

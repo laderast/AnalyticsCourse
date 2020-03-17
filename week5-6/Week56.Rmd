@@ -9,7 +9,6 @@ output: html_notebook
 knitr::opts_knit$set(knit_root_dir = "~/Code/analyticsWorkspace/")
 ```
 
-
 This is the final SQL assignment. After this assignment, you should be able to conduct the queries required for the prework assignment.
 
 ## Working with Dates
