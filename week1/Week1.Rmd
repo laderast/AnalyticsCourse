@@ -7,12 +7,10 @@ output: html_notebook
 
 ## Learning Objectives
 
-By the end of this notebook, you will hopefully learn the following.
-
-1. Learn the basics behind RStudio Cloud and Notebooks
-2. Learn what a `data.frame` is
-3. Understand some basic summaries on a `data.frame`
-4. Connect to our database and summarize it.
+1. **Learn** the basics behind RStudio Cloud and Notebooks
+2. **Learn** what a `data.frame` is
+3. **Understand** some basic summaries on a `data.frame`
+4. **Connect** to our database and **summarize it.
 
 ## RStudio Cloud and Notebooks
 

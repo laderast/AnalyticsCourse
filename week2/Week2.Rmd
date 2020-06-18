@@ -2,10 +2,14 @@
 title: 'Week 2: Exploratory Data Analysis'
 author: "Ted Laderas"
 date: "June 9, 2016"
-output: html_notebook
+output: html_document
 ---
 
-## Goals for this week
+## Learning Objectives
+
+- Learn and utilize some basic exploratory data analysis tools in R
+- Learn and utilize basic SQL queries
+
 
 This week we will do some more simple descriptive statistics on the tables in the database. We'll use two summarization tools, one visual (`visdat`) and one tabular (`skimr`). 
 
