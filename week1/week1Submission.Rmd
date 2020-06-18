@@ -2,7 +2,7 @@
 title: "Assignment 1 Answer Key"
 author: "Answer Key"
 date: "6/21/2019"
-output: html_notebook
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
@@ -29,24 +29,11 @@ patient_table <- tbl(con, "patient")
 patient_table_inmemory <- collect(patient_table)
 ##put the code that you used to find the answer to question 1 here.
 
-nrow(patient_table_inmemory)
 ```
-
-Answer: There are 34,432 patients in our patient table.
 
 ## Question 2
 
 What variables are missing all information (represented by NAs) and why might it be missing?
-
-Answer: By using the `summary` command, we can see the following variables are completely missing values:
-
-- `DOB`
-- `age`
-- `referraldate`
-- `CM_ID`
-- `date_deleted`
-
-The probable reason is that these are considered protected health infomration (PHI) and are redacted in our data warehouse.
 
 ```{r}
 ##put the code that you used to find the answer to question 2 here.
@@ -58,14 +45,8 @@ summary(patient_table_inmemory)
 
 3) What is the maximum `riskscore` value?
 
-Answer: There are multiple ways to find this. The easiest way is to read the output of the `summary()` function we used in question 2. The maximum value is 7.
-
-Another way is below (I didn't explain this, so I'm not expecting you to know it). You can access the values of a variable within a `data.frame` directly by using `$`. The function to access the maximum value is `max()`. So by combin
-
 ```{r}
 ##put the code that you used to find the answer to question 3 here.
-max(patient_table_inmemory$riskscore)
-
 ##Don't forget to disconnect!
 dbDisconnect(con)
 ```
