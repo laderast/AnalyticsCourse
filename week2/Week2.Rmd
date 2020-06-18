@@ -1,17 +1,18 @@
 ---
-title: 'Week 2: Exploratory Data Analysis'
+title: 'Week 2: Exploratory Data Analysis/Intro to SQL'
 author: "Ted Laderas"
-date: "June 9, 2016"
-output: html_document
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
 ---
 
 ## Learning Objectives
 
-- Learn and utilize some basic exploratory data analysis tools in R
-- Learn and utilize basic SQL queries
-
-
-This week we will do some more simple descriptive statistics on the tables in the database. We'll use two summarization tools, one visual (`visdat`) and one tabular (`skimr`). 
+- **Learn** the basics of exploratory analysis
+- **Learn** how to read `skimr` output
+- **Learn** how to interpret `visdat` output
+- **Learn** the basics of SQL queries
 
 ## Exploratory Data Analysis
 
@@ -35,29 +36,33 @@ Now that we have the data loaded, we can confirm some properties of the data. Le
 library(RSQLite)
 library(here)
 library(tidyverse)
+library(janitor)
 #start our connection to the database
 con <- DBI::dbConnect(RSQLite::SQLite(), here("data/patient1.sqlite"))
 
 patient <- tbl(src=con, from="patient")
 patient_all <- collect(patient)
-dbDisconnect(con)
 
 summary(patient_all)
 ```
 
 Huh. One thing to notice is that there are `numeric` variables and `character` variables. That seems kind of limited. Why is this so?
 
+
+
 ## Datatypes in SQLite
 
 SQLite, the database system we're using, only has five datatypes:
 
-- NULL. The value is a NULL value.
-- INTEGER. The value is a signed integer, stored in 1, 2, 3, 4, 6, or 8 bytes depending on the magnitude of the value.
-- REAL. The value is a floating point value, stored as an 8-byte IEEE floating point number.
-- TEXT. The value is a text string, stored using the database encoding (UTF-8, UTF-16BE or UTF-16LE).
-- BLOB. The value is a blob of data, stored exactly as it was input.
+- `NULL`. The value is a NULL value.
+- `INTEGER`. The value is a signed integer, stored in 1, 2, 3, 4, 6, or 8 bytes depending on the magnitude of the value.
+- `REAL`. The value is a floating point value, stored as an 8-byte IEEE floating point number.
+- `TEXT`. The value is a text string, stored using the database encoding (UTF-8, UTF-16BE or UTF-16LE).
+- `BLOB`. The value is a blob of data, stored exactly as it was input.
 
 This means that there are no explicit ways to represent categorical data in SQLite, just the TEXT representation. So to actually do useful exploratory statistics on our tables, we'll need to *cast* our some of our variables as `factor`s, which are how R represents categorical data.
+
+
 
 ## Which variables are categories?
 
@@ -74,11 +79,15 @@ patient_all <- patient_all %>%
                 source=factor(source))
 ```
 
+
+
 Now, if we run our `summary()`, we get much more useful information:
 
 ```{r}
 summary(patient_all)
 ```
+
+
 
 ## skimr
 
@@ -87,6 +96,8 @@ Another useful package for exploring data is `skimr`. The `skimr` package has a 
 ```{r}
 skimr::skim(patient_all)
 ```
+
+
 
 ## visdat
 
@@ -109,7 +120,10 @@ So by doing `patient_all[1:2000,]`, we are saying we want the first 2000 rows of
 visdat::vis_dat(patient_all[1:2000,])
 ```
 
-QUESTION: how would we return the first five *columns* of `patient_all`?
+
+### Think about it
+
+How would we return the first five *columns* of `patient_all`?
 
 Another approach is to use the `sample()` function to randomly sample rows from our table. We can randomly sample rows from our matrix by selecting row numbers from random. Try this out:
 
@@ -125,68 +139,140 @@ sampled_rows <- sample(x= all_rows, size = 2000)
 visdat::vis_dat(patient_all[sampled_rows,])
 ```
 
+
+
 ## Diving Deeper into Individual Variables
 
 In order to access the individual columns, we can use the `$` operator to do operation on the individual columns. Here I'm running a simple `table()` operation to count the number of rows within each category for the `riskCat` variable.
 
 ```{r}
-table(patient_all$riskCat)
+patient_all %>%
+  tabyl(riskCat)
+  
 ```
 
-Try out `table()` on the `first_name` category. Are the results what you expected?
+Try out `tabyl()` on the `First_name` category. Are the results what you expected?
 
 ```{r}
-table()
+patient_all %>%
+  tabyl(First_name)
 ```
 
 To save you some time, I'm going to show you a trick to run `table()` on all of the columns. `lapply()` is a function that we can use to apply the `table()` function to all of the columns. The output isn't super elegant, but it can help you dive into the data.
 
 ```{r}
-lapply(patient_all, table)
+lapply(patient_all[, -1], table)
 ```
+
+
 
 ## Summarizing our findings - putting together a data dictionary
 
 We'll have to fend for ourselves with this dataset and start to put together a data dictionary for our database.
 
-Here's what we know so far:
+Here's what we know so far.
+
+
 
 ### Data Dictionary: patient table
 
-*patientid* - identifier of patient
-*GENDER* - gender of patient. Values: male or female.
-*First_name* - first name of patient - appears to be redacted. Values: Gill or Gilly. 
-*Last_name* - last name of patient - appears to be redacted. Values: Doe
-*DOB* - Date of Birth, appears to be redacted. Values: missing
-*age* - Numeric - appears to be redacted. Values: missing
-*status* - Unsure what this is. Values: 4 
-*PCP* - Appears to be the primary care provider id. Value: 14
-*CM_ID* - missing.
-*referraldate* - missing.
-*Insurance_ID* - ID of insurance company. Values: 3
-*race* - Numerical code of race. Values: ranges from 1 to 7.
-*postalcode* - Zipcode of patient. Values: 97035 to 97203.
-*riskCat* - Apparently a risk categorization. Values: High or Normal.
-*riskScore* - A rating of how risky a patient is. Values: 1 to 7.
-*deleted* - Deletion status. Values: 0.
-*date_deleted* - Date patient record is deleted. Not provided.
-*facility* - Facility patient recieved at. Values: 500.
-*source* - Patient source. Values: "deid".
+- *patientid* - identifier of patient
+- *GENDER* - gender of patient. Values: male or female.
+- *First_name* - first name of patient - appears to be redacted. Values: Gill or Gilly. 
+- *Last_name* - last name of patient - appears to be redacted. Values: Doe
+- *DOB* - Date of Birth, appears to be redacted. Values: missing
+- *age* - Numeric - appears to be redacted. Values: missing
+- *status* - Unsure what this is. Values: 4 
+- *PCP* - Appears to be the primary care provider id. Value: 14
+- *CM_ID* - missing.
+- *referraldate* - missing.
+- *Insurance_ID* - ID of insurance company. Values: 3
+- *race* - Numerical code of race. Values: ranges from 1 to 7.
+- *postalcode* - Zipcode of patient. Values: 97035 to 97203.
+- *riskCat* - Apparently a risk categorization. Values: High or Normal.
+- *riskScore* - A rating of how risky a patient is. Values: 1 to 7.
+- *deleted* - Deletion status. Values: 0.
+- *date_deleted* - Date patient record is deleted. Not provided.
+- *facility* - Facility patient recieved at. Values: 500.
+- *source* - Patient source. Values: "deid".
 
-## This Week's Assignment (2 points)
 
-Load in the `patient_encounter` table into R, and confirm that you loaded it correctly. Submit your answers as a .R file, and show the code you used and your answers as comments (use `##` to show which lines are your answers)
 
-1) For the `patient_encounter` table, produce a data dictionary (you can use the format above in the `week2submission.nb.html`, or save it as an excel file). Submit your data dictionary as part of the assignment.
+## Part 2: Running a Simple Query
 
-2) How many `No shows` were there in the dataset? (Look in the outcome variable). 
+Let's start to use SQL (Structured Query Language). SQL is the language for searching and manipulating data in databases. Writing good SQL queries will always be a useful skill no matter what field you decide to go into.
 
-3) We will want to predict 30 day readmissions in our dataset, which means that we want to predict whether a patient will be readmitted to the hospital within 30 days of being readmitted. 
+Let's ask a simple question about the `patient` table. How many female patients are there? There are two ways we can do this. The first would be to select those patients that are female with a `SELECT` statement, return those patients as a `data.frame`, and then just count the number of rows in the `data.frame`.
 
-There are multiple reasons for a patient being readmission, but we're interested in the ones that we can prevent. If we want to count the number of readmissions, would we want to include patients who are just `No shows`?
+Here we use another form of the `tbl()` function. The `src` (source) argument is our connection, but our `from` argument is our SQL.
 
-## How to submit
 
-Submit your answer using the `week2Submission.Rmd` file. This is an RMarkdown file and you can mix code and text using it. 
+```{r}
+# SQL to return all columns from patient table
+# where Gender is female
+sqlStatement <- "SELECT * from patient WHERE Gender == 'Female'"
 
-Make sure to rename the `week2Submission.nb.html` file to `week2Submission-LASTNAME.nb.html` with your last name, so we can confirm that you submitted the assignment.
+femalePatients <- tbl(src=con, from=sql(sqlStatement))
+
+femalePatients <- collect(femalePatients)
+
+nrow(femalePatients)
+```
+
+
+## `COUNT`
+
+Or, we can combine our statement with `count` statement from above and get the answer directly.
+
+```{r}
+#note that for matching strings, we have to use single quotes in our SQL
+#statement. Otherwise, R gets confused where the statement begins or ends.
+sqlStatement <- "SELECT COUNT(*) FROM patient WHERE Gender == 'Female'"
+
+numberFemalePatients <- tbl(src=con, from=sql(sqlStatement))
+
+numberFemalePatients
+```
+
+
+## `AND`
+
+If we wanted the number of Female patients with a normal `riskCat`, we can chain these queries using `AND`.:
+
+```{r}
+#Again, enclosing strings within single quotes so we don't confuse R
+sqlStatement <- 
+  "SELECT count(*) FROM patient WHERE GENDER == 'Female' 
+                  AND riskCat == 'Normal'"
+
+numberFemaleNormalPatients <- tbl(con, sql(sqlStatement))
+
+numberFemaleNormalPatients
+```
+
+
+## `SELECT`ing columns
+
+If we only wanted a few columns from the table (such as `patientid`, `GENDER` and `riskCat`), we can change our select statement to only return these columns:
+
+```{r}
+sqlStatement <- "SELECT patientid, GENDER, riskCat FROM patient 
+            WHERE GENDER == 'Female' AND riskCat == 'Normal'"
+
+selectResults <- dbGetQuery(con, sqlStatement)
+
+selectResults[1:10,]
+```
+
+## Wrapping Up
+
+Don't forget to Disconnect!
+
+```{r}
+dbDisconnect(con)
+```
+
+
+## Assignment 2
+
+Please refer to `week2Submission.Rmd` for the assignment and how to submit it.

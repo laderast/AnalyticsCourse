@@ -27,166 +27,80 @@ dbDisconnect(con)
 
 ```
 
-*Run `summary()` - are there any `character` or `numeric` variables that might be categories? Recast them as `factors` by using `mutate`.*
-
-Let's look at the first few rows of the table first.
+Run `summary()` - are there any `character` or `numeric` variables that might be categories? Recast them as `factors` by using `mutate`.
 
 ```{r}
-patient_encounter[1:10,]
-```
-
-```{r}
-summary(patient_encounter)
-```
-
-Looking at this summary, there appear to a few possible categorical variables: `encounter_type`, `reason`, and `Outcome`. So we're going to cast those as `factors`.
-
-```{r}
-patient_encounter <- patient_encounter %>% mutate(encounter_type = factor(encounter_type),
-                                                  reason = factor(reason),
-                                                  Outcome = factor(Outcome), 
-                                                  notes=factor(notes))
-
-summary(patient_encounter)
-```
-
-Huh. What's `i`? I'm not sure, but I think it is an encounter number for individual patients. Let's pull out a couple of patients and see if this is the case.
-
-```{r}
-table(patient_encounter$i)
 
 ```
 
-Note this is mostly for show, since I didn't show you how to use the `filter()` function. But if we look at these tables, it does appear to be the encounter number within each patient.
+Produce a visual summary (visdat) and a skimr summary of the data. Are there any things you notice about this table?
 
 ```{r}
-patient_encounter %>% filter(patientID == 1) %>% head()
+
 ```
 
-```{r}
-patient_encounter %>% filter(patientID == 3500) %>% head()
-```
+Add your data dictionary as text here, or submit as an excel file.
 
-```{r}
-patient_encounter %>% filter(patientID == 3500) %>% nrow()
-```
-
-Huh. The number of rows for each patient appears to equal `num_att_visits`. Is this always the case?
-
-What about the `NO_SHOW` encounters? I'm going to filter by those patients who have `NO SHOW` and pick one of them. Patient 17 has a lot of num_att_visits, so I'm going to compare the two.
-
-```{r}
-patient_encounter %>% filter(Outcome == "NO SHOW") %>% head()
-```
-
-```{r}
-patient_encounter %>% filter(patientID == 17) %>% nrow()
-```
-
-Huh. So the number of rows is not equal to the number in `num_att_visits`. So this value must be the number of visits the patient actually attended. Let's confirm:
-
-```{r}
-pat_17 <- patient_encounter %>% filter(patientID == 17)
-table(pat_17$Outcome)
-```
-
-Huh. This doesn't completely seem to confirm our guess. We'll have to follow up with our data engineers.
-
-*Produce a visual summary (visdat) and a skimr summary of the data. Are there any things you notice about this table?*
-
-Since the `patient_encounter` table is so huge, we're going to sample from it.
-
-```{r}
-library(visdat)
-sampled_rows <- sample(1:nrow(patient_encounter), 3000)
-vis_dat(patient_encounter[sampled_rows,])
-```
-
-In terms of missingness, there are only three categories where there appears to be missing data: `call_attempts`, `call_length`, and `number_phone_calls`. 
-
-```{r}
-skimr::skim(patient_encounter)
-```
-
-The skimr output confirms our suspicions about the categorical variables, and shows us the distribution of the numeric variables. For example, `call_attemtps` has only 3 values: 0,1,2, and `
-
-*Add your data dictionary here, or submit as an excel file.*
-
-Here's my data dictionary:
-
-`patientID`: individual patient ID, probably links with the `patient` table. Values: Integer, ranges from 1 to 34532.
-`num_att_visits`:     
-`i`: Appears to be a numbered encounter that is specific to a patientID.                   
-`Scheduled_date`: date patient encounter was to be scheduled. Values: dates in YYYY-MM-DD format 
-"Actual_date": Actual date patient encounter took place. These values appear to be redacted.
-`encounter_type`: Numeric value, appears to be a code. Values: 3 or 48     
-`call_attemtps`: misspelled column. Number of calls associated with the encounter. Values: 0,1,or 2.      
-`call_length`: Length of phone call. May be in minutes. Ranges from 0 - 14. 
-`number_phone_calls`: not sure how this differs from `call_attemtps`. Has only one value: 2.
-`Scheduled_time`: Time encounter was scheduled.     
-`notes` - redacted. Value: D              
-`reason` -  Appears to be reason for visit. Looks like a numeric code.           
-`Outcome` - Whether the visit was completed, or whether the patient was a no show. Values: COMPLETE or NO SHOW. 
 
 ## Question 2
 
-*How many `No shows` were there in the dataset? (Look in the `outcome` variable).*
+How many `No shows` were there in the dataset? (Look in the `outcome` variable). 
 
-There are lots of different ways to identify the number of `NO SHOWS` in the `patient_encounter` table. Any of these ways is acceptable The first is just to use `summary()`:
-
-```{r}
-summary(patient_encounter)
-```
-
-You can also call `table()` on the `Outcome` variable in `patient_encounter`:
+Answer:
 
 ```{r}
-table(patient_encounter$Outcome)
+##show the code you used to find this answer here
+
+
 ```
 
 ## Question 3
 
-*We will want to predict 30 day readmissions in our dataset, which means that we want to predict whether a patient will be readmitted to the hospital within 30 days of being readmitted. 
+We will want to predict 30 day readmissions in our dataset, which means that we want to predict whether a patient will be readmitted to the hospital within 30 days of being readmitted. 
 
-There are multiple reasons for a patient being readmission, but we're interested in the ones that we can prevent. If we want to count the number of readmissions, would we want to include patients who are just `No shows`?*
+There are multiple reasons for a patient being readmission, but we're interested in the ones that we can prevent. If we want to count the number of readmissions, would we want to include patients who are just `No shows`?
 
 Answer (no need to show code here):
 
-I'm going to add some context to why we are interested in 30 day hospital readmissions. Hopefully this will give you a better understanding of why we are interested in them.
 
-### Hospital Readmission Definition
 
-In our class, we will define a hospital readmission as a patient readmitted to the hospital within 30 days of a previous hospital admission. 
 
-### Why Are We Interested in Hospital Readmissions?
+## Question 4
 
-Hospital readmissions can happen for a number of reasons:
+Construct a query for each table in the database to output the number of rows for each table. 
 
-1) The patient was scheduled for a routine procedure that happens within 30 days for each other, such as chemotherapy. These are called *planned* readmissions.
-2) The patient was readmitted for acute illness or because of complications of care. These are *unplanned* readmissions. 
+```{r}
+##show your code here
 
-Ultimately, we'd like to target unplanned admission cases. These are the cases where the hospital can potentially intervene and improve outcomes. For example, if we identify those patients who have unplanned readmission potential, we can potentially provide better care for these patients to avoid a readmission.
+```
 
-In our dataset, we can't distinguish between these two cases. But we still want to see if there are characteristics of *unplanned* readmission patients that we can use to identify these cases before they happen. We'll do this in class by implementing something called the *LACE* score.
+## Question 5
 
-### `patient_encounter` versus `patient_encounter_hosp`
+How many patient encounters in in `patient_encounter_hosp` were from the emergency room and were discharged home? 
 
-One thing: `patient_encounter` is actually *all* patient encounters in the health system, whereas `patient_encounter_hosp` is limited to only those patients in the hospital. So for the hospital readmission question, we actually want to look at `patient_encounter_hosp`. So we were technically looking in the wrong place.
+```{r}
+##show your code here
+```
 
-My goal is really to get you to look at the data and start asking questions. Without examining the data, we may not understand that our assumptions were correct. 
+## Question 6
 
-Take a look at the encounter types in `patient_encounter_hosp` versus those in `patient_encounter` (you can look up the codes in `t_encounter_type`). What do you notice?
+How many patients in `patient_encounter` had complete outcomes and an encounter type of 48?
 
-### Identifying Hospital Readmissions
+```{r}
+##show your code here
+```
 
-In order to identify our 30 day readmission cases, we will have to identify two dates from `patient_encounter_hosp`: 
+## Question 7
 
-1) An initial admission (this is called the *index admission*) and
-2) A admission date within 30 days of the index admission discharge date. (*readmission*)
+Based on your exploration and data dictionary of the `patient_encounter` table last week, come up with another query that uses the AND statement to chain two other criteria (it is probably easiest to use two categorical variables).
 
-### So what about "No Shows"?
+```{r}
+##show your code here
+```
 
-The real answer: "No shows" are not really patient encounters. They are neither *index admission dates* nor *readmission dates*, so they are not useful to us. 
 
-It's true that patients may have "No Shows" interspersed with the hospital readmissions, and you don't want to exclude patients from the readmission calculation just because they have "No Shows". That was a fair assumption if you made it.
+## How to submit
 
+Submit your html from knitting the `week2Submission.Rmd` file. This is an RMarkdown file and you can mix code and text using it. 
+
+Make sure to rename the `week2Submission.html` file to `week2Submission-LASTNAME.html` with your last name, so we can confirm that you submitted the assignment.

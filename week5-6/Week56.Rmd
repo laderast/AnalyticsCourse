@@ -1,8 +1,8 @@
 ---
-title: 'Weeks 5 and 6: SQLite: Self Joins/Working with Dates'
+title: 'Weeks 4 and 5: SQLite: Self Joins/Working with Dates'
 author: "Ted Laderas"
-date: "July 24, 2017"
-output: html_notebook
+date: "`r Sys.Date()`"
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
@@ -10,6 +10,7 @@ knitr::opts_knit$set(knit_root_dir = "~/Code/analyticsWorkspace/")
 ```
 
 This is the final SQL assignment. After this assignment, you should be able to conduct the queries required for the prework assignment.
+
 
 ## Working with Dates
 
@@ -26,7 +27,8 @@ library(tidyverse)
 con <- dbConnect(drv=SQLite(), dbname=here("data/patient1.sqlite"))
 ```
 
-## Using the date() Function
+
+## Using the `date()` Function in SQLite
 
 The `date()` function is a function that is built into SQLite that handles strings as dates. There are a number of different formats that it will accept, one of which is the `YYYY-MM-DD` format that our data is in.
 
@@ -77,6 +79,8 @@ queryResult
 
 ```
 
+
+
 ## Self-Joins
 
 Self-joins on a table can be extremely useful when we need to identify rows within a table that meet criteria based on other rows in the table. The classic example where a self join is useful is an `employee` table which has a column that shows who that employee reports to. This boss is also in the employee table, and so doing a self-join lets us parse the hierarchical structure of employees in the table.
@@ -86,6 +90,7 @@ In our case, we want to identify the first date a patient was admitted (the inde
 The first kind of encounter is the `index` encounter, i.e., the date when the patient was first admitted. The other kind of encounter we need to identify are the readmission encounters. In other words, in the `patient_encounter_hosp` table, **each patient has at most two encounters** (obviously in real life, this is not the case. For this dataset, we have simplified things somehwat). 
 
 Let's identify the index encounters first. We need to use a `CASE` statement to mark them (1 if an index case, 0 if not), and we will use a self-join to find them. Since we know that each patient has at most two entries, we just need to identify those cases that are first.
+
 
 ```{r}
 #load the RSQLite library
