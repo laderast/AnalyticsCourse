@@ -1,7 +1,7 @@
 ---
-title: "Week 4 Assignment"
+title: "Week 3 Assignment"
 author: "Put your name here"
-date: "6/21/2017"
+date: "`r Sys.Date()`"
 output: html_document
 ---
 
@@ -24,7 +24,7 @@ patient.patientid = patient_encounter_hosp.patientid
 
 ## Question 2
 
-Modify your answer of Question 1 to include the criteria `Admit_source = 'Emergency Room' in the WHERE clause. You don't have to run this query
+Modify your answer of Question 1 to include the criteria `Admit_source = 'Emergency Room' in the WHERE clause. You don't have to run this query.
 
 ```
 #space for your answer here
@@ -32,7 +32,7 @@ Modify your answer of Question 1 to include the criteria `Admit_source = 'Emerge
 
 ## Question 3
 
-2) Write a query that selects those High Risk patients who have a diagnosis of Acute myocardial infarction of anterolateral wall (ICD9 code is 410.00). How many are there?
+Write a query that selects those High Risk patients who have a diagnosis of Acute myocardial infarction of anterolateral wall (ICD9 code is 410.00). How many are there?
 
 Answer: 
 

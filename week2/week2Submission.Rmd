@@ -79,7 +79,7 @@ Construct a query for each table in the database to output the number of rows fo
 How many patient encounters in in `patient_encounter_hosp` were from the emergency room and were discharged home? 
 
 ```{r}
-##show your code here
+##show your code hereo
 ```
 
 ## Question 6
