@@ -1,0 +1,62 @@
+---
+title: 'Part 1: Calculating L, A, E'
+author: "Your Team Name"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Identifying Appropriate Algorithms to Predict Readmission Risk
+
+## Due Date: Monday of Week 8 (August 16)
+
+## Working Together in Teams
+
+- You are all paired as Bioinformatics/Clinical teams. Working together is key.
+- Both Bio/Clinical people have insights to share with the other. 
+- You can submit separate notebooks for these problem sets, or submit the same ones. 
+- Your team is responsible for presenting together for the final presentations.
+
+## Purpose  
+
+To identify potential requirements for measuring readmissions and predicting readmission risk, and to map these from source data warehouse data.
+
+## Background
+
+Several algorithms have been created to predict readmission risk. The LACE and Amarasingham papers are provided as prototypical examples of these algorithms (see `reading` folder).  An optional paper by Kansagara et al. highlights the overall performance of these algorithms.
+
+Please look at the LACE score appendix (also in `reading`) for the details on how to calculate the different parts of LACE.
+
+## Deliverables:  
+
+1) First 20 lines of your table with L,A, and E scores
+
+2) The code you used to generate the scores
+
+## Suggested Steps:     
+
+1) Store your analytic table (the table you made for week 4-5) in your database, as you will using that for the basis for all of your calculations. You can also start with the analytic table in `data/analytic.csv` and save it into your database if you want.
+
+If you use your own table, please make sure to subset the data so that `indexadmit` == 1 to get started. We want to remove the non-index dates from our predictive model.
+
+2) For the L Score, add to your analytic table that you started in your prework to calculate `Length_of_stay` and whether this was an admission from the ED.  Recode the `Length_of_stay` into the Lace Version.
+
+3) For the A score, you need to identify patients in `patient_encounter_hosp` that have been admitted through the Emergency Room. Recode these patients according to the LACE specification.
+
+4) Look in `patient_encounter` to find ED visits.  You may find the code file `t_encounter_type` useful.  Count the ED visits (in aggregate) per admission; recode the visits number into the LACE specification.
+
+5) Advanced: add more data points from the other files into your analytic file from other algorithms.
+
+## PLEASE NOTE
+
+I will not accept assignments that are full tidyverse. The point of this course is to learn SQL and show that you can do work with it. 
+
+
+```{r}
+#put your code here
+
+```
+

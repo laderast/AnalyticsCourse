@@ -1,0 +1,169 @@
+---
+title: "More Hints on SQLite"
+author: "Ted Laderas"
+date: "August 13, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Here are some more hints about SQLite/R to get you through the in-class assignments.
+
+## Difference between dates
+
+You can find the difference between two dates by using the `julianday()` function in SQLite.
+
+```{r cars}
+library(RSQLite)
+library(dplyr)
+library(dbplyr)
+library(here)
+
+con <- dbConnect(SQLite(),dbname=here("data/patient1.sqlite"))
+
+sqlStatement <- "select peh.*, julianday('2015-01-01') - julianday(peh.Admit_date) 
+    as TimeFromNewYear FROM
+    patient_encounter_hosp as peh"
+
+queryResult <- tbl(con, sql(sqlStatement))
+queryResult <- collect(queryResult)
+queryResult[1:10,]
+```
+
+## Recoding Values
+
+Remember, you can recode values using the case statement, and you're not just limited to one WHEN statement!
+
+```{r}
+sqlStatement <- "select pe.patientID, pe.reason, CASE 
+    WHEN reason = 1 THEN 1 
+    WHEN reason < 5 AND reason > 2 THEN 2
+    WHEN reason >= 5 THEN 3
+    ELSE 0 END as recoded_reason
+    FROM
+    patient_encounter as pe"
+
+queryResult <- tbl(con, sql(sqlStatement))
+queryResult <- collect(queryResult)
+
+#show those rows that have reason = 3 (and should have recoded_reason = 1)
+reason3 <- queryResult[queryResult$reason == 3,]
+reason3[1:10,]
+
+reason5 <- queryResult[queryResult$reason == 5,]
+reason5[1:10,]
+
+```
+
+## Subqueries
+
+Subqueries can be a useful way to break up a query when it makes sense to do a query in multiple steps. We can wrap any query in `()` (parentheses), and do queries on the returned table. 
+
+For example, we can do a join, and then select columns from that join. Note that unless we name the subquery using an alias, we do not use an alias to refer to the columns in the subquery.  
+
+```{r}
+sqlStatement <- "SELECT patientID, Actual_date, encounterName FROM (
+                    SELECT pe.*, te.encounterName 
+                      FROM patient_encounter as pe,
+                      t_encounter_type as te
+                      WHERE pe.encounter_type = te.t_encounter_type)"
+
+queryResult <- tbl(con, sql(sqlStatement))
+queryResult <- collect(queryResult)
+
+queryResult[1:30,]
+```
+
+## GROUP BY
+
+Oftentimes, we need to calculate something by a patient id. For example, we might want to calculate the number of visits for each patient. A `GROUP BY` statement needs a function to aggregate those values, such as `COUNT`, `SUM`, or `MEAN`.
+
+```{r}
+sqlStatement <- "SELECT patientID, COUNT(Actual_date) as numVisits FROM patient_encounter
+                 GROUP BY patientID"
+
+queryResult <- tbl(con, sql(sqlStatement))
+queryResult <- collect(queryResult)
+
+queryResult[1:20,]
+```
+
+Note that `GROUP BY` can be combined with a subquery, which can be very useful (this is a hint).
+
+## Finding a Set of Values in a Table
+
+A fast way of finding entries in a table that satisfy a set of values is to do a join on the table with a temporary table that has the values that you're interested in.
+
+```{r echo=FALSE, message=FALSE}
+if(dbExistsTable(con,"outcomeTable")){dbRemoveTable(con, "outcomeTable")}
+```
+
+```{r}
+#let's define a new table in our database with the outcome values
+#of interest
+outcomesOfInterest <- c("SNF", "Rehab")
+outcomeTable <- data.frame(outcomesOfInterest)
+#show the data frame
+outcomeTable
+
+#add the table to the database (note we don't disconnect, because we don't want
+#to save this table)
+dbWriteTable(con, name="outcomeTable", value=outcomeTable)
+
+sqlStatement <- "SELECT peh.* from patient_encounter_hosp as peh, 
+              outcomeTable as oc
+              WHERE peh.outcome = oc.outcomesOfInterest"
+
+queryResult <- tbl(con, sql(sqlStatement))
+queryResult <- collect(queryResult)
+queryResult[1:20,]
+```
+
+## Finding values using LIKE
+
+We can do string matching using the `LIKE` statement. For example, we may want to return all values in a column that have `patient` in them. We can use the `%` as a wildcard to match multiple characters. For example, using `LIKE "patient%"` will match `patientID`, `patientSource`, and `patientName`, but not `patSource`.
+
+Here we are selecting everything from the `patient` table that have postal codes that match `970%`. 
+
+```{r}
+sqlStatement <- "SELECT * from patient where postalcode LIKE '970%'"
+queryResult <- tbl(con, sql(sqlStatement))
+queryResult <- collect(queryResult)
+queryResult[1:20,]
+```
+
+We can chain multiple `LIKE` clauses using boolean operators such as `AND`, `OR`, and `NOT`. Unfortunately, SQLite does not understand the `ANY` clause, which would simplify our searching.
+
+```{r}
+sqlStatement <- "SELECT * from patient where postalcode LIKE '970%' AND 
+                riskCat NOT LIKE 'Norm%'"
+
+queryResult <- tbl(con, sql(sqlStatement))
+queryResult <- collect(queryResult)
+queryResult[1:20,]
+```
+
+## Using `IN`
+
+From Barrett Campbell:
+
+```
+SELECT patientid, ICD9Code, Case WHEN ICD9Code IS NOT NULL THEN '09_2_Mild Liver Disease' END as DxGroup
+                 FROM patient_diagnosis
+                  WHERE ICD9Code IN ('070.22', '070.23', '070.32', '070.33', '070.44', '070.54', '070.6', '070.9','573.3', '573.4', '573.8', '573.9', 'V42.7') OR ICD9Code LIKE '570%' OR ICD9Code LIKE '571%'
+```
+
+
+## Adding Columns Together
+
+Did you ever want to add or subtract two columns together? Well, now you can:
+
+```{r}
+sqlStatement <- "SELECT *, (Event_ID + patientID) as UselessVar from patient_encounter_hosp"
+
+queryResult <- tbl(con, sql(sqlStatement))
+queryResult <- collect(queryResult)
+queryResult[1:20,]
+```

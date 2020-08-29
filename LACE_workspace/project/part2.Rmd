@@ -1,0 +1,56 @@
+---
+title: "Part 2: Calculating Comorbidities"
+author: "Your Team Name"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Summarizing Comorbidities (C)
+
+## Due Date: August 24 (Monday of Week 9)
+
+## Purpose 
+
+1) To summarize chronic illnesses (choose 2) for the LACE Comorbidity (C) score
+2) Bring each element (L, A, C, E) together into a LACE score for each patient
+3) Assess how well the LACE score predicts 30-day admission risk using simple analysis.
+
+##Background 
+
+LACE has several comorbidities that it summarizes to help predict risk.  It turns out that they do not provide specific code sets to match these to the primary set, and that there may be other comorbidities that are important for this work.  Prior analysis has found that in your patient population Dementia, COPD, CAD, Stroke, Diabetes, Complicated Diabetes, Cancer, Hepatitis C, and Asthma are the most likely candidates to be associated with readmission risk.   
+
+However, diagnoses are coded as very specific ICD-9 codes (patient_diagnosis.icd9code); each grouped diagnosis represents many of these codes.  
+
+For your task, you will need to find acceptable code groupings for 2 of the following diagnoses and summarize these for each patient admission.
+
+- CAD 
+- CHF
+- Asthma
+- Hepatitis C
+- Dementia
+- Stroke
+- Depression 
+- Peripheral Vascular Disease 
+
+## Deliverables
+
+1) Summarized comorbidities and total LACE scores for each patient as a table.
+2) Source code for your summarization and analysis.
+
+## Suggested Steps
+
+1) Find the ICD9 code groupings you will use for your two comorbidities. We will discuss some in class.
+
+2) For your two selected comorbidities, check whether a patient has that diagnosis (from the `patient_diagnosis` table) and store the outcome in your analytic file as a binary variable (such as 1 = patient has comorbidity and 0 = patient does not have comorbidity). *Hint*: since each patient may have multiple diagnoses, you will need to find a way to summarize/collapse associated diagnoses into a single binary variable for each comorbidity.
+
+3) Calculate the total comorbidity score for each patient as per the LACE appendix. *Optional*: If you think you'd like to weight some comorbidities over others, you can adjust the weights/values for those comorbidities.
+
+
+```{r}
+#put your code here
+
+```

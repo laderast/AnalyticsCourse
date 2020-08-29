@@ -1,0 +1,23 @@
+---
+title: 'Problem Set 3: Modeling'
+author: "Your Team Name"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Due Date: August 31 (Monday of Week 10)
+
+1) Calculate the LACE scores for each patient. 
+
+2 Run a basic analysis of the LACE variables to predict readmission risk using your analytic file. Some kinds of analysis you can do: contingency tables ([more info here](http://www.statmethods.net/stats/frequencies.html) ) or logistic regression (More info [here](https://www.r-bloggers.com/evaluating-logistic-regression-models/) and [here](https://www.analyticsvidhya.com/blog/2015/11/beginners-guide-on-logistic-regression-in-r/) ). How well does the LACE score predict readmission risk? Can you compare the predictive power of each variable (L, A, C, E) to predict risk? Begin to think about what visualizations and analysis supports your conclusions.
+
+3) *Optional*: Try changing the ‘weights’ of each of the individual scores to calculate a different LACE score and see the difference in predictive validity.
+
+```{r}
+# Put Your Code Here
+
+```
