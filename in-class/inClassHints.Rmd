@@ -2,7 +2,7 @@
 title: "More Hints on SQLite"
 author: "Ted Laderas"
 date: "August 13, 2019"
-output: html_notebook
+output: html_document
 ---
 
 ```{r setup, include=FALSE}

@@ -2,15 +2,17 @@
 title: 'Week 1: Introduction/Connecting to our Database'
 author: "Ted Laderas"
 date: "June 21, 2019"
-output: html_notebook
+output: html_document
 ---
 
 ## Learning Objectives
 
-1. **Learn** the basics behind RStudio Cloud and Notebooks
-2. **Learn** what a `data.frame` is
-3. **Understand** some basic summaries on a `data.frame`
-4. **Connect** to our database and **summarize it.
+By the end of this notebook, you will hopefully learn the following.
+
+1. Learn the basics behind RStudio Cloud and Notebooks
+2. Learn what a `data.frame` is
+3. Understand some basic summaries on a `data.frame`
+4. Connect to our database and summarize it.
 
 ## RStudio Cloud and Notebooks
 
@@ -28,7 +30,7 @@ Below is a code block, which lets you execute code in the console window. Try hi
 
 You should see a window with the code output below. 
 
-Do you want more info about how notebooks work? Here's a video: 
+Do you want more info about how notebooks work? Here's a video: https://www.youtube.com/watch?v=TJmNvfhLCoI
 
 ## Saving your work
 
@@ -36,7 +38,13 @@ Be sure to save your work after you're done (under "File > Save").
 
 ## Submitting Homework
 
-When you start running code in a notebook, you'll notice that a `Week1.nb.html` file is also generated in the same folder as your work. That's what I want you to submit as your submission for an assignment in Sakai.
+When you start running code in a notebook, you'll see that you're generating output, such as graphs and tables. 
+
+To share it, you'll have to *knit* it - which is a process of generating output using R and integrating them with the text. 
+
+To download the file, click the checkbox for the file in the `Files` tab in the lower right, and click "More" in the menu bar underneath and select "Export". You'll get a file prompt and can then save your file to your computer.
+
+![](image/export.png)
 
 Assignments will usually be in their own notebooks.
 
@@ -60,6 +68,8 @@ In order to achieve this goal, we will be slowly be exploring R and SQL over the
 Your first thing to notice is that there are two main windows on your left: The console window (the bottom window) and the scripting window (the top window). We will mostly work by writing scripts in scripting window and executing them in the console window by highlighting the code and using the Run command or CTRL-Enter (for Windows/Linux) or CMD-Enter (for Macs).
 
 ![RStudio Console Image](image/consolewindow.jpg)
+
+When you open the notebook, the console window gets minimized as a bar below the script/notebook window. You can open it up by clicking the window icon in the lower left. Basically, all output from the console and the plot window (on the lower right) will get saved into your notebook.
 
 In this code chunk, we load the built in `iris` dataset with the `data()` function. This loads in a built in dataset called `iris`. Try this, and try getting help on this dataset by using `?iris`.
 
@@ -124,7 +134,7 @@ We're going to use a library, which is bit of code that extends R's functionalit
 library(RSQLite)
 library(here)
 #start our connection to the database
-con <- DBI::dbConnect(RSQLite::SQLite(), here("data/patient1.sqlite"))
+con <- DBI::dbConnect(RSQLite::SQLite(), "data/patient1.sqlite")
 ```
 
 Okay, nothing happened. But now we can use `dbListTables()`, a function to list the tables in the database. Try running it and look at the output.
@@ -168,7 +178,7 @@ patient_table_inmemory <- collect(patient_table)
 
 ## Wrapping Up
 
-The last thing we want to do is disconnect from our database. When you are writing information into the database, disconnecting will save that information.
+The last thing we want to do is disconnect from our database. If we are reading from the database, this is not strictly necessary. When you are writing information into the database, disconnecting will save that information.
 
 ```{r}
 dbDisconnect(con)

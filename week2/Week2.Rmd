@@ -49,7 +49,6 @@ summary(patient_all)
 Huh. One thing to notice is that there are `numeric` variables and `character` variables. That seems kind of limited. Why is this so?
 
 
-
 ## Datatypes in SQLite
 
 SQLite, the database system we're using, only has five datatypes:
@@ -66,7 +65,7 @@ This means that there are no explicit ways to represent categorical data in SQLi
 
 ## Which variables are categories?
 
-You might ask what variables are categorical ones. We'll have to guess, but there are a few 
+You might ask what variables are categorical ones. We'll have to guess, but there are a few that might be categories based on the previous summary.
 
 We're going to cast `GENDER`, `PCP`, `race`, `postalcode`, `riskCat`, and `source` variables as `factor`s. We'll use the `mutate()` verb in `dplyr` to process these variables in place.
 
@@ -143,7 +142,7 @@ visdat::vis_dat(patient_all[sampled_rows,])
 
 ## Diving Deeper into Individual Variables
 
-In order to access the individual columns, we can use the `$` operator to do operation on the individual columns. Here I'm running a simple `table()` operation to count the number of rows within each category for the `riskCat` variable.
+In order to access the individual columns, we can use the `$` operator to do operation on the individual columns. Here I'm running a simple `tabyl()` (from the `janitor` package) operation to count the number of rows within each category for the `riskCat` variable.
 
 ```{r}
 patient_all %>%

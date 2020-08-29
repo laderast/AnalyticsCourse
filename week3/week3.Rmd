@@ -10,14 +10,13 @@ output:
 
 This week we will be querying our database. We'll also be doing simple joins and queries to show the power of SQLite. We'll also be using the CASE statement to identify cases that meet our criteria.
 
-This week we will be querying our database. We'll also be doing simple joins and queries to show the power of SQLite. We'll also be using the CASE statement to identify cases that meet our criteria.
-
 ## Run me First
 
 ```{r}
 library(RSQLite)
 library(here)
 library(tidyverse)
+library(janitor)
 #start our connection to the database
 con <- DBI::dbConnect(RSQLite::SQLite(), here("data/patient1.sqlite"))
 ```
@@ -41,19 +40,26 @@ In order to do this, we will do what is called a *database join*, where we map r
 
 ## Some Terminology
 
-![Terminology](image/Slide1.JPG)
+[if you don't see the graphic below, click on the green play button on the code chunk below]
+
+```{r}
+knitr::include_graphics("image/Slide1.JPG")
+```
 
 `left table` and `right table`: Whenever we join two tables, we will have a *left* table (in this case, the `patient` table) and a *right* table (in this case, `patient_encounter_hosp`, see above). Note we've simplified both tables and removed.
 
 `key`: we want to answer a question about our patients, so we have to somehow map the rows of our left table (`patient`) with the rows of our other table (`patient_encounter_hosp`). We do this by joining together rows with a common variable. In our case, we need to join rows based on `patientid`. The variable that we join on is called a *key*. 
 
-In the above example, we see that there is a row in `patient` whose patientid is 655, and there is a row in `patient_encounter_hosp` whose `patientid` is 655 as well. So it makes sense to join these two rows together.
+In the above example, we see that there is a row in `patient` whose `patientid` is 655, and there is a row in `patient_encounter_hosp` whose `patientid` is 655 as well. So it makes sense to join these two rows together.
 
 Note that the name of this variable is the same for both `patient` and `patient_encounter_hosp`. We'll need to use the dot notation to refer to each variable precisely: `patient.patientid` and `patient_encounter_hosp.patientid`.
 
 ## JOINing Syntax
 
-![](image/Slide2.JPG) 
+```{r}
+knitr::include_graphics("image/Slide2.JPG")
+```
+
 
 How do we actually write a query that produces one table from both of our tables? We need to add a "JOIN" clause to our SQL statement. 
 
@@ -75,15 +81,18 @@ SELECT * FROM
    patient.patientid = patient_encounter_hosp.patientid
 ```
 
-![](image/Slide3.JPG)
+```{r}
+knitr::include_graphics("image/Slide3.JPG")
+```
+
 
 ## Run the query
 
-Try running the INNER JOIN query above, but using SELECT COUNT(*) instead of SELECT *. How many rows did this query return?
+Try running the INNER JOIN query above, but sub `SELECT COUNT(*)` instead of SELECT *. How many rows did this query return?
 
 ```{r}
 #put your modified query here.
-sqlStatement <- "SELECT COUNT(*) FROM PATIENT"
+sqlStatement <- "SELECT COUNT(*) FROM patient"
 joined_table <- tbl(con, from=sql(sqlStatement))
 joined_table
 ```
@@ -91,7 +100,9 @@ joined_table
 
 ## A Different kind of JOIN: LEFT JOIN
 
-![](image/Slide4.JPG)
+```{r}
+knitr::include_graphics("image/Slide4.JPG")
+```
 
 We have seen the INNER JOIN, which only returns a merged table whose keys are in both tables. In some ways, we have thrown away some information from both the left table and the right table. 
 
@@ -106,6 +117,9 @@ SELECT * FROM patient
 ```
 
 Depending on your query, it may make sense to retain unmapped keys. For example, if you were running a query over all patients in the hospital, it makes sense to do a LEFT JOIN.
+
+
+
 
 ## Aliases: Shortcuts so you don't have to type as much
 
@@ -195,11 +209,14 @@ filteredResult[1:20,]
 
 Compare this statement to the previous SQL statement. Note the placement of the `CASE` statement compared to the placement of the the `WHERE` statement in the two queries.
 
-Now that we have our `highRiskER` coded, we can ask some questions that require crosstables. For example, how many high risk patients have an `SNF` outcome (i.e., ended up in a Skilled Nursing Facility) versus normal patients? Here I use the `table()` function built into R, but you can also write a SQL query to do this using CASE and COUNT statements. In order to do so, I simply build a crosstable between the `highRiskER` and the `outcome` table.
+Now that we have our `highRiskER` coded, we can ask some questions that require crosstables. For example, how many high risk patients have an `SNF` outcome (i.e., ended up in a Skilled Nursing Facility) versus normal patients? 
+
+Here I use the `janitor::tabyl()` function, but you can also write a SQL query to do this using CASE and COUNT statements. In order to do so, I simply build a crosstable between the `highRiskER` and the `outcome` variables.
 
 ```{r}
 #note that we have to specify the variable names using the $ operator
-table(collectedResult$highRiskER, collectedResult$outcome)
+collectedResult %>% 
+   janitor::tabyl(highRiskER, outcome)
 ```
 
 ## Be sure to disconnect!
@@ -208,7 +225,7 @@ table(collectedResult$highRiskER, collectedResult$outcome)
 dbDisconnect(con)
 ```
 
-## Week 4 Assignment (2 points)
+## Week 3 Assignment (2 points)
 
-Submit this week's assignment using the `week4Submission.Rmd` file.
+Submit this week's assignment using the `week3Submission.Rmd` file.
 

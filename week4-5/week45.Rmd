@@ -1,0 +1,196 @@
+---
+title: 'Weeks 4 and 5: SQLite: Self Joins/Working with Dates'
+author: "Ted Laderas"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+This is the final SQL assignment. After this assignment, you should be able to conduct the queries required for the prework assignment.
+
+## Working with Dates
+
+The one thing to note is that working with dates in R is very kludgy. Although SQLite technically does not have a date type, it includes some simple functionality for manipulating strings as dates. For this reason, you should restrict your queries with dates within RSQLite. Specifically, we are going to use the `date()` function that is built within SQLite to do our date queries. Let's first connect to the database.
+
+```{r}
+#load the RSQLite library
+library(RSQLite)
+library(here)
+library(tidyverse)
+
+#connect to our database
+#if you have named your database differently, change the dbname argument
+con <- dbConnect(drv=SQLite(), dbname=here("data/patient1.sqlite"))
+```
+
+## Using the date() Function
+
+The `date()` function is a function that is built into SQLite that handles strings as dates. There are a number of different formats that it will accept, one of which is the `YYYY-MM-DD` format that our data is in.
+
+Here we use the `date()` function to compare two columns in the `patient_encounter_hosp` table, to select any patients who were admitted and discharged on the same day:
+
+```{r}
+sqlStatement <- "SELECT patientid, Event_ID, 
+                        Admit_date, Discharge_date
+                 FROM patient_encounter_hosp as peh 
+                 WHERE date(peh.Discharge_date) = date(peh.Admit_date)" 
+
+queryResult <- tbl(con, sql(sqlStatement))
+
+queryResult
+
+```
+
+Within our query, we can also do some arithmetic on dates using *modifiers*. For example, we can subtract a number from a date using a modfier to the `date()` function and get a date back. Here we add 10 days to `Discharge_date` using the `+10 day` modifier. Note that we have to use single quotes for `+10 Day` and that there can't be any whitespace between `+` and `10`.
+
+```{r}
+sqlStatement <- "SELECT patientid as pehPatientID, 
+                        Event_ID as pehEventID, 
+                        Admit_date, Discharge_date,
+                 date(Discharge_date, '+10 day') as Discharge_date10
+                          from patient_encounter_hosp peh" 
+
+queryResult <- tbl(con, sql(sqlStatement))
+
+queryResult
+
+```
+
+We can use these `date()` modifiers to do specific date comparisons, such as finding those patients which have had a hospital stay shorter than 5 days:
+
+```{r}
+sqlStatement <- "SELECT 
+                  patientid as pehPatientID, 
+                  Event_ID as pehEventID, 
+                  Admit_date, 
+                  Discharge_date
+                 FROM patient_encounter_hosp 
+                 WHERE
+                  date(Discharge_date, '-5 day') < date(Admit_date)" 
+
+queryResult <- tbl(con, sql(sqlStatement))
+
+queryResult
+
+```
+
+## Self-Joins
+
+Self-joins on a table can be extremely useful when we need to identify rows within a table that meet criteria based on other rows in the table. The classic example where a self join is useful is an `employee` table which has a column that shows who that employee reports to. This boss is also in the employee table, and so doing a self-join lets us parse the hierarchical structure of employees in the table.
+
+In our case, we want to identify the first date a patient was admitted (the index admission date). We know that the `patient_encounter_hosp` table only has two kinds of encounters in it. 
+
+The first kind of encounter is the `index` encounter, i.e., the date when the patient was first admitted. The other kind of encounter we need to identify are the readmission encounters. In other words, in the `patient_encounter_hosp` table, **each patient has at most two encounters** (obviously in real life, this is not the case. For this dataset, we have simplified things somehwat). 
+
+Let's identify the index encounters first. We need to use a `CASE` statement to mark them (1 if an index case, 0 if not), and we will use a self-join to find them. Since we know that each patient has at most two entries, we just need to identify those cases that are first.
+
+```{r}
+#load the RSQLite library
+library(RSQLite)
+
+#connect to our database
+#if you have named your database differently, change the dbname argument
+
+sqlStatement <- "SELECT 
+                  peh.patientid as pehPatientID, 
+                  peh.Event_ID as pehEventID, 
+                  peh.Admit_date as pehAdmitDate, 
+                  peh2.patientid as peh2PatientID, 
+                  peh2.Event_ID as peh2EventID, 
+                  peh2.Admit_date as peh2AdmitDate 
+                          FROM patient_encounter_hosp peh 
+                          LEFT JOIN patient_encounter_hosp peh2 ON  
+                          peh.patientID=peh2.patientID" 
+
+queryResult <- dbGetQuery(con, sql(sqlStatement))
+
+queryResult
+```
+
+At first glance, this self join is not very useful. We have just basically generated every combination of peh and peh2 event IDs. But if we add a filtering criterion to this, the self-join becomes much more useful.
+
+Note that we use an `AND` clause and not the `WHERE` clause here. Using `WHERE` will actually give us a different result.
+
+```{r}
+sqlStatement <- "SELECT 
+                  peh.patientid as pehPatientID, 
+                  peh.Event_ID as pehEventID, 
+                  peh.Admit_date as pehAdmitDate, 
+                  peh2.patientid as peh2PatientID, 
+                  peh2.Event_ID as peh2EventID, 
+                  peh2.Admit_date as peh2AdmitDate 
+                          FROM patient_encounter_hosp peh 
+                          LEFT JOIN patient_encounter_hosp peh2 ON  
+                          peh.patientID=peh2.patientID 
+                  AND date(peh2.admit_date) < date(peh.admit_date)" 
+
+queryResult <- tbl(con, sql(sqlStatement))
+
+queryResult
+```
+
+Let's examine this self-joined table in further detail. The index cases appear to be the rows which have `NA` values for the `peh2` values (`peh2PatientID`, `peh2EventID` and `peh2AdmitDate`).  
+
+In the database, these queries actually have the value of `NULL`. So if we find those rows for which `peh2.admit_date` is `NULL` under our join, then we can identify our index cases. We then define an `case` statement to code this result for the original `peh` table.
+
+```{r}
+sqlStatement <- "SELECT peh.*, 
+                  CASE WHEN peh2.admit_date is NULL THEN 1
+                          ELSE 0 end 
+                          as index_admit
+                          FROM patient_encounter_hosp peh 
+                          LEFT JOIN patient_encounter_hosp peh2 ON  
+                          peh.patientID=peh2.patientID AND
+                          date(peh2.admit_date) < date(peh.admit_date)"
+index_query_result <- tbl(con, sql(sqlStatement))
+
+index_query_result
+```
+
+
+
+Looking at this result, we have correctly identified the index admission dates. (Look at rows 1 and 2 (patient 1), and rows 6 and 7 (patient 5) for confirmation). Note that many patients only have a single admission date. 
+
+## Saving the result of a query
+
+We haven't saved a table into our database yet, or saved any table output to disk yet. Let's do both of these.
+
+First, let's write a new table into our database. We'll call it `index_query`. We'll use `dbWriteTable()` to save it as a table into our database, called `index_query`. Note we have to name the table using the `name` argument:
+
+```{r}
+index_table <- collect(index_query_result)
+
+dbWriteTable(conn = con, name="index_query",value = index_table)
+
+dbListTables(con)
+```
+
+You can see that we have written the table into the database as `index_query`. However, we have not yet saved it permanently!
+
+To do so, we have to disconnect to the database:
+
+```{r}
+dbDisconnect(con)
+```
+
+What if you wanted to overwrite a table in the database? You can use the `overwrite=TRUE` argument in dbWriteTable():
+
+```{r}
+#we need to reconnect
+con <- dbConnect(drv=SQLite(), dbname=here("data/patient1.sqlite"))
+dbWriteTable(conn = con, 
+             name="index_query",
+             value = index_table, 
+             overwrite=TRUE)
+
+dbDisconnect(con)
+```
+
+If we want to save the table as a csv (comma separated value) file, we can use the `write.csv` function:
+
+```{r}
+write.csv(index_table, file = "index_query.csv", row.names = FALSE)
+```
+
+## Week 4-5 Assignment (5 points)
+
+Please refer to the `week45submission.Rmd` file in the workspace. 

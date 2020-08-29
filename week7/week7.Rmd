@@ -45,7 +45,7 @@ We can do this by providing an argument to `col_types` about the data types we w
 Here we're using `col_factor()` to specify the following columns to be factors. We need to specify a `NULL` argument so it will guess the categories (which are called *levels*) for our variables. Otherwise, we'd have to specify every level for every variable.
 
 ```{r}
-analytic_table <- readr::read_csv(here::here("data/analytic.csv"), 
+analytic_table <- readr::read_csv(here("data/analytic.csv"), 
                                     col_types = cols(
                                       encounter_type = col_factor(NULL),
                                       outcome = col_factor(NULL),

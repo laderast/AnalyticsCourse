@@ -9,9 +9,9 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Question 1
+## Question 1 
 
-For the `patient_encounter` table, produce a data dictionary (you can use the format above in the `week2submission.nb.html`, or save it as an excel file). Submit your data dictionary as part of the assignment.
+For the `patient_encounter` table, produce a data dictionary, much like in the Week 2 notebook. Submit your data dictionary as part of the assignment.
 
 ```{r}
 ##show the code you used to find this answer here
@@ -39,7 +39,7 @@ Produce a visual summary (visdat) and a skimr summary of the data. Are there any
 
 ```
 
-Add your data dictionary as text here, or submit as an excel file.
+Add your data dictionary as text here, or submit as an excel file along with this notebook.
 
 
 ## Question 2
@@ -58,7 +58,7 @@ Answer:
 
 We will want to predict 30 day readmissions in our dataset, which means that we want to predict whether a patient will be readmitted to the hospital within 30 days of being readmitted. 
 
-There are multiple reasons for a patient being readmission, but we're interested in the ones that we can prevent. If we want to count the number of readmissions, would we want to include patients who are just `No shows`?
+There are multiple reasons for a patient being readmitted, but we're interested in the ones that we can prevent. If we want to count the number of readmissions, would we want to include patients who are just `No shows`?
 
 Answer (no need to show code here):
 
